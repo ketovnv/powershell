@@ -15,44 +15,26 @@ $env:PSModulePath = $newModulePath
 $env:POSH_IGNORE_ALLUSER_PROFILES = $true
 
 # ===== ИМПОРТ Aliases и GRADIENT ФУНКЦИЙ =====
-$aliasesPath = "C:\Users\ketov\Documents\Powershell\Profile\Aliases.ps1"
-if (Test-Path $aliasesPath)
-{
-    . $aliasesPath
-}
-$gradientPath = "C:\Users\ketov\Documents\Powershell\Profile\GradientTable.Ps1"
-if (Test-Path $gradientPath)
-{
-    . $gradientPath
+
+
+$scripts = @( 
+    'Aliases',
+    'GradientTable',
+    'NetworkSystem',
+    'Wellcome',
+    'MenuItems',
+    'AppsBrowsersMenu'
+    # 'AnalizeModuleFunctions'
+)
+
+
+foreach ($script in $scripts) {
+    . "$PSScriptRoot/Profile/$script.ps1"
 }
 
-$wellcomePath = "C:\Users\ketov\Documents\Powershell\Profile\Wellcome.Ps1"
-if (Test-Path $wellcomePath)
-{
-    . $wellcomePath
-}
-
-$menuItemsPath = "C:\Users\ketov\Documents\Powershell\Profile\MenuItems.Ps1"
-if (Test-Path $menuItemsPath)
-{
-    . $menuItemsPath
-}
-
-$networkSystemPath = "C:\Users\ketov\Documents\Powershell\Profile\NetworkSystem.Ps1"
-if (Test-Path $networkSystemPath)
-{
-    . $networkSystemPath
-}
-
-$appsBrowsersMenuPath = "C:\Users\ketov\Documents\Powershell\Profile\AppsBrowsersMenu.Ps1"
-if (Test-Path $appsBrowsersMenuPath)
-{
-    . $appsBrowsersMenuPath
-}
 
 # ===== МОДУЛИ =====
-$modules = @(
-    'Parser',
+$modules = @( 
     'PSColor',
     'Terminal-Icons',
     'PSFzf',

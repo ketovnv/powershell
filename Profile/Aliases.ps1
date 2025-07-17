@@ -1,5 +1,5 @@
- #📅 Дата и время
-function now { Get-Date -Format "dd.MM.yyyy HH:mm:ss"}
+#📅 Дата и время
+function now { Get-Date -Format "dd.MM.yyyy HH:mm:ss" }
 
 function date { Get-Date -Format "dd.MM.yyyy" }#
 
@@ -15,6 +15,24 @@ function dt {
     $d = Get-Date
     return "{0:dd} {1} {0:yyyy}" -f $d, $months[$d.Month]
 }
+
+function ExternalScripts {
+    Get-Command -CommandType externalscript | Get-Item | 
+        Select-Object Directory, Name, Length, CreationTime, LastwriteTime,
+        @{name = "Signature"; Expression = { (Get-AuthenticodeSignature $_.fullname).Status } }
+}
+
+function freeC {
+    (gcim win32_logicaldisk -Filter "deviceid = 'C:'").FreeSpace / 1gb
+    #or use the PSDrive
+    (Get-PSDrive c).Free / 1gb
+
+}
+
+function commandsExample {
+debug (Get-Command).where({ $_.source }) | Sort-Object Source, CommandType, Name | Format-Table -GroupBy Source -Property CommandType, Name, @{Name = "Synopsis"; Expression = {(Get-Help $_.name).Synopsis}}
+}
+
 
 function Resolve-Object {
     param(
@@ -45,10 +63,10 @@ function Resolve-Object {
 
             foreach ($method in $methodsList) {
                 $example = switch ($method.Name) {
-                    "CopyTo"    { '$file.CopyTo("C:\new\path.txt")' }
-                    "Delete"     { '$file.Delete()' }
-                    "ToString"  { '$date = Get-Date; $date.ToString("yyyy-MM-dd")' }
-                    default      { "`$obj.$($method.Name)()" }
+                    "CopyTo" { '$file.CopyTo("C:\new\path.txt")' }
+                    "Delete" { '$file.Delete()' }
+                    "ToString" { '$date = Get-Date; $date.ToString("yyyy-MM-dd")' }
+                    default { "`$obj.$($method.Name)()" }
                 }
                 Write-Host ("• " + $example) -ForegroundColor Magenta
             }
@@ -65,7 +83,7 @@ function Invoke-ObjectExplorer {
         [System.IO.FileInfo]::new("C:\test.txt") | Invoke-ObjectExplorer -Interactive
     #>
     param(
-        [Parameter(ValueFromPipeline=$true)]
+        [Parameter(ValueFromPipeline = $true)]
         [object]$InputObject,
 
         [ValidateRange(1, 5)]
@@ -87,7 +105,7 @@ function Invoke-ObjectExplorer {
 
         while ($script:objectStack.Count -gt 0 -and $script:currentDepth -lt $Depth) {
             $currentObj = $script:objectStack[-1]
-            $script:objectStack = $script:objectStack[0..($script:objectStack.Count-2)]
+            $script:objectStack = $script:objectStack[0..($script:objectStack.Count - 2)]
             $script:currentDepth++
 
             Explore-SingleObject -Object $currentObj
@@ -120,8 +138,7 @@ function Resolve-SingleObject {
             $script:selectedMember = $members[$menu.IndexOf($choice)]
             $script:objectStack += $Object.$($script:selectedMember.Name)
         }
-    }
-    else {
+    } else {
         # Детальный вывод
         Write-Host "`n=== ОБЪЕКТ [$($Object.GetType().FullName)] ===" -ForegroundColor Blue
         $members | Group-Object MemberType | ForEach-Object {
@@ -141,9 +158,9 @@ function New-UsageExamples {
 
     $Members | Where-Object { $_.MemberType -eq "Method" } | ForEach-Object {
         $example = switch -Regex ($_.Name) {
-            "^Get"    { "$($_.Name)()  # Возвращает данные" }
-            "^Set"    { "$($_.Name)('value')  # Устанавливает значение" }
-            default   { "$($_.Name)()  # Действие" }
+            "^Get" { "$($_.Name)()  # Возвращает данные" }
+            "^Set" { "$($_.Name)('value')  # Устанавливает значение" }
+            default { "$($_.Name)()  # Действие" }
         }
         Write-Host ("• " + $example) -ForegroundColor Magenta
     }
@@ -161,8 +178,7 @@ function Invoke-SelectedMember {
 
         Write-Host "`n=== РЕЗУЛЬТАТ ===" -ForegroundColor Green
         $result | Format-List *
-    }
-    catch {
+    } catch {
         Write-Warning "Ошибка выполнения: $_"
     }
 }
@@ -173,7 +189,7 @@ function view {
         Write-Host "Файл не найден: $file" -ForegroundColor Red
         return
     }
-    bat --style=numbers,changes --paging=always --theme=TwoDark $file
+    bat --style=numbers, changes --paging=always --theme=TwoDark $file
 }
 
 # Быстрый поиск по содержимому всех файлов с интерактивным выбором через fzf + предпросмотром
@@ -188,7 +204,7 @@ function fsearch {
     }
 
     # Ищем по всем текстовым файлам
-    $results = Select-String -Path (Get-ChildItem -Recurse -File -Include *.ps1,*.txt,*.log,*.md) -Pattern $pattern -ErrorAction SilentlyContinue
+    $results = Select-String -Path (Get-ChildItem -Recurse -File -Include *.ps1, *.txt, *.log, *.md) -Pattern $pattern -ErrorAction SilentlyContinue
 
     if (-not $results) {
         Write-Host "Ничего не найдено" -ForegroundColor DarkGray
@@ -208,46 +224,46 @@ function grepz {
     )
 
     Select-String -Path $path -Pattern $pattern |
-            fzf --ansi --delimiter : `
-        --preview "bat --color=always --highlight-line {2} {1}" `
-        --preview-window=up:60%:wrap
+        fzf --ansi --delimiter : `
+            --preview "bat --color=always --highlight-line {2} {1}" `
+            --preview-window=up:60%:wrap
 }
 
- function goto{
-     param(
-     [string]$path
-     )
-     Set-Location $path;
-     Write-Host  "🛻"(Get-Location).Path"🚗" -ForegroundColor White
-  }
+function goto {
+    param(
+        [string]$path
+    )
+    Set-Location $path;
+    Write-Host "🛻"(Get-Location).Path"🚗" -ForegroundColor White
+}
 
- function gotoCrypta{goto  C:\projects\crypta}
- function gotoAppData{goto  C:\Users\ketov\AppData}
- function gotoPowershellModules{goto  C:\Users\ketov\Documents\PowerShell\Modules}
- function desktop { goto "$HOME\Desktop" }
- function downloads { goto "$HOME\Downloads" }
- function docs { goto "$HOME\Documents" }
- function ~ { goto $HOME }
- function cd.. { goto .. }
- function cd... { goto ..\.. }
- function cd.... { goto ..\..\.. }
+function gotoCrypta { goto C:\projects\crypta }
+function gotoAppData { goto C:\Users\ketov\AppData }
+function gotoPowershellModules { goto C:\Users\ketov\Documents\PowerShell\Modules }
+function desktop { goto "$HOME\Desktop" }
+function downloads { goto "$HOME\Downloads" }
+function docs { goto "$HOME\Documents" }
+function ~ { goto $HOME }
+function cd.. { goto .. }
+function cd... { goto ..\.. }
+function cd.... { goto ..\..\.. }
 
- function c { Clear-Host; goto C:\ }
- function reloadProfile { . $PROFILE; Write-RGB "🔁 Profile was reloaded" -FC "#a0FF99" }
+function c { Clear-Host; goto C:\ }
+function reloadProfile { . $PROFILE; Write-RGB "🔁 Profile was reloaded" -FC "#a0FF99" }
 
- ## 📜 Алиасы
- Set-Alias -Name ls -Value PowerColorLS
+## 📜 Алиасы
+Set-Alias -Name ls -Value PowerColorLS
 
- Set-Alias -Name g -Value git
- Set-Alias -Name touch -Value New-Item
- Set-Alias -Name which -Value Get-Command
+Set-Alias -Name g -Value git
+Set-Alias -Name touch -Value New-Item
+Set-Alias -Name which -Value Get-Command
 
- Set-Alias ro Resolve-Object
- Set-Alias ioe  Invoke-ObjectExplorer
- Set-Alias rso  Resolve-SingleObject
- Set-Alias nue New-UsageExamples
+Set-Alias ro Resolve-Object
+Set-Alias ioe Invoke-ObjectExplorer
+Set-Alias rso Resolve-SingleObject
+Set-Alias nue New-UsageExamples
 
- Set-Alias re reloadProfile
+Set-Alias re reloadProfile
 
 Set-Alias v view
 Set-Alias fz fsearch
@@ -255,4 +271,4 @@ Set-Alias gr grepz
 
 Set-Alias cy gotoCrypta
 Set-Alias ad gotoAppData
-Set-Alias pm  gotoPowershellModules
+Set-Alias pm gotoPowershellModules
