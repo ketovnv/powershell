@@ -783,5 +783,145 @@ function Start-Demo {
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
+function Show-Header {
+    param([string]$Title)
+    
+    $border = "═" * ($Title.Length + 4)
+    
+    Write-ColoredText $border -Color Cyan
+    Write-ColoredText "  $Title  " -Color White -BackgroundColor DarkBlue
+    Write-ColoredText $border -Color Cyan
+    Write-Host ""
+}
+
+# Функция для создания статусного сообщения
+function Show-Status {
+    param(
+        [string]$Message,
+        [string]$Status,
+        [string]$StatusColor = "Green"
+    )
+    
+    Write-ColoredText "[" -Color Gray -NoNewline
+    Write-ColoredText $Status -Color $StatusColor -NoNewline
+    Write-ColoredText "] " -Color Gray -NoNewline
+    Write-ColoredText $Message -Color White
+}
+
+# Функция для создания прогресс-бара
+function Show-Progress {
+    param(
+        [int]$Current,
+        [int]$Total,
+        [string]$Activity = "Обработка"
+    )
+    
+    $percent = [math]::Round(($Current / $Total) * 100)
+    $barWidth = 50
+    $filled = [math]::Floor(($percent / 100) * $barWidth)
+    $empty = $barWidth - $filled
+    
+    Write-ColoredText "$Activity (" -Color White -NoNewline
+    Write-ColoredText "$Current" -Color Yellow -NoNewline
+    Write-ColoredText "/" -Color White -NoNewline
+    Write-ColoredText "$Total" -Color Yellow -NoNewline
+    Write-ColoredText ") [" -Color White -NoNewline
+    Write-ColoredText ("█" * $filled) -Color Green -NoNewline
+    Write-ColoredText ("░" * $empty) -Color DarkGray -NoNewline
+    Write-ColoredText "] " -Color White -NoNewline
+    Write-ColoredText "$percent%" -Color Cyan
+}
+
+# Настройка правил для парсинга логов
+$logRules = @(
+    @{
+        Pattern = "ERROR|ОШИБКА|FATAL"
+        Color = "Red"
+        BackgroundColor = "Black"
+        Bold = $true
+    }
+    @{
+        Pattern = "SUCCESS|УСПЕШНО|OK"
+        Color = "Green"
+        Bold = $true
+    }
+    @{
+        Pattern = "WARNING|ВНИМАНИЕ|WARN"
+        Color = "Yellow"
+        Bold = $true
+    }
+    @{
+        Pattern = "INFO|ИНФОРМАЦИЯ"
+        Color = "Cyan"
+    }
+    @{
+        Pattern = "\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}"
+        Color = "DarkGray"
+    }
+)
+
+# Главная функция демонстрации
+function Start-Demo {
+    Clear-Host
+    
+    # Показать заголовок
+    Show-Header "СИСТЕМА МОНИТОРИНГА ПРИЛОЖЕНИЙ"
+    
+    # Показать статусы системы
+    Show-Status "Подключение к базе данных" "OK" "Green"
+    Show-Status "Статус веб-сервера" "РАБОТАЕТ" "Green"
+    Show-Status "Доступность API" "НЕДОСТУПЕН" "Red"
+    Show-Status "Уровень памяти" "ВНИМАНИЕ" "Yellow"
+    
+    Write-Host ""
+    
+    # Показать прогресс
+    Show-Header "ОБРАБОТКА ДАННЫХ"
+    
+    for ($i = 1; $i -le 10; $i++) {
+        Show-Progress $i 10 "Обработка файлов"
+        Start-Sleep -Milliseconds 500
+    }
+    
+    Write-Host ""
+    
+    # Показать лог с подсветкой
+    Show-Header "ЖУРНАЛ СОБЫТИЙ"
+    
+    $sampleLog = @"
+2024-01-15 10:30:15 INFO: Приложение запущено успешно
+2024-01-15 10:30:16 SUCCESS: Подключение к базе данных установлено
+2024-01-15 10:30:17 INFO: Загрузка конфигурации
+2024-01-15 10:30:18 WARNING: Низкий уровень свободной памяти (15%)
+2024-01-15 10:30:19 ERROR: Не удалось подключиться к внешнему API
+2024-01-15 10:30:20 INFO: Попытка переподключения через 30 секунд
+2024-01-15 10:30:21 SUCCESS: Переподключение к API выполнено успешно
+"@
+    
+    # Применить правила парсинга к логу
+    Parse-Text -Text $sampleLog -Rules $logRules
+    
+    Write-Host ""
+    
+    # Показать итоговую информацию
+    Show-Header "ИТОГОВАЯ СТАТИСТИКА"
+    
+    $stats = @(
+        @{ Label = "Всего событий"; Value = "156"; Color = "White" }
+        @{ Label = "Успешные операции"; Value = "142"; Color = "Green" }
+        @{ Label = "Предупреждения"; Value = "12"; Color = "Yellow" }
+        @{ Label = "Ошибки"; Value = "2"; Color = "Red" }
+    )
+    
+    foreach ($stat in $stats) {
+        Write-ColoredText ($stat.Label + ": ") -Color Gray -NoNewline
+        Write-ColoredText $stat.Value -Color $stat.Color
+    }
+    
+    Write-Host ""
+    Write-ColoredText "Нажмите любую клавишу для выхода..." -Color DarkGray
+    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+}
+
 # Запуск демонстрации
 Start-Demo
