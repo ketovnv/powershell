@@ -1,94 +1,48 @@
-# ╔═══════════════════════════════════════════════════════════════════════════╗
-# ║                    🎨 POWERSHELL PROFILE v4.0 ULTRA RGB                   ║
-# ║                         Ukraine Edition 🇺🇦                                 ║
-# ╚═══════════════════════════════════════════════════════════════════════════╝
+# Импорт модулей
+Import-Module Parser
+Import-Module ColoredText
 
-$newModulePath = "C:\Users\ketov\Documents\PowerShell\Modules"
-$env:PSModulePath = $newModulePath
-[Environment]::SetEnvironmentVariable("PSModulePath", $newModulePath, "User")
-$env:POSH_IGNORE_ALLUSER_PROFILES = $true
-
-# ===== ИМПОРТ GRADIENT ФУНКЦИЙ =====
-# Загружаем градиентные функции
-$gradientPath = "C:\scripts\GradientTable.Ps1"
-if (Test-Path $gradientPath) {
-    . $gradientPath
-}
-
-# ===== МОДУЛИ =====
-$modules = @(
-    'Aliases',
-    'Terminal-Icons',
-    'PSReadLine',
-    'PSFzf',
-    'PoshColor',
-    'syntax-highlighting'
-)
-
-foreach ($module in $modules) {
-    if (Get-Module -ListAvailable -Name $module) {
-        Import-Module -Name $module -ErrorAction SilentlyContinue
-    } else {
-        Write-RGB "[!] Модуль $module отсутствует. Установите: Install-Module $module" -FC Yellow
-    }
-}
-
-# ===== OH-MY-POSH =====
-$ompConfig = 'C:\scripts\OhMyPosh\free-ukraine.omp.json'
-if (Test-Path $ompConfig) {
-    oh-my-posh init pwsh --config $ompConfig | Invoke-Expression
-}
-
-# ===== RGB ЦВЕТОВАЯ ПАЛИТРА =====
+# Инициализация глобальной палитры RGB цветов
 $global:RGB = @{
-# Основные цвета
-    WhiteRGB         = @{ R = 255; G = 255; B = 255 }
-    CyanRGB          = @{ R = 0; G = 150; B = 255 }
-    MagentaRGB       = @{ R = 255; G = 0; B = 255 }
-    YellowRGB        = @{ R = 255; G = 255; B = 0 }
-    OrangeRGB        = @{ R = 255; G = 165; B = 0 }
-    PinkRGB          = @{ R = 255; G = 20; B = 147 }
-    PurpleRGB        = @{ R = 138; G = 43; B = 226 }
-    LimeRGB          = @{ R = 50; G = 205; B = 50 }
-    TealRGB          = @{ R = 0; G = 128; B = 128 }
-    GoldRGB          = @{ R = 255; G = 215; B = 0 }
-    CocoaBeanRGB     = @{ R = 79; G = 56; B = 53 }
-
-    # Неоновые цвета
-    NeonBlueRGB      = @{ R = 77; G = 200; B = 255 }
-    NeonGreenRGB     = @{ R = 57; G = 255; B = 20 }
-    NeonPinkRGB      = @{ R = 255; G = 20; B = 240 }
-    NeonRedRGB       = @{ R = 255; G = 55; B = 100 }
-
-    # Градиентные цвета
-    Sunset1RGB       = @{ R = 255; G = 94; B = 77 }
-    Sunset2RGB       = @{ R = 255; G = 154; B = 0 }
-    Ocean1RGB        = @{ R = 0; G = 119; B = 190 }
-    Ocean2RGB        = @{ R = 0; G = 180; B = 216 }
-    Ocean3RGB        = @{ R = 0; G = 150; B = 160 }
-    Ocean4RGB        = @{ R = 0; G = 205; B = 230 }
-
-    # Украинские цвета 🇺🇦
-    UkraineBlueRGB   = @{ R = 0; G = 87; B = 183 }
-    UkraineYellowRGB = @{ R = 255; G = 213; B = 0 }
+    "DeepPurple" = "#6A0DAD"
+    "OceanBlue" = "#006994"
+    "ForestGreen" = "#228B22"
+    "SunsetOrange" = "#FF8C00"
+    "RoyalPurple" = "#7851A9"
+    "ElectricBlue" = "#7DF9FF"
+    "LimeGreen" = "#32CD32"
+    "HotPink" = "#FF69B4"
+    "GoldYellow" = "#FFD700"
+    "CrimsonRed" = "#DC143C"
+    "TealBlue" = "#008080"
+    "Lavender" = "#E6E6FA"
+    "Coral" = "#FF7F50"
+    "Mint" = "#98FB98"
+    "Salmon" = "#FA8072"
 }
 
-# Функция для создания RGB цвета
-function Get-RGBColor {
-    param($Color)
-    return $PSStyle.Foreground.FromRgb($Color.R, $Color.G, $Color.B)
+# Функция для получения RGB цвета
+function Get-RGBColor
+{
+    param([string]$hexColor)
+    $r = [Convert]::ToInt32($hexColor.Substring(1, 2), 16)
+    $g = [Convert]::ToInt32($hexColor.Substring(3, 2), 16)
+    $b = [Convert]::ToInt32($hexColor.Substring(5, 2), 16)
+    return $PSStyle.Foreground.FromRgb($r, $g, $b)
 }
 
-function Write-RGB {
+# Улучшенная функция Write-RGB с поддержкой фона
+function Write-RGB
+{
     param(
         [Parameter(Position = 0, ValueFromPipeline = $true, ValueFromRemainingArguments = $true)]
         [string[]] $Text,
         [string] $FC = 'White',
-        [switch] $newline = $false
+        [string] $BC = $null,
+        [switch] $newline = $false,
+        [switch] $Bold = $false
     )
-
     $fullText = $Text -join ' '
-
     $systemColors = @(
         "Black", "DarkBlue", "DarkGreen", "DarkCyan",
         "DarkRed", "DarkMagenta", "DarkYellow", "Gray",
@@ -96,1351 +50,809 @@ function Write-RGB {
         "Red", "Magenta", "Yellow", "White"
     )
 
-    if ($FC -in $systemColors) {
-        Write-Host $fullText -ForegroundColor $FC -NoNewline:(-not $newline)
+    $output = ""
+
+    # Добавляем жирный шрифт если нужно
+    if ($Bold)
+    {
+        $output += $PSStyle.Bold
     }
-    elseif ($global:RGB.ContainsKey($FC)) {
-        $rgbColor = Get-RGBColor $global:RGB[$FC]
-        Write-Host "${rgbColor}${fullText}${PSStyle.Reset}" -NoNewline:(-not $newline)
+
+    # Обработка цвета переднего плана
+    if ($FC -in $systemColors)
+    {
+        $fgColor = ""
     }
-    elseif ($FC -match '^#[0-9A-Fa-f]{6}$') {
+    elseif ($global:RGB.ContainsKey($FC))
+    {
+        $fgColor = Get-RGBColor $global:RGB[$FC]
+        $output += $fgColor
+    }
+    elseif ($FC -match '^#[0-9A-Fa-f]{6}
+
+# Улучшенная функция для создания красивого заголовка с градиентом
+function Show-Header {
+    param(
+        [string]$Title,
+        [string]$StartColor = "#FF6B6B",
+        [string]$EndColor = "#4ECDC4"
+    )
+
+    $border = "═" * ($Title.Length + 4)
+
+    # Создаем градиент для заголовка
+    $titleChars = $Title.ToCharArray()
+    $totalChars = $titleChars.Length
+
+    Write-RGB $border -FC "DeepPurple" -newline
+    Write-RGB "  " -FC "White" -BC "#2C3E50"
+
+    for ($i = 0; $i -lt $totalChars; $i++) {
+        $ratio = if ($totalChars -eq 1) { 0 } else { $i / ($totalChars - 1) }
+        $gradientColor = Get-GradientColor $StartColor $EndColor $ratio
+        Write-RGB $titleChars[$i] -FC $gradientColor -BC "#2C3E50"
+    }
+
+    Write-RGB "  " -FC "White" -BC "#2C3E50" -newline
+    Write-RGB $border -FC "DeepPurple" -newline
+    Write-Host ""
+}
+
+# Функция для создания градиентного цвета
+function Get-GradientColor {
+    param(
+        [string]$StartColor,
+        [string]$EndColor,
+        [double]$Ratio
+    )
+
+    $startR = [Convert]::ToInt32($StartColor.Substring(1, 2), 16)
+    $startG = [Convert]::ToInt32($StartColor.Substring(3, 2), 16)
+    $startB = [Convert]::ToInt32($StartColor.Substring(5, 2), 16)
+
+    $endR = [Convert]::ToInt32($EndColor.Substring(1, 2), 16)
+    $endG = [Convert]::ToInt32($EndColor.Substring(3, 2), 16)
+    $endB = [Convert]::ToInt32($EndColor.Substring(5, 2), 16)
+
+    $newR = [int]($startR + ($endR - $startR) * $Ratio)
+    $newG = [int]($startG + ($endG - $startG) * $Ratio)
+    $newB = [int]($startB + ($endB - $startB) * $Ratio)
+
+    return "#{0:X2}{1:X2}{2:X2}" -f $newR, $newG, $newB
+}
+
+# Улучшенная функция статуса с RGB поддержкой
+function Show-Status {
+    param(
+        [string]$Message,
+        [string]$Status,
+        [string]$StatusColor = "Green",
+        [string]$Icon = "●"
+    )
+
+    $statusColors = @{
+        "OK" = "LimeGreen"
+        "SUCCESS" = "ForestGreen"
+        "РАБОТАЕТ" = "ElectricBlue"
+        "НЕДОСТУПЕН" = "CrimsonRed"
+        "ОШИБКА" = "#FF4444"
+        "ВНИМАНИЕ" = "GoldYellow"
+        "WARNING" = "SunsetOrange"
+        "ERROR" = "CrimsonRed"
+    }
+
+    $iconColor = if ($statusColors.ContainsKey($Status)) { $statusColors[$Status] } else { $StatusColor }
+
+    Write-RGB $Icon -FC $iconColor -Bold
+    Write-RGB " [" -FC "Gray"
+    Write-RGB $Status -FC $iconColor -Bold
+    Write-RGB "] " -FC "Gray"
+    Write-RGB $Message -FC "White" -newline
+}
+
+# Улучшенная функция прогресс-бара с RGB
+function Show-Progress {
+    param(
+        [int]$Current,
+        [int]$Total,
+        [string]$Activity = "Обработка",
+        [string]$ProgressColor = "#00FF7F",
+        [string]$BackgroundColor = "#333333"
+    )
+
+    $percent = [math]::Round(($Current / $Total) * 100)
+    $barWidth = 40
+    $filled = [math]::Floor(($percent / 100) * $barWidth)
+    $empty = $barWidth - $filled
+
+    Write-RGB "$Activity (" -FC "Lavender"
+    Write-RGB "$Current" -FC "GoldYellow" -Bold
+    Write-RGB "/" -FC "Lavender"
+    Write-RGB "$Total" -FC "GoldYellow" -Bold
+    Write-RGB ") [" -FC "Lavender"
+
+    # Создаем градиентный прогресс-бар
+    for ($i = 0; $i -lt $filled; $i++) {
+        $ratio = if ($filled -eq 0) { 0 } else { $i / $filled }
+        $gradientColor = Get-GradientColor "#FF6B6B" $ProgressColor $ratio
+        Write-RGB "█" -FC $gradientColor
+    }
+
+    Write-RGB ("░" * $empty) -FC $BackgroundColor
+    Write-RGB "] " -FC "Lavender"
+    Write-RGB "$percent%" -FC "ElectricBlue" -Bold -newline
+}
+
+# Улучшенные правила для парсинга с RGB поддержкой
+$logRules = @(
+    @{
+        Pattern = "ERROR|ОШИБКА|FATAL"
+        Action = { param($match) Write-RGB $match -FC "CrimsonRed" -BC "#2C0000" -Bold }
+    }
+    @{
+        Pattern = "SUCCESS|УСПЕШНО|OK"
+        Action = { param($match) Write-RGB $match -FC "LimeGreen" -Bold }
+    }
+    @{
+        Pattern = "WARNING|ВНИМАНИЕ|WARN"
+        Action = { param($match) Write-RGB $match -FC "GoldYellow" -Bold }
+    }
+    @{
+        Pattern = "INFO|ИНФОРМАЦИЯ"
+        Action = { param($match) Write-RGB $match -FC "ElectricBlue" }
+    }
+    @{
+        Pattern = "\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}"
+        Action = { param($match) Write-RGB $match -FC "#666666" }
+    }
+)
+
+# Функция для парсинга с RGB поддержкой
+function Parse-TextRGB {
+    param(
+        [string]$Text,
+        [array]$Rules
+    )
+
+    $lines = $Text -split "`n"
+    foreach ($line in $lines) {
+        $processedLine = $line
+        $matches = @()
+
+        foreach ($rule in $Rules) {
+            if ($processedLine -match $rule.Pattern) {
+                $matchInfo = $Matches[0]
+                $matches += @{
+                    Match = $matchInfo
+                    Action = $rule.Action
+                    Start = $processedLine.IndexOf($matchInfo)
+                    Length = $matchInfo.Length
+                }
+            }
+        }
+
+        if ($matches.Count -gt 0) {
+            $sortedMatches = $matches | Sort-Object Start
+            $lastIndex = 0
+
+            foreach ($match in $sortedMatches) {
+                # Выводим текст до совпадения
+                if ($match.Start -gt $lastIndex) {
+                    $beforeText = $processedLine.Substring($lastIndex, $match.Start - $lastIndex)
+                    Write-RGB $beforeText -FC "White"
+                }
+
+                # Выводим совпадение с форматированием
+                & $match.Action $match.Match
+
+                $lastIndex = $match.Start + $match.Length
+            }
+
+            # Выводим оставшийся текст
+            if ($lastIndex -lt $processedLine.Length) {
+                $afterText = $processedLine.Substring($lastIndex)
+                Write-RGB $afterText -FC "White"
+            }
+        } else {
+            Write-RGB $processedLine -FC "White"
+        }
+
+        Write-Host ""
+    }
+}
+
+# Функция для создания RGB панели
+function Show-RGBPanel {
+    param(
+        [string]$Title,
+        [hashtable]$Data,
+        [string]$PanelColor = "#2C3E50"
+    )
+
+    $maxLength = ($Data.Keys | Measure-Object -Property Length -Maximum).Maximum
+    $panelWidth = [math]::Max($maxLength + 20, $Title.Length + 4)
+
+    # Верхняя граница
+    Write-RGB "╔" -FC "DeepPurple"
+    Write-RGB ("═" * ($panelWidth - 2)) -FC "DeepPurple"
+    Write-RGB "╗" -FC "DeepPurple" -newline
+
+    # Заголовок
+    $padding = [math]::Floor(($panelWidth - $Title.Length - 2) / 2)
+    Write-RGB "║" -FC "DeepPurple"
+    Write-RGB (" " * $padding) -FC "White" -BC $PanelColor
+    Write-RGB $Title -FC "GoldYellow" -BC $PanelColor -Bold
+    Write-RGB (" " * ($panelWidth - $Title.Length - $padding - 2)) -FC "White" -BC $PanelColor
+    Write-RGB "║" -FC "DeepPurple" -newline
+
+    # Разделитель
+    Write-RGB "╠" -FC "DeepPurple"
+    Write-RGB ("═" * ($panelWidth - 2)) -FC "DeepPurple"
+    Write-RGB "╣" -FC "DeepPurple" -newline
+
+    # Данные
+    foreach ($key in $Data.Keys) {
+        $value = $Data[$key]
+        $valueColor = switch ($value) {
+            { $_ -match "^\d+$" -and [int]$_ -gt 100 } { "CrimsonRed" }
+            { $_ -match "^\d+$" -and [int]$_ -gt 50 } { "GoldYellow" }
+            { $_ -match "^\d+$" } { "LimeGreen" }
+            { $_ -match "ОК|SUCCESS|УСПЕШНО" } { "ForestGreen" }
+            { $_ -match "ERROR|ОШИБКА" } { "CrimsonRed" }
+            { $_ -match "WARNING|ВНИМАНИЕ" } { "SunsetOrange" }
+            default { "ElectricBlue" }
+        }
+
+        Write-RGB "║ " -FC "DeepPurple"
+        Write-RGB $key -FC "Lavender" -Bold
+        Write-RGB ": " -FC "White"
+        Write-RGB $value -FC $valueColor -Bold
+        $spacesToFill = $panelWidth - $key.Length - $value.Length - 5
+        Write-RGB (" " * $spacesToFill) -FC "White"
+        Write-RGB "║" -FC "DeepPurple" -newline
+    }
+
+    # Нижняя граница
+    Write-RGB "╚" -FC "DeepPurple"
+    Write-RGB ("═" * ($panelWidth - 2)) -FC "DeepPurple"
+    Write-RGB "╝" -FC "DeepPurple" -newline
+}
+
+# Главная функция демонстрации с RGB поддержкой
+function Start-Demo {
+    Clear-Host
+
+    # Показать заголовок с градиентом
+    Show-Header "СИСТЕМА МОНИТОРИНГА ПРИЛОЖЕНИЙ" "#FF6B6B" "#4ECDC4"
+
+    # Показать статусы системы с иконками
+    Show-Status "Подключение к базе данных" "OK" "Green" "●"
+    Show-Status "Статус веб-сервера" "РАБОТАЕТ" "Blue" "▲"
+    Show-Status "Доступность API" "НЕДОСТУПЕН" "Red" "✗"
+    Show-Status "Уровень памяти" "ВНИМАНИЕ" "Yellow" "⚠"
+
+    Write-Host ""
+
+    # Показать прогресс с градиентом
+    Show-Header "ОБРАБОТКА ДАННЫХ" "#9B59B6" "#3498DB"
+
+    for ($i = 1; $i -le 10; $i++) {
+        Show-Progress $i 10 "Обработка файлов" "#00FF7F" "#2C3E50"
+        Start-Sleep -Milliseconds 300
+    }
+
+    Write-Host ""
+
+    # Показать лог с RGB подсветкой
+    Show-Header "ЖУРНАЛ СОБЫТИЙ" "#E74C3C" "#F39C12"
+
+    $sampleLog = @"
+2024-01-15 10:30:15 INFO: Приложение запущено успешно
+2024-01-15 10:30:16 SUCCESS: Подключение к базе данных установлено
+2024-01-15 10:30:17 INFO: Загрузка конфигурации
+2024-01-15 10:30:18 WARNING: Низкий уровень свободной памяти (15%)
+2024-01-15 10:30:19 ERROR: Не удалось подключиться к внешнему API
+2024-01-15 10:30:20 INFO: Попытка переподключения через 30 секунд
+2024-01-15 10:30:21 SUCCESS: Переподключение к API выполнено успешно
+"@
+
+    # Применить RGB правила парсинга к логу
+    Parse-TextRGB -Text $sampleLog -Rules $logRules
+
+    Write-Host ""
+
+    # Показать RGB панель со статистикой
+    $stats = @{
+        "Всего событий" = "156"
+        "Успешные операции" = "142"
+        "Предупреждения" = "12"
+        "Ошибки" = "2"
+        "Время работы" = "24:15:32"
+        "Использование CPU" = "67%"
+    }
+
+    Show-RGBPanel "ИТОГОВАЯ СТАТИСТИКА" $stats "#34495E"
+
+    Write-Host ""
+
+    # Демонстрация цветовой палитры
+    Show-Header "ЦВЕТОВАЯ ПАЛИТРА" "#8E44AD" "#2ECC71"
+
+    Write-RGB "Доступные RGB цвета:" -FC "Lavender" -Bold -newline
+    $colorCount = 0
+    foreach ($colorName in $global:RGB.Keys) {
+        Write-RGB "$colorName " -FC $colorName -Bold
+        $colorCount++
+        if ($colorCount % 4 -eq 0) { Write-Host "" }
+    }
+
+    Write-Host ""
+    Write-Host ""
+
+    # Демонстрация градиента
+    Write-RGB "Градиентный текст: " -FC "White" -Bold
+    $gradientText = "КРАСИВЫЙ POWERSHELL"
+    $chars = $gradientText.ToCharArray()
+    for ($i = 0; $i -lt $chars.Length; $i++) {
+        $ratio = if ($chars.Length -eq 1) { 0 } else { $i / ($chars.Length - 1) }
+        $color = Get-GradientColor "#FF0080" "#00FFFF" $ratio
+        Write-RGB $chars[$i] -FC $color -Bold
+    }
+
+    Write-Host ""
+    Write-Host ""
+
+    Write-RGB "Нажмите любую клавишу для выхода..." -FC "#666666" -newline
+    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+}
+
+# Дополнительные функции для работы с RGB
+
+# Функция для создания радужного текста
+function Write-Rainbow {
+    param([string]$Text)
+
+    $rainbowColors = @("#FF0000", "#FF7F00", "#FFFF00", "#00FF00", "#0000FF", "#4B0082", "#9400D3")
+    $chars = $Text.ToCharArray()
+
+    for ($i = 0; $i -lt $chars.Length; $i++) {
+        $colorIndex = $i % $rainbowColors.Length
+        Write-RGB $chars[$i] -FC $rainbowColors[$colorIndex] -Bold
+    }
+    Write-Host ""
+}
+
+# Функция для создания мигающего RGB текста
+function Write-BlinkingRGB {
+    param(
+        [string]$Text,
+        [int]$Times = 5,
+        [string]$Color1 = "#FF0080",
+        [string]$Color2 = "#00FFFF"
+    )
+
+    for ($i = 0; $i -lt $Times; $i++) {
+        $color = if ($i % 2 -eq 0) { $Color1 } else { $Color2 }
+        Write-RGB $Text -FC $color -Bold
+        Start-Sleep -Milliseconds 500
+        Write-Host ("`r" + (" " * $Text.Length) + "`r") -NoNewline
+    }
+}
+
+# Функция для создания RGB рамки
+function Write-RGBBox {
+    param(
+        [string[]]$Content,
+        [string]$BorderColor = "#00FFFF",
+        [string]$TextColor = "#FFFFFF"
+    )
+
+    $maxLength = ($Content | Measure-Object -Property Length -Maximum).Maximum
+    $boxWidth = $maxLength + 4
+
+    # Верхняя граница
+    Write-RGB "╔" -FC $BorderColor
+    Write-RGB ("═" * ($boxWidth - 2)) -FC $BorderColor
+    Write-RGB "╗" -FC $BorderColor -newline
+
+    # Содержимое
+    foreach ($line in $Content) {
+        $padding = $boxWidth - $line.Length - 3
+        Write-RGB "║ " -FC $BorderColor
+        Write-RGB $line -FC $TextColor
+        Write-RGB (" " * $padding) -FC $TextColor
+        Write-RGB "║" -FC $BorderColor -newline
+    }
+
+    # Нижняя граница
+    Write-RGB "╚" -FC $BorderColor
+    Write-RGB ("═" * ($boxWidth - 2)) -FC $BorderColor
+    Write-RGB "╝" -FC $BorderColor -newline
+}
+
+# Функция для тестирования Write-RGB
+function Test-WriteRGB {
+    Write-Host "=== ТЕСТИРОВАНИЕ Write-RGB ===" -ForegroundColor Yellow
+    Write-Host ""
+
+    # Тест 1: Стандартные цвета
+    Write-Host "1. Стандартные цвета:" -ForegroundColor Cyan
+    Write-RGB "Красный текст" -FC Red -newline
+    Write-RGB "Зеленый текст" -FC Green -newline
+    Write-RGB "Синий текст" -FC Blue -newline
+    Write-Host ""
+
+    # Тест 2: HEX цвета
+    Write-Host "2. HEX цвета:" -ForegroundColor Cyan
+    Write-RGB "Пурпурный #FF00FF" -FC "#FF00FF" -newline
+    Write-RGB "Оранжевый #FFA500" -FC "#FFA500" -newline
+    Write-RGB "Голубой #00FFFF" -FC "#00FFFF" -newline
+    Write-Host ""
+
+    # Тест 3: Именованные RGB цвета
+    Write-Host "3. Именованные RGB цвета:" -ForegroundColor Cyan
+    Write-RGB "DeepPurple" -FC "DeepPurple" -newline
+    Write-RGB "ElectricBlue" -FC "ElectricBlue" -newline
+    Write-RGB "ForestGreen" -FC "ForestGreen" -newline
+    Write-Host ""
+
+    # Тест 4: Жирный шрифт
+    Write-Host "4. Жирный шрифт:" -ForegroundColor Cyan
+    Write-RGB "Обычный текст" -FC "White" -newline
+    Write-RGB "Жирный текст" -FC "White" -Bold -newline
+    Write-RGB "Жирный цветной" -FC "GoldYellow" -Bold -newline
+    Write-Host ""
+
+    # Тест 5: Фоновые цвета
+    Write-Host "5. Фоновые цвета:" -ForegroundColor Cyan
+    Write-RGB "Белый на черном" -FC "White" -BC "#000000" -newline
+    Write-RGB "Желтый на синем" -FC "Yellow" -BC "#000080" -newline
+    Write-RGB "Зеленый на сером" -FC "LimeGreen" -BC "#404040" -newline
+    Write-Host ""
+
+    # Тест 6: Комбинированный вывод
+    Write-Host "6. Комбинированный вывод:" -ForegroundColor Cyan
+    Write-RGB "Статус: " -FC "Gray"
+    Write-RGB "УСПЕШНО" -FC "LimeGreen" -Bold -newline
+    Write-RGB "Ошибка: " -FC "Gray"
+    Write-RGB "КРИТИЧЕСКАЯ" -FC "CrimsonRed" -BC "#2C0000" -Bold -newline
+    Write-Host ""
+
+    Write-Host "=== ТЕСТ ЗАВЕРШЕН ===" -ForegroundColor Yellow
+}
+
+# Запуск демонстрации
+Start-Demo) {
         $r = [Convert]::ToInt32($FC.Substring(1, 2), 16)
         $g = [Convert]::ToInt32($FC.Substring(3, 2), 16)
         $b = [Convert]::ToInt32($FC.Substring(5, 2), 16)
-        $rgbColor = $PSStyle.Foreground.FromRgb($r, $g, $b)
-        Write-Host "${rgbColor}${fullText}${PSStyle.Reset}" -NoNewline:(-not $newline)
+        $fgColor = $PSStyle.Foreground.FromRgb($r, $g, $b)
+        $output += $fgColor
     }
-    else {
-        Write-Host $fullText -ForegroundColor White -NoNewline:(-not $newline)
-    }
-}
 
-# ===== УЛУЧШЕННАЯ ФУНКЦИЯ МЕНЮ С ГРАДИЕНТАМИ =====
-function Show-Menu {
-    param(
-        [Parameter(Mandatory = $true)]
-        [array]$MenuItems,
-        [string]$MenuTitle = "Menu",
-        [string]$Prompt = "Select option",
-        [hashtable]$GradientOptions = @{
-        StartColor = "#01BB01"
-        EndColor = "#FF9955"
-        GradientType = "Linear"
-    },
-        [switch]$UseAnimation
+    # Обработка цвета фона
+    if ($BC) {
+        if ($BC -match '^#[0-9A-Fa-f]{6}
+
+    # Функция для создания красивого заголовка
+    function Show-Header
+    {
+        param([string]$Title)
+
+        $border = "═" * ($Title.Length + 4)
+
+        Write-ColoredText $border -Color Cyan
+        Write-ColoredText "  $Title  " -Color White -BackgroundColor DarkBlue
+        Write-ColoredText $border -Color Cyan
+        Write-Host ""
+    }
+
+    # Функция для создания статусного сообщения
+    function Show-Status
+    {
+        param(
+            [string]$Message,
+            [string]$Status,
+            [string]$StatusColor = "Green"
+        )
+
+        Write-ColoredText "[" -Color Gray -NoNewline
+        Write-ColoredText $Status -Color $StatusColor -NoNewline
+        Write-ColoredText "] " -Color Gray -NoNewline
+        Write-ColoredText $Message -Color White
+    }
+
+    # Функция для создания прогресс-бара
+    function Show-Progress
+    {
+        param(
+            [int]$Current,
+            [int]$Total,
+            [string]$Activity = "Обработка"
+        )
+
+        $percent = [math]::Round(($Current / $Total) * 100)
+        $barWidth = 50
+        $filled = [math]::Floor(($percent / 100) * $barWidth)
+        $empty = $barWidth - $filled
+
+        Write-ColoredText "$Activity (" -Color White -NoNewline
+        Write-ColoredText "$Current" -Color Yellow -NoNewline
+        Write-ColoredText "/" -Color White -NoNewline
+        Write-ColoredText "$Total" -Color Yellow -NoNewline
+        Write-ColoredText ") [" -Color White -NoNewline
+        Write-ColoredText ("█" * $filled) -Color Green -NoNewline
+        Write-ColoredText ("░" * $empty) -Color DarkGray -NoNewline
+        Write-ColoredText "] " -Color White -NoNewline
+        Write-ColoredText "$percent%" -Color Cyan
+    }
+
+    # Настройка правил для парсинга логов
+    $logRules = @(
+        @{
+            Pattern = "ERROR|ОШИБКА|FATAL"
+            Color = "Red"
+            BackgroundColor = "Black"
+            Bold = $true
+        }
+        @{
+            Pattern = "SUCCESS|УСПЕШНО|OK"
+            Color = "Green"
+            Bold = $true
+        }
+        @{
+            Pattern = "WARNING|ВНИМАНИЕ|WARN"
+            Color = "Yellow"
+            Bold = $true
+        }
+        @{
+            Pattern = "INFO|ИНФОРМАЦИЯ"
+            Color = "Cyan"
+        }
+        @{
+            Pattern = "\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}"
+            Color = "DarkGray"
+        }
     )
 
-    while ($true) {
-        if ($MenuTitle) {
-            Write-RGB "`n$MenuTitle" -FC GoldRGB -newline
-            Write-RGB ("─" * 60) -FC PurpleRGB -newline
+    # Главная функция демонстрации
+    function Start-Demo
+    {
+        Clear-Host
+
+        # Показать заголовок
+        Show-Header "СИСТЕМА МОНИТОРИНГА ПРИЛОЖЕНИЙ"
+
+        # Показать статусы системы
+        Show-Status "Подключение к базе данных" "OK" "Green"
+        Show-Status "Статус веб-сервера" "РАБОТАЕТ" "Green"
+        Show-Status "Доступность API" "НЕДОСТУПЕН" "Red"
+        Show-Status "Уровень памяти" "ВНИМАНИЕ" "Yellow"
+
+        Write-Host ""
+
+        # Показать прогресс
+        Show-Header "ОБРАБОТКА ДАННЫХ"
+
+        for ($i = 1; $i -le 10; $i++) {
+            Show-Progress $i 10 "Обработка файлов"
+            Start-Sleep -Milliseconds 500
         }
 
-        # Анимация появления меню
-        if ($UseAnimation) {
-            for ($i = 0; $i -lt $MenuItems.Count; $i++) {
-                $num = $i + 1
-                $hexColor = Get-GradientColor -Index $i -TotalItems $MenuItems.Count @GradientOptions
+        Write-Host ""
 
-                Write-RGB "[" -FC NeonGreenRGB
-                Write-RGB $num -FC Ocean2RGB
-                Write-RGB "] " -FC NeonGreenRGB
-                Write-RGB $MenuItems[$i].Text -FC $hexColor -newline
+        # Показать лог с подсветкой
+        Show-Header "ЖУРНАЛ СОБЫТИЙ"
 
-                Start-Sleep -Milliseconds 50
-            }
-        } else {
-            for ($i = 0; $i -lt $MenuItems.Count; $i++) {
-                $num = $i + 1
-                $hexColor = Get-GradientColor -Index $i -TotalItems $MenuItems.Count @GradientOptions
+        $sampleLog = @"
+2024-01-15 10:30:15 INFO: Приложение запущено успешно
+2024-01-15 10:30:16 SUCCESS: Подключение к базе данных установлено
+2024-01-15 10:30:17 INFO: Загрузка конфигурации
+2024-01-15 10:30:18 WARNING: Низкий уровень свободной памяти (15%)
+2024-01-15 10:30:19 ERROR: Не удалось подключиться к внешнему API
+2024-01-15 10:30:20 INFO: Попытка переподключения через 30 секунд
+2024-01-15 10:30:21 SUCCESS: Переподключение к API выполнено успешно
+"@
 
-                Write-RGB "[" -FC NeonGreenRGB
-                Write-RGB $num -FC Ocean2RGB
-                Write-RGB "] " -FC NeonGreenRGB
-                Write-RGB $MenuItems[$i].Text -FC $hexColor -newline
-            }
+        # Применить правила парсинга к логу
+        Parse-Text -Text $sampleLog -Rules $logRules
+
+        Write-Host ""
+
+        # Показать итоговую информацию
+        Show-Header "ИТОГОВАЯ СТАТИСТИКА"
+
+        $stats = @(
+            @{ Label = "Всего событий"; Value = "156"; Color = "White" }
+            @{ Label = "Успешные операции"; Value = "142"; Color = "Green" }
+            @{ Label = "Предупреждения"; Value = "12"; Color = "Yellow" }
+            @{ Label = "Ошибки"; Value = "2"; Color = "Red" }
+        )
+
+        foreach ($stat in $stats)
+        {
+            Write-ColoredText ($stat.Label + ": ") -Color Gray -NoNewline
+            Write-ColoredText $stat.Value -Color $stat.Color
         }
 
-        Write-RGB "`n" -newline
-        Write-RGB "➤ " -FC NeonGreenRGB
-        Write-RGB "$Prompt (1-$($MenuItems.Count)): " -FC White
+        Write-Host ""
+        Write-ColoredText "Нажмите любую клавишу для выхода..." -Color DarkGray
+        $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+    }
 
-        # ИСПРАВЛЕНИЕ: правильное чтение ввода
-        $input = [Console]::ReadLine()
-
-        if ($input -match '^\d+$') {
-            $choice = [int]$input
-            if ($choice -ge 1 -and $choice -le $MenuItems.Count) {
-                # Анимация выбора
-                Write-RGB "`n✨ " -FC YellowRGB
-                Write-RGB "Выбрано: " -FC White
-                Write-RGB $MenuItems[$choice - 1].Text -FC NeonGreenRGB -newline
-                Start-Sleep -Milliseconds 300
-                return $MenuItems[$choice - 1]
-            }
-        }
-
-        Write-RGB "❌ Неверный выбор! Попробуйте снова." -FC Red -newline
-        Start-Sleep -Seconds 1
-        #Clear-Host
+    # Запуск демонстрации
+    Start-Demo) {
+    $r = [Convert]::ToInt32($BC.Substring(1, 2), 16)
+    $g = [Convert]::ToInt32($BC.Substring(3, 2), 16)
+    $b = [Convert]::ToInt32($BC.Substring(5, 2), 16)
+    $bgColor = $PSStyle.Background.FromRgb($r, $g, $b)
+    $output += $bgColor
+    } elseif ($global: RGB.ContainsKey($BC)) {
+    $bgColor = Get-RGBColor $global: RGB[$BC]
+    $output += $bgColor.Replace($PSStyle.Foreground.FromRgb, $PSStyle.Background.FromRgb)
     }
 }
 
-# ===== РАСШИРЕННЫЕ НАСТРОЙКИ PSREADLINE =====
-Set-PSReadLineOption -PredictionSource HistoryAndPlugin
-Set-PSReadLineOption -PredictionViewStyle ListView
-Set-PSReadLineOption -HistorySearchCursorMovesToEnd
-Set-PSReadLineOption -ShowToolTips
-Set-PSReadLineOption -BellStyle Visual
-Set-PSReadLineOption -EditMode Windows
+$output += $fullText + $PSStyle.Reset
 
-# Горячие клавиши
-Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
-Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
-Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete
-Set-PSReadLineKeyHandler -Key Ctrl+z -Function Undo
-Set-PSReadLineKeyHandler -Key Ctrl+y -Function Redo
-Set-PSReadLineKeyHandler -Key Ctrl+d -Function DeleteChar
-Set-PSReadLineKeyHandler -Key Ctrl+w -Function BackwardDeleteWord
-Set-PSReadLineKeyHandler -Key Alt+d -Function DeleteWord
-
-# RGB цветовая схема для PSReadLine
-Set-PSReadLineOption -Colors @{
-    Command            = $PSStyle.Foreground.FromRgb(0, 255, 157)
-    Parameter          = $PSStyle.Foreground.FromRgb(255, 101, 69)
-    Operator           = $PSStyle.Foreground.FromRgb(255, 215, 0)
-    Variable           = $PSStyle.Foreground.FromRgb(139, 43, 255)
-    String             = $PSStyle.Foreground.FromRgb(15, 188, 249)
-    Number             = $PSStyle.Foreground.FromRgb(240, 31, 255)
-    Member             = $PSStyle.Foreground.FromRgb(0, 191, 255)
-    Type               = $PSStyle.Foreground.FromRgb(255, 255, 255)
-    Emphasis           = $PSStyle.Foreground.FromRgb(255, 145, 0)
-    Error              = $PSStyle.Foreground.FromRgb(255, 0, 0)
-    Selection          = $PSStyle.Background.FromRgb(64, 64, 64)
-    InlinePrediction   = $PSStyle.Foreground.FromRgb(102, 102, 102)
-    ListPrediction     = $PSStyle.Foreground.FromRgb(185, 185, 185)
-    ContinuationPrompt = $PSStyle.Foreground.FromRgb(255, 255, 0)
+if ($FC -in $systemColors -and -not $BC)
+{
+    Write-Host $fullText -ForegroundColor $FC -NoNewline:(-not $newline)
+}
+else
+{
+    Write-Host $output -NoNewline:(-not $newline)
+}
 }
 
-# ===== ФУНКЦИИ УВЕДОМЛЕНИЙ =====
-function Show-Notification {
-    param(
-        [string]$Title,
-        [string]$Message,
-        [ValidateSet("Info", "Success", "Warning", "Error")]
-        [string]$Type = "Info"
-    )
+# Функция для создания красивого заголовка
+function Show-Header {
+param([string]$Title)
 
-    $icon = switch ($Type) {
-        "Success" { "✅" }
-        "Warning" { "⚠️" }
-        "Error" { "❌" }
-        default { "ℹ️" }
-    }
+$border = "═" * ($Title.Length + 4)
 
-    $color = switch ($Type) {
-        "Success" { "LimeRGB" }
-        "Warning" { "OrangeRGB" }
-        "Error" { "NeonRedRGB" }
-        default { "CyanRGB" }
-    }
-
-    Write-RGB "`n$icon $Title`: $Message" -FC $color -newline
-
-    # Wezterm notification если доступен
-    if (Get-Command wezterm -ErrorAction SilentlyContinue) {
-        wezterm cli send-text "--[\x1b]9;${Title}:${Message}\x1b\\"
-    }
+Write-ColoredText $border -Color Cyan
+Write-ColoredText "  $Title  " -Color White -BackgroundColor DarkBlue
+Write-ColoredText $border -Color Cyan
+Write-Host ""
 }
 
-# ===== АНИМИРОВАННАЯ ЗАГРУЗКА =====
-function Show-RGBLoader {
-    param(
-        [string]$Text = "Loading",
-        [int]$Duration = 3
-    )
+# Функция для создания статусного сообщения
+function Show-Status {
+param(
+[string]$Message,
+[string]$Status,
+[string]$StatusColor = "Green"
+)
 
-    $frames = @('⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏')
-    $colors = @('NeonBlueRGB', 'NeonGreenRGB', 'NeonPinkRGB', 'CyanRGB', 'MagentaRGB')
-
-    $endTime = (Get-Date).AddSeconds($Duration)
-    $i = 0
-
-    while ((Get-Date) -lt $endTime) {
-        $frame = $frames[$i % $frames.Length]
-        $color = $colors[$i % $colors.Length]
-
-        Write-RGB "`r$frame $Text..." -FC $color
-        Start-Sleep -Milliseconds 100
-        $i++
-    }
-    Write-RGB "`r✨ Done!    " -FC LimeRGB -newline
+Write-ColoredText "[" -Color Gray -NoNewline
+Write-ColoredText $Status -Color $StatusColor -NoNewline
+Write-ColoredText "] " -Color Gray -NoNewline
+Write-ColoredText $Message -Color White
 }
 
-# ===== ПРОГРЕСС БАР С RGB =====
-function Show-RGBProgress {
-    param(
-        [string]$Activity = "Processing",
-        [int]$TotalSteps = 100,
-        [switch]$Gradient
-    )
+# Функция для создания прогресс-бара
+function Show-Progress {
+param(
+[int]$Current,
+[int]$Total,
+[string]$Activity = "Обработка"
+)
 
-    for ($i = 0; $i -le $TotalSteps; $i++) {
-        $percent = [int](($i / $TotalSteps) * 100)
-        $filled = [int](($i / $TotalSteps) * 30)
-        $empty = 30 - $filled
+$percent = [math]::Round(($Current / $Total) * 100)
+$barWidth = 50
+$filled = [math]::Floor(($percent / 100) * $barWidth)
+$empty = $barWidth - $filled
 
-        if ($Gradient) {
-            # Градиентный прогресс бар
-            $bar = ""
-            for ($j = 0; $j -lt $filled; $j++) {
-                $color = Get-GradientColor -Index $j -TotalItems 30 -StartColor "#00FF00" -EndColor "#FF0000"
-                $bar += "█"
-            }
-            $bar += "░" * $empty
-
-            Write-Host "`r$Activity [" -NoNewline
-            for ($j = 0; $j -lt $filled; $j++) {
-                $color = Get-GradientColor -Index $j -TotalItems 30 -StartColor "#00FF00" -EndColor "#FF0000"
-                Write-RGB "█" -FC $color
-            }
-            Write-Host ("░" * $empty + "] $percent%") -NoNewline
-        } else {
-            $r = [int](255 * ($i / $TotalSteps))
-            $g = [int](255 * (1 - $i / $TotalSteps))
-            $b = 128
-
-            $bar = "█" * $filled + "░" * $empty
-            Write-RGB "`r$Activity [$bar] $percent%" -FC $PSStyle.Foreground.FromRgb($r, $g, $b)
-        }
-
-        Start-Sleep -Milliseconds 20
-    }
-    Write-RGB "`n✅ Complete!" -FC LimeRGB -newline
+Write-ColoredText "$Activity (" -Color White -NoNewline
+Write-ColoredText "$Current" -Color Yellow -NoNewline
+Write-ColoredText "/" -Color White -NoNewline
+Write-ColoredText "$Total" -Color Yellow -NoNewline
+Write-ColoredText ") [" -Color White -NoNewline
+Write-ColoredText ("█" * $filled) -Color Green -NoNewline
+Write-ColoredText ("░" * $empty) -Color DarkGray -NoNewline
+Write-ColoredText "] " -Color White -NoNewline
+Write-ColoredText "$percent%" -Color Cyan
 }
 
-# ===== CHOCOLATEY =====
-$ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-if (Test-Path($ChocolateyProfile)) {
-    Write-RGB "🍫 Chocolatey Profile Loaded" -FC CocoaBeanRGB -newline
-    Import-Module "$ChocolateyProfile"
+# Настройка правил для парсинга логов
+$logRules = @(
+@{
+Pattern = "ERROR|ОШИБКА|FATAL"
+Color = "Red"
+BackgroundColor = "Black"
+Bold = $true
+}
+@{
+Pattern = "SUCCESS|УСПЕШНО|OK"
+Color = "Green"
+Bold = $true
+}
+@{
+Pattern = "WARNING|ВНИМАНИЕ|WARN"
+Color = "Yellow"
+Bold = $true
+}
+@{
+Pattern = "INFO|ИНФОРМАЦИЯ"
+Color = "Cyan"
+}
+@{
+Pattern = "\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}"
+Color = "DarkGray"
+}
+)
+
+# Главная функция демонстрации
+function Start-Demo {
+Clear-Host
+
+# Показать заголовок
+Show-Header "СИСТЕМА МОНИТОРИНГА ПРИЛОЖЕНИЙ"
+
+# Показать статусы системы
+Show-Status "Подключение к базе данных" "OK" "Green"
+Show-Status "Статус веб-сервера" "РАБОТАЕТ" "Green"
+Show-Status "Доступность API" "НЕДОСТУПЕН" "Red"
+Show-Status "Уровень памяти" "ВНИМАНИЕ" "Yellow"
+
+Write-Host ""
+
+# Показать прогресс
+Show-Header "ОБРАБОТКА ДАННЫХ"
+
+for ($i = 1; $i -le 10; $i++) {
+Show-Progress $i 10 "Обработка файлов"
+Start-Sleep -Milliseconds 500
 }
 
-# ===== УЛУЧШЕННЫЙ LS С RGB И ИКОНКАМИ =====
-function ls {
-    param([string]$Path = ".")
+Write-Host ""
 
-    Write-RGB "`n📁 " -FC CyanRGB
-    Write-RGB "Directory: " -FC CyanRGB
-    Write-RGB (Resolve-Path $Path).Path -FC YellowRGB -newline
+# Показать лог с подсветкой
+Show-Header "ЖУРНАЛ СОБЫТИЙ"
 
-    # Градиентная линия
-    $lineLength = 60
-    for ($i = 0; $i -lt $lineLength; $i++) {
-        $color = Get-GradientColor -Index $i -TotalItems $lineLength -StartColor "#8B00FF" -EndColor "#00BFFF"
-        Write-RGB "─" -FC $color
-    }
-    Write-RGB "" -newline
+$sampleLog = @"
+2024-01-15 10:30:15 INFO: Приложение запущено успешно
+2024-01-15 10:30:16 SUCCESS: Подключение к базе данных установлено
+2024-01-15 10:30:17 INFO: Загрузка конфигурации
+2024-01-15 10:30:18 WARNING: Низкий уровень свободной памяти (15%)
+2024-01-15 10:30:19 ERROR: Не удалось подключиться к внешнему API
+2024-01-15 10:30:20 INFO: Попытка переподключения через 30 секунд
+2024-01-15 10:30:21 SUCCESS: Переподключение к API выполнено успешно
+"@
 
-    $items = Get-ChildItem $Path | Sort-Object PSIsContainer -Descending
+# Применить правила парсинга к логу
+Parse-Text -Text $sampleLog -Rules $logRules
 
-    foreach ($item in $items) {
-        if ($item.PSIsContainer) {
-            Write-RGB "📂 " -FC Ocean1RGB
-            Write-RGB ("{0,-35}" -f $item.Name) -FC Ocean1RGB
-            Write-RGB " <DIR>" -FC Ocean2RGB -newline
-        } else {
-            $icon = switch -Wildcard ($item.Extension.ToLower()) {
-                ".ps1" { "📜" }
-                ".exe" { "⚙️" }
-                ".dll" { "🔧" }
-                ".txt" { "📄" }
-                ".md" { "📝" }
-                ".json" { "🔮" }
-                ".xml" { "📋" }
-                ".zip" { "📦" }
-                ".rar" { "📦" }
-                ".7z" { "📦" }
-                ".pdf" { "📕" }
-                ".jpg" { "🖼️" }
-                ".png" { "🖼️" }
-                ".gif" { "🎞️" }
-                ".mp4" { "🎬" }
-                ".mp3" { "🎵" }
-                ".js" { "🟨" }
-                ".jsx" { "⚛️" }
-                ".ts" { "🔷" }
-                ".tsx" { "⚛️" }
-                ".rs" { "🦀" }
-                ".py" { "🐍" }
-                ".cpp" { "🔵" }
-                ".cs" { "🟣" }
-                ".html" { "🌐" }
-                ".css" { "🎨" }
-                ".scss" { "🎨" }
-                ".vue" { "💚" }
-                ".svelte" { "🧡" }
-                default { "📄" }
-            }
+Write-Host ""
 
-            $sizeColor = if ($item.Length -gt 1MB) { "NeonRedRGB" }
-            elseif ($item.Length -gt 100KB) { "OrangeRGB" }
-            else { "LimeRGB" }
+# Показать итоговую информацию
+Show-Header "ИТОГОВАЯ СТАТИСТИКА"
 
-            Write-RGB "$icon " -FC White
-            Write-RGB ("{0,-35}" -f $item.Name) -FC NeonGreenRGB
-            Write-RGB (" {0,10:N2} KB" -f ($item.Length / 1KB)) -FC $sizeColor
-            Write-RGB ("  {0}" -f $item.LastWriteTime.ToString("yyyy-MM-dd HH:mm")) -FC TealRGB -newline
-        }
-    }
+$stats = @(
+@{
+Label = "Всего событий"; Value = "156"; Color = "White"
+}
+@{
+Label = "Успешные операции"; Value = "142"; Color = "Green"
+}
+@{
+Label = "Предупреждения"; Value = "12"; Color = "Yellow"
+}
+@{
+Label = "Ошибки"; Value = "2"; Color = "Red"
+}
+)
 
-    # Градиентная линия
-    for ($i = 0; $i -lt $lineLength; $i++) {
-        $color = Get-GradientColor -Index $i -TotalItems $lineLength -StartColor "#00BFFF" -EndColor "#8B00FF"
-        Write-RGB "─" -FC $color
-    }
-    Write-RGB "" -newline
-
-    $count = $items.Count
-    $dirs = ($items | Where-Object PSIsContainer).Count
-    $files = $count - $dirs
-
-    Write-RGB "📊 Total: " -FC GoldRGB
-    Write-RGB "$count items " -FC White
-    Write-RGB "(📂 $dirs dirs, 📄 $files files)" -FC CyanRGB -newline
+foreach ($stat in $stats) {
+Write-ColoredText ($stat.Label + ": ") -Color Gray -NoNewline
+Write-ColoredText $stat.Value -Color $stat.Color
 }
 
-# ===== АЛИАСЫ =====
-Set-Alias -Name g -Value git
-Set-Alias -Name touch -Value New-Item
-Set-Alias -Name ll -Value ls
-Set-Alias -Name cls -Value #Clear-Host
-Set-Alias -Name which -Value Get-Command
-
-# Быстрая навигация
-function cd.. { Set-Location .. }
-function cd... { Set-Location ..\.. }
-function cd.... { Set-Location ..\..\.. }
-function ~ { Set-Location $HOME }
-function desktop { Set-Location "$HOME\Desktop" }
-function downloads { Set-Location "$HOME\Downloads" }
-function docs { Set-Location "$HOME\Documents" }
-
-# ===== СИСТЕМНАЯ ИНФОРМАЦИЯ С RGB =====
-function Show-SystemInfo {
-    Write-RGB "`n💻 SYSTEM INFORMATION" -FC NeonPinkRGB -newline
-
-    # Градиентная линия
-    for ($i = 0; $i -lt 50; $i++) {
-        $color = Get-GradientColor -Index $i -TotalItems 50 -StartColor "#FF1493" -EndColor "#00CED1"
-        Write-RGB "═" -FC $color
-    }
-    Write-RGB "" -newline
-
-    $os = Get-CimInstance Win32_OperatingSystem
-    $cpu = Get-CimInstance Win32_Processor
-    $mem = Get-CimInstance Win32_PhysicalMemory
-    $gpu = Get-CimInstance Win32_VideoController
-
-    # OS Info
-    Write-RGB "🖥️  OS: " -FC CyanRGB
-    Write-RGB $os.Caption -FC White -newline
-
-    # CPU Info
-    Write-RGB "🔧 CPU: " -FC YellowRGB
-    Write-RGB "$($cpu.Name) ($($cpu.NumberOfCores) cores)" -FC White -newline
-
-    # Memory
-    $totalMem = ($mem | Measure-Object -Property Capacity -Sum).Sum / 1GB
-    Write-RGB "💾 RAM: " -FC LimeRGB
-    Write-RGB "$([Math]::Round($totalMem, 2)) GB" -FC White -newline
-
-    # GPU
-    Write-RGB "🎮 GPU: " -FC OrangeRGB
-    Write-RGB $gpu.Name -FC White -newline
-
-    # Uptime
-    $uptime = (Get-Date) - $os.LastBootUpTime
-    Write-RGB "⏱️  Uptime: " -FC MagentaRGB
-    Write-RGB "$($uptime.Days)d $($uptime.Hours)h $($uptime.Minutes)m" -FC White -newline
-
-    # Градиентная линия
-    for ($i = 0; $i -lt 50; $i++) {
-        $color = Get-GradientColor -Index $i -TotalItems 50 -StartColor "#00CED1" -EndColor "#FF1493"
-        Write-RGB "═" -FC $color
-    }
-    Write-RGB "" -newline
+Write-Host ""
+Write-ColoredText "Нажмите любую клавишу для выхода..." -Color DarkGray
+$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
-# ===== СЕТЕВЫЕ УТИЛИТЫ =====
-function Show-NetworkInfo {
-    Write-RGB "`n🌐 NETWORK INFORMATION" -FC Ocean1RGB -newline
-    Write-RGB ("═" * 50) -FC Ocean2RGB -newline
-
-    # IP адреса
-    $ips = Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.InterfaceAlias -notlike "*Loopback*" }
-
-    foreach ($ip in $ips) {
-        Write-RGB "🔌 Interface: " -FC CyanRGB
-        Write-RGB $ip.InterfaceAlias -FC White -newline
-        Write-RGB "   IP: " -FC YellowRGB
-        Write-RGB $ip.IPAddress -FC LimeRGB -newline
-    }
-
-    # Внешний IP
-    try {
-        Write-RGB "`n🌍 External IP: " -FC NeonGreenRGB
-        $extIP = (Invoke-RestMethod -Uri "https://api.ipify.org?format=json" -TimeoutSec 5).ip
-        Write-RGB $extIP -FC GoldRGB -newline
-    } catch {
-        Write-RGB "Unable to fetch" -FC Red -newline
-    }
-
-    Write-RGB ("═" * 50) -FC Ocean2RGB -newline
-}
-
-# ===== БЫСТРЫЙ PING С ВИЗУАЛИЗАЦИЕЙ =====
-function Test-ConnectionVisual {
-    param(
-        [string]$ComputerName = "google.com",
-        [int]$Count = 4
-    )
-
-    Write-RGB "`n🏓 PING $ComputerName" -FC NeonBlueRGB -newline
-    Write-RGB ("─" * 40) -FC PurpleRGB -newline
-
-    for ($i = 1; $i -le $Count; $i++) {
-        try {
-            $result = Test-Connection -ComputerName $ComputerName -Count 1 -ErrorAction Stop
-            $time = $result.ResponseTime
-
-            $color = if ($time -lt 50) { "LimeRGB" }
-            elseif ($time -lt 100) { "YellowRGB" }
-            else { "NeonRedRGB" }
-
-            $bar = "█" * [Math]::Min([int]($time / 10), 20)
-
-            Write-RGB "[$i] " -FC White
-            Write-RGB $bar -FC $color
-            Write-RGB " ${time}ms" -FC $color -newline
-        } catch {
-            Write-RGB "[$i] ❌ Timeout" -FC Red -newline
-        }
-
-        Start-Sleep -Milliseconds 500
-    }
-
-    Write-RGB ("─" * 40) -FC PurpleRGB -newline
-}
-
-# ===== WEATHER WIDGET =====
-function Get-Weather {
-    param([string]$City = "Lviv")
-
-    try {
-        Write-RGB "`n🌤️  Getting weather..." -FC CyanRGB -newline
-        $weather = Invoke-RestMethod -Uri "https://wttr.in/${City}?format=j1" -TimeoutSec 5
-        $current = $weather.current_condition[0]
-
-        Write-RGB "`r🌤️  Weather in $City  " -FC CyanRGB -newline
-        Write-RGB "   🌡️  Temp: $($current.temp_C)°C" -FC YellowRGB -newline
-        Write-RGB "   💨 Wind: $($current.windspeedKmph) km/h" -FC LimeRGB -newline
-        Write-RGB "   💧 Humidity: $($current.humidity)%" -FC Ocean1RGB -newline
-    } catch {
-        Write-RGB "⚠️  Unable to fetch weather" -FC Yellow -newline
-    }
-}
-
-# ===== УЛУЧШЕННАЯ ФУНКЦИЯ ПРИВЕТСТВИЯ =====
-function Show-Welcome {
-    #Clear-Host
-
-    # Анимированный заголовок
-    $title = "POWERSHELL PROFILE v4.0"
-    for ($i = 0; $i -lt $title.Length; $i++) {
-        $color = Get-GradientColor -Index $i -TotalItems $title.Length -StartColor "#0057B7" -EndColor "#FFD700"
-        Write-RGB $title[$i] -FC $color
-        Start-Sleep -Milliseconds 30
-    }
-    Write-RGB " 🇺🇦" -newline
-
-    Write-RGB "═════════════════════════════════════════════════════" -FC UkraineBlueRGB -newline
-
-    # Системная информация
-    Write-Host "⏰ " -NoNewline
-    Write-RGB (Get-Date -Format "dd.MM.yyyy ") -FC LimeRGB
-    Write-RGB (Get-Date -Format "HH:mm") -FC WhiteRGB -newline
-
-    Write-Host "🖥️  " -NoNewline
-    Write-RGB "Windows 11 " -FC CyanRGB -newline
-    Write-Host "⚡ " -NoNewline
-    Write-RGB "PowerShell " -FC YellowRGB
-    Write-RGB "$($PSVersionTable.PSVersion)" -FC NeonGreenRGB -newline
-
-    # Статистика
-    $processCount = (Get-Process).Count
-    Write-RGB "⚙️  Processes: " -FC OrangeRGB
-    Write-RGB "$processCount" -FC NeonBlueRGB
-    Write-RGB " running" -FC OrangeRGB -newline
-
-    # CPU и RAM с анимацией
-    Write-RGB "📊 " -FC White
-    Write-RGB "CPU: " -FC CyanRGB
-    $cpuUsage = [math]::Round((Get-Counter "\Processor(_Total)\% Processor Time" -ErrorAction SilentlyContinue).CounterSamples.CookedValue, 1)
-    Write-RGB "$cpuUsage%" -FC NeonGreenRGB
-    Write-RGB " | " -FC White
-    Write-RGB "RAM: " -FC MagentaRGB
-    $availableRam = [math]::Round((Get-Counter "\Memory\Available MBytes" -ErrorAction SilentlyContinue).CounterSamples.CookedValue / 1024, 1)
-    Write-RGB "$availableRam GB free" -FC NeonPinkRGB -newline
-
-    # Подсказка с градиентом
-    Write-RGB "`n💡 " -FC White
-    Write-RGB "Type " -FC Gray
-    Write-RGB "Show-MainMenu" -FC NeonPinkRGB
-    Write-RGB " or " -FC Gray
-    Write-RGB "menu" -FC LimeRGB
-    Write-RGB " to open the main menu" -FC Gray -newline
-
-    Write-RGB "═════════════════════════════════════════════════════" -FC UkraineYellowRGB -newline
-}
-
-# ===== ИСПРАВЛЕННАЯ ФУНКЦИЯ ЗАПУСКА ПРИЛОЖЕНИЙ =====
-function Run-Application {
-    $menuItems = @(
-        @{ Text = "💻 WebStorm 2025.2 EAP"; Data = @{ Path = "C:\Users\ketov\AppData\Local\Programs\WebStorm\bin\webstorm64.exe" } },
-        @{ Text = "📝 Zed"; Data = @{ Path = "zed" } },
-        @{ Text = "🖥️  Wezterm"; Data = @{ Path = "C:\Program Files\WezTerm\wezterm-gui.exe" } },
-        @{ Text = "🪟 Windows Terminal Preview"; Data = @{ Path = "wt" } },
-        @{ Text = "💬 Telegram"; Data = @{ Path = "telegram" } },
-        @{ Text = "📘 VS Code"; Data = @{ Path = "code" } },
-        @{ Text = "📗 VS Code Insiders"; Data = @{ Path = "code-insiders" } },
-        @{ Text = "🦀 RustRover"; Data = @{ Path = "rustrover" } },
-        @{ Text = "🌐 Запустить браузер"; Data = @{ Action = "browser" } },
-        @{ Text = "🔙 Назад"; Data = @{ Action = "back" } }
-    )
-
-    $gradientOptions = @{
-        StartColor = "#00FF00"
-        EndColor = "#FF00FF"
-        GradientType = "Sine"
-    }
-
-    $selected = Show-Menu -MenuItems $menuItems -MenuTitle "🚀 ЗАПУСК ПРИЛОЖЕНИЙ" -Prompt "Выберите приложение" -GradientOptions $gradientOptions
-
-    if ($selected.Data.Action -eq "browser") {
-        Run-Browser
-    } elseif ($selected.Data.Action -eq "back") {
-        Show-MainMenu
-    } else {
-        try {
-            Write-RGB "`n🚀 Запускаю " -FC White
-            Write-RGB $selected.Text -FC NeonGreenRGB -newline
-            Start-Process $selected.Data.Path -ErrorAction Stop
-            Show-Notification -Title "Приложение запущено" -Message $selected.Text -Type "Success"
-        } catch {
-            Show-Notification -Title "Ошибка" -Message "Не удалось запустить приложение" -Type "Error"
-        }
-    }
-}
-
-# ===== МЕНЮ БРАУЗЕРОВ С RGB =====
-function Run-Browser {
-    $browsers = @(
-        @{ Text = "🦊 Firefox Nightly"; Data = "firefox"; Args = "-P nightly" },
-        @{ Text = "🦊 Firefox Developer"; Data = "firefox"; Args = "-P dev-edition-default" },
-        @{ Text = "🦊 Firefox"; Data = "firefox" },
-        @{ Text = "🔶 Chrome Canary"; Data = "chrome"; Args = "--chrome-canary" },
-        @{ Text = "🔷 Chrome Dev"; Data = "chrome"; Args = "--chrome-dev" },
-        @{ Text = "🔵 Chrome"; Data = "chrome" },
-        @{ Text = "🟦 Edge Canary"; Data = "msedge-canary" },
-        @{ Text = "🟦 Edge Dev"; Data = "msedge-dev" },
-        @{ Text = "🟦 Edge"; Data = "msedge" },
-        @{ Text = "🎭 Opera"; Data = "opera" },
-        @{ Text = "🎨 Vivaldi"; Data = "vivaldi" },
-        @{ Text = "🧅 Tor"; Data = "tor" },
-        @{ Text = "🔷 Chromium"; Data = "chromium" },
-        @{ Text = "🦁 Brave"; Data = "brave" },
-        @{ Text = "🌊 Floorp"; Data = "floorp" },
-        @{ Text = "💧 Waterfox"; Data = "waterfox" },
-        @{ Text = "⚡ Thorium"; Data = "thorium" },
-        @{ Text = "🐺 LibreWolf"; Data = "librewolf" },
-        @{ Text = "🟡 Yandex"; Data = "yandex" },
-        @{ Text = "🔙 Назад"; Data = "back" }
-    )
-
-    $gradientOptions = @{
-        StartColor = "#FF6B6B"
-        EndColor = "#4ECDC4"
-        GradientType = "Exponential"
-    }
-
-    $selected = Show-Menu -MenuItems $browsers -MenuTitle "🌐 ВЫБОР БРАУЗЕРА" -Prompt "Выберите браузер" -GradientOptions $gradientOptions
-
-    if ($selected.Data -eq "back") {
-        Run-Application
-    } else {
-        try {
-            Write-RGB "`n🌐 Запускаю " -FC White
-            Write-RGB $selected.Text -FC Ocean1RGB -newline
-
-            if ($selected.Args) {
-                Start-Process $selected.Data -ArgumentList $selected.Args -ErrorAction Stop
-            } else {
-                Start-Process $selected.Data -ErrorAction Stop
-            }
-
-            Show-Notification -Title "Браузер запущен" -Message $selected.Text -Type "Success"
-        } catch {
-            Show-Notification -Title "Ошибка" -Message "Браузер не найден" -Type "Error"
-        }
-    }
-}
-
-# ===== УЛУЧШЕННОЕ МЕНЮ РАЗРАБОТЧИКА =====
-function Show-DevToolsMenu {
-    $menuItems = @(
-        @{ Text = "🦀 Rust: обновить до nightly"; Data = "rust-update" },
-        @{ Text = "📦 Cargo: обновить пакеты"; Data = "cargo-update" },
-        @{ Text = "⚡ Bun: обновить пакеты"; Data = "bun-update" },
-        @{ Text = "🚀 Bun: dev server"; Data = "bun-dev" },
-        @{ Text = "🏗️  Bun: build проект"; Data = "bun-build" },
-        @{ Text = "📝 Zed: обновить (scoop)"; Data = "zed-update" },
-        @{ Text = "📦 Winget: обновить все"; Data = "winget-update" },
-        @{ Text = "💾 Базы данных"; Data = "db-ops" },
-        @{ Text = "🔍 Поиск портов"; Data = "port-scan" },
-        @{ Text = "📊 Системный мониторинг"; Data = "sys-monitor" },
-        @{ Text = "🎯 Сетевые инструменты"; Data = "net-tools" },
-        @{ Text = "🔙 Назад"; Data = "back" }
-    )
-
-    $gradientOptions = @{
-        StartColor = "#FF8C00"
-        EndColor = "#FF1493"
-        GradientType = "Linear"
-    }
-
-    $selected = Show-Menu -MenuItems $menuItems -MenuTitle "🛠️  ИНСТРУМЕНТЫ РАЗРАБОТЧИКА" -Prompt "Выберите действие" -GradientOptions $gradientOptions -UseAnimation
-
-    switch ($selected.Data) {
-        "rust-update" {
-            Write-RGB "`n🦀 Обновление Rust..." -FC OrangeRGB -newline
-            Show-RGBLoader -Text "Updating Rust to nightly" -Duration 2
-            rustup update nightly
-            Write-RGB "✅ Rust обновлен!" -FC LimeRGB -newline
-            Pause
-            Show-DevToolsMenu
-        }
-        "cargo-update" {
-            Write-RGB "`n📦 Обновление Cargo пакетов..." -FC NeonBlueRGB -newline
-            cargo update -v
-            Write-RGB "✅ Пакеты обновлены!" -FC LimeRGB -newline
-            Pause
-            Show-DevToolsMenu
-        }
-        "bun-update" {
-            Write-RGB "`n⚡ Обновление Bun пакетов..." -FC YellowRGB -newline
-            bun update
-            Write-RGB "✅ Bun пакеты обновлены!" -FC LimeRGB -newline
-            Pause
-            Show-DevToolsMenu
-        }
-        "bun-dev" {
-            $projectDir = Read-Host "`nВведите путь к проекту (Enter для текущей)"
-            if (-not $projectDir) { $projectDir = Get-Location }
-            Set-Location $projectDir
-            Write-RGB "🚀 Запуск Bun dev server..." -FC LimeRGB -newline
-            bun run dev
-        }
-        "bun-build" {
-            $projectDir = Read-Host "`nВведите путь к проекту (Enter для текущей)"
-            if (-not $projectDir) { $projectDir = Get-Location }
-            Set-Location $projectDir
-            Write-RGB "🏗️  Сборка проекта..." -FC CyanRGB -newline
-            Show-RGBProgress -Activity "Building project" -TotalSteps 100 -Gradient
-            bun run build
-            Write-RGB "✅ Сборка завершена!" -FC LimeRGB -newline
-            Pause
-            Show-DevToolsMenu
-        }
-        "port-scan" {
-            Show-PortScanner
-            Pause
-            Show-DevToolsMenu
-        }
-        "sys-monitor" {
-            Show-SystemMonitor
-            Pause
-            Show-DevToolsMenu
-        }
-        "db-ops" {
-            Show-DatabaseMenu
-        }
-        "net-tools" {
-            Show-NetworkToolsMenu
-        }
-        "zed-update" {
-            Write-RGB "`n📝 Обновление Zed через Scoop..." -FC CyanRGB -newline
-            scoop update zed
-            Write-RGB "✅ Zed обновлен!" -FC LimeRGB -newline
-            Pause
-            Show-DevToolsMenu
-        }
-        "winget-update" {
-            Write-RGB "`n📦 Обновление всех пакетов Winget..." -FC MagentaRGB -newline
-            winget upgrade --all
-            Write-RGB "✅ Все пакеты обновлены!" -FC LimeRGB -newline
-            Pause
-            Show-DevToolsMenu
-        }
-        "back" {
-            Show-MainMenu
-        }
-    }
-}
-
-# ===== НОВОЕ МЕНЮ СЕТЕВЫХ ИНСТРУМЕНТОВ =====
-function Show-NetworkToolsMenu {
-    $menuItems = @(
-        @{ Text = "🌐 Анализ HTTP заголовков"; Data = "http-headers" },
-        @{ Text = "🔓 Проверка SSL сертификата"; Data = "ssl-check" },
-        @{ Text = "📡 DNS lookup"; Data = "dns-lookup" },
-        @{ Text = "🔍 Traceroute"; Data = "traceroute" },
-        @{ Text = "📊 Netstat анализ"; Data = "netstat" },
-        @{ Text = "🔙 Назад"; Data = "back" }
-    )
-
-    $gradientOptions = @{
-        StartColor = "#1E90FF"
-        EndColor = "#00CED1"
-        GradientType = "Linear"
-    }
-
-    $selected = Show-Menu -MenuItems $menuItems -MenuTitle "🎯 СЕТЕВЫЕ ИНСТРУМЕНТЫ" -Prompt "Выберите инструмент" -GradientOptions $gradientOptions
-
-    switch ($selected.Data) {
-        "http-headers" {
-            $url = Read-Host "`nВведите URL"
-            try {
-                $response = Invoke-WebRequest -Uri $url -Method Head
-                Write-RGB "`n📋 HTTP Headers для $url`:" -FC CyanRGB -newline
-                $response.Headers | Format-Table -AutoSize
-            } catch {
-                Write-RGB "❌ Ошибка получения заголовков" -FC Red -newline
-            }
-            Pause
-            Show-NetworkToolsMenu
-        }
-        "ssl-check" {
-            $host = Read-Host "`nВведите домен"
-            Write-RGB "`n🔓 Проверка SSL для $host`..." -FC YellowRGB -newline
-            $tcpClient = New-Object System.Net.Sockets.TcpClient
-            try {
-                $tcpClient.Connect($host, 443)
-                $sslStream = New-Object System.Net.Security.SslStream($tcpClient.GetStream())
-                $sslStream.AuthenticateAsClient($host)
-                $cert = $sslStream.RemoteCertificate
-                Write-RGB "✅ SSL сертификат действителен до: $($cert.GetExpirationDateString())" -FC LimeRGB -newline
-            } catch {
-                Write-RGB "❌ Ошибка проверки SSL" -FC Red -newline
-            } finally {
-                $tcpClient.Close()
-            }
-            Pause
-            Show-NetworkToolsMenu
-        }
-        "dns-lookup" {
-            $domain = Read-Host "`nВведите домен"
-            Write-RGB "`n📡 DNS lookup для $domain`:" -FC MagentaRGB -newline
-            Resolve-DnsName $domain | Format-Table -AutoSize
-            Pause
-            Show-NetworkToolsMenu
-        }
-        "traceroute" {
-            $target = Read-Host "`nВведите адрес"
-            Write-RGB "`n🔍 Traceroute к $target`:" -FC OrangeRGB -newline
-            Test-NetConnection -ComputerName $target -TraceRoute
-            Pause
-            Show-NetworkToolsMenu
-        }
-        "netstat" {
-            Write-RGB "`n📊 Активные соединения:" -FC CyanRGB -newline
-            netstat -an | Select-String "ESTABLISHED|LISTENING" | Select-Object -First 20
-            Pause
-            Show-NetworkToolsMenu
-        }
-        "back" {
-            Show-DevToolsMenu
-        }
-    }
-}
-
-# ===== МЕНЮ БАЗ ДАННЫХ =====
-function Show-DatabaseMenu {
-    $menuItems = @(
-        @{ Text = "🐘 PostgreSQL управление"; Data = "postgres" },
-        @{ Text = "🦭 MySQL управление"; Data = "mysql" },
-        @{ Text = "🍃 MongoDB управление"; Data = "mongodb" },
-        @{ Text = "🔴 Redis управление"; Data = "redis" },
-        @{ Text = "🔙 Назад"; Data = "back" }
-    )
-
-    $gradientOptions = @{
-        StartColor = "#32CD32"
-        EndColor = "#00FA9A"
-        GradientType = "Linear"
-    }
-
-    $selected = Show-Menu -MenuItems $menuItems -MenuTitle "💾 УПРАВЛЕНИЕ БАЗАМИ ДАННЫХ" -Prompt "Выберите БД" -GradientOptions $gradientOptions
-
-    switch ($selected.Data) {
-        "postgres" {
-            Write-RGB "`n🐘 PostgreSQL операции:" -FC CyanRGB -newline
-            Write-RGB "1. Запустить сервер: pg_ctl start" -FC White -newline
-            Write-RGB "2. Остановить сервер: pg_ctl stop" -FC White -newline
-            Write-RGB "3. Подключиться: psql -U username -d database" -FC White -newline
-            Pause
-            Show-DatabaseMenu
-        }
-        "mysql" {
-            Write-RGB "`n🦭 MySQL операции:" -FC YellowRGB -newline
-            Write-RGB "1. Запустить: net start mysql" -FC White -newline
-            Write-RGB "2. Подключиться: mysql -u root -p" -FC White -newline
-            Pause
-            Show-DatabaseMenu
-        }
-        "mongodb" {
-            Write-RGB "`n🍃 MongoDB операции:" -FC LimeRGB -newline
-            Write-RGB "1. Запустить: mongod" -FC White -newline
-            Write-RGB "2. Подключиться: mongosh" -FC White -newline
-            Pause
-            Show-DatabaseMenu
-        }
-        "redis" {
-            Write-RGB "`n🔴 Redis операции:" -FC Red -newline
-            Write-RGB "1. Запустить: redis-server" -FC White -newline
-            Write-RGB "2. CLI: redis-cli" -FC White -newline
-            Pause
-            Show-DatabaseMenu
-        }
-        "back" {
-            Show-DevToolsMenu
-        }
-    }
-}
-
-# ===== СКАНЕР ПОРТОВ =====
-function Show-PortScanner {
-    Write-RGB "`n🔍 PORT SCANNER" -FC NeonPinkRGB -newline
-
-    # Градиентная линия
-    for ($i = 0; $i -lt 50; $i++) {
-        $color = Get-GradientColor -Index $i -TotalItems 50 -StartColor "#FF69B4" -EndColor "#FF1493"
-        Write-RGB "─" -FC $color
-    }
-    Write-RGB "" -newline
-
-    $commonPorts = @{
-        "3000"  = "Node.js / React"
-        "3001"  = "Node.js Alt"
-        "5173"  = "Vite"
-        "5432"  = "PostgreSQL"
-        "3306"  = "MySQL"
-        "6379"  = "Redis"
-        "27017" = "MongoDB"
-        "8080"  = "HTTP Alt"
-        "8000"  = "Django/Python"
-        "4200"  = "Angular"
-        "8081"  = "HTTP Alt 2"
-        "5174"  = "Vite Alt"
-        "1234"  = "Debug Port"
-        "9229"  = "Node Debug"
-    }
-
-    $i = 0
-    foreach ($port in $commonPorts.Keys | Sort-Object) {
-        $connection = Test-NetConnection -ComputerName localhost -Port $port -WarningAction SilentlyContinue -InformationLevel Quiet
-
-        $portColor = Get-GradientColor -Index $i -TotalItems $commonPorts.Count -StartColor "#00FF00" -EndColor "#FF0000"
-
-        if ($connection) {
-            Write-RGB "✅ Port " -FC White
-            Write-RGB $port -FC $portColor
-            Write-RGB " - " -FC White
-            Write-RGB "OPEN" -FC NeonGreenRGB
-            Write-RGB " ($($commonPorts[$port]))" -FC CyanRGB -newline
-        } else {
-            Write-RGB "❌ Port " -FC White
-            Write-RGB $port -FC DarkGray
-            Write-RGB " - " -FC White
-            Write-RGB "CLOSED" -FC Gray
-            Write-RGB " ($($commonPorts[$port]))" -FC DarkGray -newline
-        }
-        $i++
-    }
-}
-
-# ===== СИСТЕМНЫЙ МОНИТОР =====
-function Show-SystemMonitor {
-    Write-RGB "`n📊 SYSTEM MONITOR" -FC GoldRGB -newline
-
-    # Градиентная линия
-    for ($i = 0; $i -lt 60; $i++) {
-        $color = Get-GradientColor -Index $i -TotalItems 60 -StartColor "#FFD700" -EndColor "#FF4500"
-        Write-RGB "═" -FC $color
-    }
-    Write-RGB "" -newline
-
-    # CPU
-    $cpu = Get-CimInstance Win32_Processor
-    $cpuLoad = (Get-Counter "\Processor(_Total)\% Processor Time" -ErrorAction SilentlyContinue).CounterSamples.CookedValue
-    $cpuColor = if ($cpuLoad -gt 80) { "NeonRedRGB" }
-    elseif ($cpuLoad -gt 50) { "OrangeRGB" }
-    else { "LimeRGB" }
-
-    Write-RGB "`n🔧 CPU Usage: " -FC CyanRGB
-
-    # Градиентный прогресс бар для CPU
-    $cpuBar = ""
-    $cpuFilled = [int]($cpuLoad / 5)
-    for ($j = 0; $j -lt $cpuFilled; $j++) {
-        $barColor = Get-GradientColor -Index $j -TotalItems 20 -StartColor "#00FF00" -EndColor "#FF0000"
-        Write-RGB "█" -FC $barColor
-    }
-    Write-Host ("░" * (20 - $cpuFilled)) -NoNewline
-    Write-RGB " $([Math]::Round($cpuLoad, 1))%" -FC $cpuColor -newline
-
-    # Memory
-    $os = Get-CimInstance Win32_OperatingSystem
-    $totalMem = $os.TotalVisibleMemorySize / 1MB
-    $freeMem = $os.FreePhysicalMemory / 1MB
-    $usedMem = $totalMem - $freeMem
-    $memPercent = [int](($usedMem / $totalMem) * 100)
-
-    Write-RGB "💾 Memory Usage: " -FC YellowRGB
-
-    # Градиентный прогресс бар для памяти
-    $memFilled = [int]($memPercent / 5)
-    for ($j = 0; $j -lt $memFilled; $j++) {
-        $barColor = Get-GradientColor -Index $j -TotalItems 20 -StartColor "#0080FF" -EndColor "#FF0080"
-        Write-RGB "█" -FC $barColor
-    }
-    Write-Host ("░" * (20 - $memFilled)) -NoNewline
-    Write-RGB " $memPercent% " -FC White
-    Write-RGB "($([Math]::Round($usedMem, 1))GB / $([Math]::Round($totalMem, 1))GB)" -FC White -newline
-
-    # Top processes с градиентом
-    Write-RGB "`n🏃 TOP PROCESSES BY CPU:" -FC MagentaRGB -newline
-    $topProcesses = Get-Process | Sort-Object CPU -Descending | Select-Object -First 5
-    $procIndex = 0
-    foreach ($proc in $topProcesses) {
-        $procColor = Get-GradientColor -Index $procIndex -TotalItems 5 -StartColor "#FF00FF" -EndColor "#00FFFF"
-        Write-RGB "   • " -FC PurpleRGB
-        Write-RGB ("{0,-20}" -f $proc.ProcessName) -FC $procColor
-        Write-RGB "CPU: $([Math]::Round($proc.CPU, 2))s " -FC CyanRGB
-        Write-RGB "Mem: $([Math]::Round($proc.WS / 1MB, 1))MB" -FC YellowRGB -newline
-        $procIndex++
-    }
-}
-
-# ===== МЕНЮ НАСТРОЙКИ POWERSHELL =====
-function Show-PowerShellConfigMenu {
-    $menuItems = @(
-        @{ Text = "🎨 Изменить цветовую схему"; Data = "colors" },
-        @{ Text = "📝 Редактировать профиль"; Data = "edit-profile" },
-        @{ Text = "🔄 Перезагрузить профиль"; Data = "reload" },
-        @{ Text = "📦 Установить модули"; Data = "install-modules" },
-        @{ Text = "⚙️  Настройки PSReadLine"; Data = "psreadline" },
-        @{ Text = "🔙 Назад"; Data = "back" }
-    )
-
-    $gradientOptions = @{
-        StartColor = "#8A2BE2"
-        EndColor = "#4169E1"
-        GradientType = "Sine"
-    }
-
-    $selected = Show-Menu -MenuItems $menuItems -MenuTitle "⚙️  НАСТРОЙКА POWERSHELL" -Prompt "Выберите действие" -GradientOptions $gradientOptions
-
-    switch ($selected.Data) {
-        "colors" {
-            Show-ColorSchemeMenu
-        }
-        "edit-profile" {
-            if (Get-Command code -ErrorAction SilentlyContinue) {
-                code $PROFILE
-            } else {
-                notepad $PROFILE
-            }
-            Show-PowerShellConfigMenu
-        }
-        "reload" {
-            Write-RGB "`n🔄 Перезагрузка профиля..." -FC YellowRGB -newline
-            . $PROFILE
-            Write-RGB "✅ Профиль перезагружен!" -FC LimeRGB -newline
-            Pause
-            Show-PowerShellConfigMenu
-        }
-        "install-modules" {
-            Show-ModuleInstallMenu
-        }
-        "psreadline" {
-            Write-RGB "`n⚙️  Текущие настройки PSReadLine:" -FC CyanRGB -newline
-            Get-PSReadLineOption | Format-List
-            Pause
-            Show-PowerShellConfigMenu
-        }
-        "back" {
-            Show-MainMenu
-        }
-    }
-}
-
-# ===== МЕНЮ УСТАНОВКИ МОДУЛЕЙ =====
-function Show-ModuleInstallMenu {
-    $modules = @(
-        @{ Text = "📊 ImportExcel - работа с Excel"; Data = "ImportExcel" },
-        @{ Text = "🎨 PowerColorLS - цветной ls"; Data = "PowerColorLS" },
-        @{ Text = "📁 z - быстрая навигация"; Data = "z" },
-        @{ Text = "🔍 PSEverything - поиск файлов"; Data = "PSEverything" },
-        @{ Text = "🔙 Назад"; Data = "back" }
-    )
-
-    $selected = Show-Menu -MenuItems $modules -MenuTitle "📦 УСТАНОВКА МОДУЛЕЙ" -Prompt "Выберите модуль"
-
-    if ($selected.Data -eq "back") {
-        Show-PowerShellConfigMenu
-    } else {
-        Write-RGB "`n📦 Установка модуля $($selected.Data)..." -FC CyanRGB -newline
-        Install-Module -Name $selected.Data -Scope CurrentUser -Force
-        Write-RGB "✅ Модуль установлен!" -FC LimeRGB -newline
-        Import-Module $selected.Data
-        Pause
-        Show-ModuleInstallMenu
-    }
-}
-
-# ===== МЕНЮ ОЧИСТКИ СИСТЕМЫ =====
-function Show-CleanupMenu {
-    $menuItems = @(
-        @{ Text = "🗑️  Очистить временные файлы"; Data = "temp" },
-        @{ Text = "📁 Очистить кэш"; Data = "cache" },
-        @{ Text = "🧹 Очистить корзину"; Data = "recycle" },
-        @{ Text = "💾 Анализ дискового пространства"; Data = "disk-space" },
-        @{ Text = "🔙 Назад"; Data = "back" }
-    )
-
-    $gradientOptions = @{
-        StartColor = "#228B22"
-        EndColor = "#FF6347"
-        GradientType = "Linear"
-    }
-
-    $selected = Show-Menu -MenuItems $menuItems -MenuTitle "🧹 ОБСЛУЖИВАНИЕ СИСТЕМЫ" -Prompt "Выберите действие" -GradientOptions $gradientOptions
-
-    switch ($selected.Data) {
-        "temp" {
-            Write-RGB "`n🗑️  Очистка временных файлов..." -FC YellowRGB -newline
-            $tempFolders = @($env:TEMP, "C:\Windows\Temp")
-            foreach ($folder in $tempFolders) {
-                Get-ChildItem $folder -Recurse -Force -ErrorAction SilentlyContinue |
-                        Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
-            }
-            Write-RGB "✅ Временные файлы очищены!" -FC LimeRGB -newline
-            Pause
-            Show-CleanupMenu
-        }
-        "cache" {
-            Write-RGB "`n📁 Очистка кэша..." -FC OrangeRGB -newline
-            Clear-RecycleBin -Force -ErrorAction SilentlyContinue
-            Write-RGB "✅ Кэш очищен!" -FC LimeRGB -newline
-            Pause
-            Show-CleanupMenu
-        }
-        "recycle" {
-            Write-RGB "`n🧹 Очистка корзины..." -FC CyanRGB -newline
-            Clear-RecycleBin -Force -ErrorAction SilentlyContinue
-            Write-RGB "✅ Корзина очищена!" -FC LimeRGB -newline
-            Pause
-            Show-CleanupMenu
-        }
-        "disk-space" {
-            Show-DiskSpaceAnalysis
-            Pause
-            Show-CleanupMenu
-        }
-        "back" {
-            Show-MainMenu
-        }
-    }
-}
-
-# ===== АНАЛИЗ ДИСКОВОГО ПРОСТРАНСТВА =====
-function Show-DiskSpaceAnalysis {
-    Write-RGB "`n💾 АНАЛИЗ ДИСКОВОГО ПРОСТРАНСТВА" -FC GoldRGB -newline
-
-    Get-PSDrive -PSProvider FileSystem | ForEach-Object {
-        if ($_.Used -gt 0) {
-            $usedPercent = [Math]::Round(($_.Used / ($_.Used + $_.Free)) * 100, 2)
-
-            Write-RGB "`n📁 Диск " -FC White
-            Write-RGB "$($_.Name):" -FC CyanRGB -newline
-
-            # Градиентный прогресс бар
-            $filled = [int]($usedPercent / 3.33)
-            for ($i = 0; $i -lt $filled; $i++) {
-                $color = Get-GradientColor -Index $i -TotalItems 30 -StartColor "#00FF00" -EndColor "#FF0000"
-                Write-RGB "█" -FC $color
-            }
-            Write-Host ("░" * (30 - $filled)) -NoNewline
-
-            Write-RGB " $usedPercent%" -FC White -newline
-            Write-RGB "   Использовано: " -FC White
-            Write-RGB "$([Math]::Round($_.Used / 1GB, 2)) GB" -FC YellowRGB
-            Write-RGB " | Свободно: " -FC White
-            Write-RGB "$([Math]::Round($_.Free / 1GB, 2)) GB" -FC LimeRGB -newline
-        }
-    }
-}
-
-# ===== ГЛАВНОЕ МЕНЮ С RGB =====
-function Show-MainMenu {
-    #Clear-Host
-
-    # Анимированный заголовок с градиентом
-    $title = "🌈 POWERSHELL ULTRA MENU 🌈"
-    $padding = " " * ((60 - $title.Length) / 2)
-
-    Write-Host $padding -NoNewline
-    for ($i = 0; $i -lt $title.Length; $i++) {
-        if ($title[$i] -ne ' ') {
-            $color = Get-GradientColor -Index $i -TotalItems $title.Length -StartColor "#FF0080" -EndColor "#00FFFF"
-            Write-RGB $title[$i] -FC $color
-        } else {
-            Write-Host " " -NoNewline
-        }
-    }
-    Write-RGB "" -newline
-
-    # Градиентная линия
-    for ($i = 0; $i -lt 60; $i++) {
-        $color = Get-GradientColor -Index $i -TotalItems 60 -StartColor "#FFD700" -EndColor "#0057B7"
-        Write-RGB "═" -FC $color
-    }
-    Write-RGB "" -newline
-
-    $menuItems = @(
-        @{ Text = "🛠️  Инструменты разработчика"; Data = "dev-tools" },
-        @{ Text = "🚀 Запуск приложений"; Data = "run-application" },
-        @{ Text = "⚙️  Настройка PowerShell"; Data = "powershell-config" },
-        @{ Text = "🧹 Обслуживание системы"; Data = "system-cleanup" },
-        @{ Text = "💻 Информация о системе"; Data = "system-info" },
-        @{ Text = "🌐 Сетевые утилиты"; Data = "network-utils" },
-        @{ Text = "🎨 RGB Demo"; Data = "rgb-demo" },
-        @{ Text = "🚪 Выход"; Data = "exit" }
-    )
-
-    $gradientOptions = @{
-        StartColor = "#01BB01"
-        EndColor = "#FF9955"
-        GradientType = "Linear"
-    }
-
-    $selected = Show-Menu -MenuItems $menuItems -MenuTitle "" -Prompt "Выберите действие" -GradientOptions $gradientOptions
-
-    switch ($selected.Data) {
-        "dev-tools" { Show-DevToolsMenu }
-        "run-application" { Run-Application }
-        "powershell-config" { Show-PowerShellConfigMenu }
-        "system-cleanup" { Show-CleanupMenu }
-        "system-info" {
-            Show-SystemInfo
-            Write-RGB "`nНажмите любую клавишу..." -FC CyanRGB -newline
-            $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
-            Show-MainMenu
-        }
-        "network-utils" { Show-NetworkMenu }
-        "rgb-demo" { Show-RGBDemo }
-        "exit" {
-            # Анимация выхода
-            Write-RGB "`n👋 " -FC White
-            $goodbye = "До свидания!"
-            for ($i = 0; $i -lt $goodbye.Length; $i++) {
-                $color = Get-GradientColor -Index $i -TotalItems $goodbye.Length -StartColor "#FFD700" -EndColor "#FF1493"
-                Write-RGB $goodbye[$i] -FC $color
-                Start-Sleep -Milliseconds 100
-            }
-            Write-RGB "" -newline
-            return
-        }
-    }
-}
-
-# ===== СЕТЕВОЕ МЕНЮ =====
-function Show-NetworkMenu {
-    $menuItems = @(
-        @{ Text = "🌐 Показать сетевую информацию"; Data = "info" },
-        @{ Text = "🏓 Ping тест"; Data = "ping" },
-        @{ Text = "🔍 Сканировать порты"; Data = "ports" },
-        @{ Text = "📡 Проверить скорость интернета"; Data = "speed" },
-        @{ Text = "🌍 Проверить внешний IP"; Data = "external-ip" },
-        @{ Text = "🔙 Назад"; Data = "back" }
-    )
-
-    $gradientOptions = @{
-        StartColor = "#1E90FF"
-        EndColor = "#00FA9A"
-        GradientType = "Exponential"
-    }
-
-    $selected = Show-Menu -MenuItems $menuItems -MenuTitle "🌐 СЕТЕВЫЕ УТИЛИТЫ" -Prompt "Выберите действие" -GradientOptions $gradientOptions
-
-    switch ($selected.Data) {
-        "info" {
-            Show-NetworkInfo
-            Pause
-            Show-NetworkMenu
-        }
-        "ping" {
-            $target = Read-Host "`nВведите адрес (по умолчанию google.com)"
-            if (-not $target) { $target = "google.com" }
-            Test-ConnectionVisual -ComputerName $target
-            Pause
-            Show-NetworkMenu
-        }
-        "ports" {
-            Show-PortScanner
-            Pause
-            Show-NetworkMenu
-        }
-        "speed" {
-            Write-RGB "`n📡 Проверка скорости интернета..." -FC YellowRGB -newline
-            if (Get-Command speedtest -ErrorAction SilentlyContinue) {
-                speedtest
-            } else {
-                Write-RGB "⚠️  Speedtest CLI не установлен" -FC OrangeRGB -newline
-                Write-RGB "Установите: winget install Ookla.Speedtest" -FC CyanRGB -newline
-            }
-            Pause
-            Show-NetworkMenu
-        }
-        "external-ip" {
-            try {
-                Write-RGB "`n🌍 Получение внешнего IP..." -FC CyanRGB -newline
-                $ip = (Invoke-RestMethod -Uri "https://api.ipify.org?format=json").ip
-                $ipInfo = Invoke-RestMethod -Uri "http://ip-api.com/json/$ip"
-
-                Write-RGB "📍 IP: " -FC White
-                Write-RGB $ip -FC NeonGreenRGB -newline
-                Write-RGB "🌍 Страна: " -FC White
-                Write-RGB $ipInfo.country -FC YellowRGB -newline
-                Write-RGB "🏙️  Город: " -FC White
-                Write-RGB $ipInfo.city -FC CyanRGB -newline
-                Write-RGB "🏢 Провайдер: " -FC White
-                Write-RGB $ipInfo.isp -FC MagentaRGB -newline
-            } catch {
-                Write-RGB "❌ Ошибка получения информации" -FC Red -newline
-            }
-            Pause
-            Show-NetworkMenu
-        }
-        "back" { Show-MainMenu }
-    }
-}
-
-# ===== RGB DEMO =====
-function Show-RGBDemo {
-    #Clear-Host
-    Write-RGB "`n🌈 RGB COLOR DEMONSTRATION 🌈" -FC UkraineBlueRGB -newline
-
-    # Градиентная линия
-    for ($i = 0; $i -lt 60; $i++) {
-        $color = Get-GradientColor -Index $i -TotalItems 60 -StartColor "#FF0000" -EndColor "#0000FF" -GradientType "Sine"
-        Write-RGB "═" -FC $color
-    }
-    Write-RGB "" -newline
-
-    # Цветовая волна
-    Write-RGB "`n🎨 Color Wave:" -FC White -newline
-    for ($i = 0; $i -lt 360; $i += 5) {
-        $r = [Math]::Sin($i * [Math]::PI / 180) * 127 + 128
-        $g = [Math]::Sin(($i + 120) * [Math]::PI / 180) * 127 + 128
-        $b = [Math]::Sin(($i + 240) * [Math]::PI / 180) * 127 + 128
-        Write-RGB "█" -FC $PSStyle.Foreground.FromRgb([int]$r, [int]$g, [int]$b)
-    }
-    Write-RGB "" -newline
-
-    # Матрица с градиентом
-    Write-RGB "`n💻 Matrix Effect:" -FC LimeRGB -newline
-    for ($row = 0; $row -lt 5; $row++) {
-        for ($col = 0; $col -lt 40; $col++) {
-            $char = [char](Get-Random -Minimum 33 -Maximum 126)
-            $greenShade = Get-GradientColor -Index $col -TotalItems 40 -StartColor "#00FF00" -EndColor "#003300"
-            Write-RGB $char -FC $greenShade
-        }
-        Write-RGB "" -newline
-    }
-
-    # Неоновые цвета
-    Write-RGB "`n✨ Neon Colors:" -FC White -newline
-    $neonColors = @("NeonBlueRGB", "NeonGreenRGB", "NeonPinkRGB", "NeonRedRGB", "CyanRGB", "MagentaRGB", "YellowRGB", "OrangeRGB")
-    foreach ($colorName in $neonColors) {
-        Write-RGB "████ " -FC $colorName
-        Write-RGB $colorName -FC $colorName -newline
-    }
-
-    # Градиентный текст
-    Write-RGB "`n🎯 Gradient Text:" -FC White -newline
-    $text = "POWERSHELL ROCKS!"
-    for ($i = 0; $i -lt $text.Length; $i++) {
-        $color = Get-GradientColor -Index $i -TotalItems $text.Length -StartColor "#FF00FF" -EndColor "#00FFFF" -GradientType "Exponential"
-        Write-RGB $text[$i] -FC $color
-    }
-    Write-RGB "" -newline
-
-    Write-RGB "`nНажмите любую клавишу..." -FC CyanRGB -newline
-    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
-    Show-MainMenu
-}
-
-# ===== БЫСТРЫЕ ФУНКЦИИ ДЛЯ ПРОЕКТОВ =====
-function proj {
-    param([string]$Name)
-
-    $projects = @{
-        "tauri"  = "C:\Projects\TauriApp"
-        "react"  = "C:\Projects\ReactApp"
-        "rust"   = "C:\Projects\RustProject"
-        "web3"   = "C:\Projects\Web3App"
-        "vite"   = "C:\Projects\ViteApp"
-    }
-
-    if ($Name -and $projects.ContainsKey($Name)) {
-        Set-Location $projects[$Name]
-        Write-RGB "📁 Switched to project: " -FC White
-        Write-RGB $Name -FC NeonGreenRGB -newline
-        ls
-    } else {
-        Write-RGB "📁 Available projects:" -FC CyanRGB -newline
-        $i = 0
-        $projects.Keys | Sort-Object | ForEach-Object {
-            $color = Get-GradientColor -Index $i -TotalItems $projects.Count -StartColor "#00FF00" -EndColor "#FF00FF"
-            Write-RGB "   • " -FC White
-            Write-RGB $_ -FC $color
-            Write-RGB " → " -FC White
-            Write-RGB $projects[$_] -FC DarkGray -newline
-            $i++
-        }
-    }
-}
-
-# ===== АЛИАС ДЛЯ БЫСТРОГО ДОСТУПА К МЕНЮ =====
-Set-Alias -Name menu -Value Show-MainMenu
-
-# ===== ИНТЕГРАЦИЯ С SECURITYWATCHER =====
-if (Get-Module -ListAvailable -Name SecurityWatcher) {
-    Import-Module SecurityWatcher -ErrorAction SilentlyContinue
-    Write-RGB "🛡️  SecurityWatcher loaded" -FC LimeRGB -newline
-}
-
-# ===== ПОКАЗАТЬ ПРИВЕТСТВИЕ =====
-Show-Welcome
+# Запуск демонстрации
+Start-Demo

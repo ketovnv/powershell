@@ -21,9 +21,10 @@ $scripts = @(
     'Aliases',
     'GradientTable',
     'NetworkSystem',
-    'Wellcome',
+    'Welcome',
     'MenuItems',
-    'AppsBrowsersMenu'
+    'AppsBrowsersMenu',
+    'NiceParser'
     # 'AnalizeModuleFunctions'
 )
 
@@ -206,7 +207,7 @@ function Show-Menu
 
         Write-RGB "❌ Неверный выбор! Попробуйте снова." -FC Red -newline
         Start-Sleep -Seconds 1
-        #Clear-Host
+        #cd -Host
     }
 }
 
@@ -700,3 +701,10 @@ if (Get-Module -ListAvailable -Name SecurityWatcher)
 
 # ===== ПОКАЗАТЬ ПРИВЕТСТВИЕ =====
 Show-Welcome
+
+function prompt {
+    $currentPath = $PWD.Path
+    Write-Host $currentPath -NoNewline -ForegroundColor Green
+    Write-Host "`n> " -NoNewline
+    return " "
+}return [String]::Format("{0:X2}{1:X2}{2:X2}", $r, $g, $b)

@@ -1,10 +1,10 @@
 function Run-Application {
     $menuItems = @(
-        @{ Text = "💻 WebStorm 2025.2 EAP"; Data = @{ Path = "C:\Users\ketov\AppData\Local\Programs\WebStorm\bin\webstorm64.exe" } },
+        @{ Text = "💻 WebStorm 2025.2 EAP"; Data = @{ Path = "ws" } },
         @{ Text = "📝 Zed"; Data = @{ Path = "zed" } },
-        @{ Text = "🖥️  Wezterm"; Data = @{ Path = "C:\Program Files\WezTerm\wezterm-gui.exe" } },
+        @{ Text = "🖥️  Wezterm"; Data = @{ Path = "wezterm-gui" } },
         @{ Text = "🪟 Windows Terminal Preview"; Data = @{ Path = "wt" } },
-        @{ Text = "💬 Telegram"; Data = @{ Path = "telegram" } },
+        @{ Text = "💬 Telegram"; Data = @{ Path = "ttg" } },
         @{ Text = "📘 VS Code"; Data = @{ Path = "code" } },
         @{ Text = "📗 VS Code Insiders"; Data = @{ Path = "code-insiders" } },
         @{ Text = "🦀 RustRover"; Data = @{ Path = "rustrover" } },
