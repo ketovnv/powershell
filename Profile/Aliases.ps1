@@ -1,4 +1,76 @@
 #📅 Дата и время
+function gh {
+    [CmdletBinding(DefaultParameterSetName='AllUsersView', HelpUri='https://go.microsoft.com/fwlink/?LinkID=2096483')]
+    param(
+        [Parameter(Position=0, ValueFromPipelineByPropertyName=$true)]
+        [ValidateNotNullOrEmpty()]
+        [string] ${Name},
+
+        [string] ${Path},
+
+        [ValidateSet('Alias','Cmdlet','Provider','General','FAQ','Glossary','HelpFile','ScriptCommand','Function','Filter','ExternalScript','All','DefaultHelp','DscResource','Class','Configuration')]
+        [string[]] ${Category},
+
+        [Parameter(ParameterSetName='DetailedView', Mandatory=$true)]
+        [switch] ${Detailed},
+
+        [Parameter(ParameterSetName='AllUsersView')]
+        [switch] ${Full},
+
+        [Parameter(ParameterSetName='Examples', Mandatory=$true)]
+        [switch] ${Examples},
+
+        [Parameter(ParameterSetName='Parameters', Mandatory=$true)]
+        [string[]] ${Parameter},
+
+        [string[]] ${Component},
+
+        [string[]] ${Functionality},
+
+        [string[]] ${Role},
+
+        [Parameter(ParameterSetName='Online', Mandatory=$true)]
+        [switch] ${Online},
+
+        [Parameter(ParameterSetName='ShowWindow', Mandatory=$true)]
+        [switch] ${ShowWindow}
+    )
+
+    process {
+        # Call the original Get-Help command by its fully qualified path.
+        $help = Microsoft.PowerShell.Core\Get-Help @PSBoundParameters
+
+        # Define the styles for colorization.
+        $style = @{
+            SECTION = $PSStyle.Formatting.FormatAccent
+            COMMAND = $PSStyle.Foreground.BrightYellow
+            PARAM   = $PSStyle.Foreground.FromRgb(64,200,230)
+        }
+
+        # Escape the command name for use in RegEx
+        $commandNameEscaped = [regex]::Escape( $help.Name )
+
+        # Define a RegEx for doing the formatting. The names of the RegEx groups have to match the keys of the $style hashtable.
+        $regEx = @(
+            "(?m)(?<=^[ \t]*)(?<SECTION>[A-Z][A-Z \t\d\W]+$)"
+            "(?<COMMAND>\b$commandNameEscaped\b)"
+            "(?<PARAM>\B-\w+)"
+        ) -join '|'
+
+        # Format the help object
+        $help | Out-String | ForEach-Object {
+            [regex]::Replace( $_, $regEx, {
+                # Get the RegEx group that has matched.
+                $matchGroup = $args.Groups.Where{ $_.Success }[ 1 ]
+                # Use the RegEx group name to select associated style for colorizing the match.
+                $style[ $matchGroup.Name ] + $matchGroup.Value + $PSStyle.Reset
+            })
+        }
+    }
+}
+
+
+
 function now { Get-Date -Format "dd.MM.yyyy HH:mm:ss" }
 
 function date { Get-Date -Format "dd.MM.yyyy" }#
@@ -23,10 +95,9 @@ function ExternalScripts {
 }
 
 function freeC {
-    (gcim win32_logicaldisk -Filter "deviceid = 'C:'").FreeSpace / 1gb
+#    (gcim win32_logicaldisk -Filter "deviceid = 'C:'").FreeSpace / 1gb
     #or use the PSDrive
     (Get-PSDrive c).Free / 1gb
-
 }
 
 function commandsExample {
@@ -249,6 +320,7 @@ function cd... { goto ..\.. }
 function cd.... { goto ..\..\.. }
 
 function c { Clear-Host; goto C:\ }
+function cm { goto C:\Users\ketov\.config\micro\ }
 function reloadProfile { . $PROFILE; Write-RGB "🔁 Profile was reloaded" -FC "#a0FF99" }
 
 ## 📜 Алиасы
@@ -272,3 +344,5 @@ Set-Alias gr grepz
 Set-Alias cy gotoCrypta
 Set-Alias ad gotoAppData
 Set-Alias pm gotoPowershellModules
+
+

@@ -17,15 +17,13 @@ $env:POSH_IGNORE_ALLUSER_PROFILES = $true
 # ===== ИМПОРТ Aliases и GRADIENT ФУНКЦИЙ =====
 
 
-$scripts = @( 
+$scripts = @(
+    'NiceParser',
     'Aliases',
-    'GradientTable',
     'NetworkSystem',
     'Welcome',
     'MenuItems',
-    'AppsBrowsersMenu',
-    'NiceParser'
-    # 'AnalizeModuleFunctions'
+    'AppsBrowsersMenu'
 )
 
 
@@ -35,7 +33,8 @@ foreach ($script in $scripts) {
 
 
 # ===== МОДУЛИ =====
-$modules = @( 
+$modules = @(
+    'GradientMenu',
     'PSColor',
     'Terminal-Icons',
     'PSFzf',
@@ -54,8 +53,15 @@ foreach ($module in $modules)
     }
 }
 
-
-
+#$items = @("Файл", "Редактировать", "Просмотр", "Справка")
+#$gradientSettings = @{
+#    StartColor = "#FF0000"
+#    EndColor = "#0000FF"
+#    GradientType = "Linear"
+#    RedCoefficient = 1.2
+#}
+#Show-GradientMenu -MenuItems $items -Title "Главное меню" -GradientOptions $gradientSettings
+#
 
 
 # ===== OH-MY-POSH =====
@@ -63,88 +69,6 @@ $ompConfig = 'C:\scripts\OhMyPosh\free-ukraine.omp.json'
 if (Test-Path $ompConfig)
 {
     oh-my-posh init pwsh --config $ompConfig | Invoke-Expression
-}
-
-# ===== RGB ЦВЕТОВАЯ ПАЛИТРА =====
-$global:RGB = @{
-# Основные цвета
-    WhiteRGB = @{ R = 255; G = 255; B = 255 }
-    CyanRGB = @{ R = 0; G = 150; B = 255 }
-    MagentaRGB = @{ R = 255; G = 0; B = 255 }
-    YellowRGB = @{ R = 255; G = 255; B = 0 }
-    OrangeRGB = @{ R = 255; G = 165; B = 0 }
-    PinkRGB = @{ R = 255; G = 20; B = 147 }
-    PurpleRGB = @{ R = 138; G = 43; B = 226 }
-    LimeRGB = @{ R = 50; G = 205; B = 50 }
-    TealRGB = @{ R = 0; G = 128; B = 128 }
-    GoldRGB = @{ R = 255; G = 215; B = 0 }
-    CocoaBeanRGB = @{ R = 79; G = 56; B = 53 }
-
-    # Неоновые цвета
-    NeonBlueRGB = @{ R = 77; G = 200; B = 255 }
-    NeonGreenRGB = @{ R = 57; G = 255; B = 20 }
-    NeonPinkRGB = @{ R = 255; G = 70; B = 200 }
-    NeonRedRGB = @{ R = 255; G = 55; B = 100 }
-
-    # Градиентные цвета
-    Sunset1RGB = @{ R = 255; G = 94; B = 77 }
-    Sunset2RGB = @{ R = 255; G = 154; B = 0 }
-    Ocean1RGB = @{ R = 0; G = 119; B = 190 }
-    Ocean2RGB = @{ R = 0; G = 180; B = 216 }
-    Ocean3RGB = @{ R = 0; G = 150; B = 160 }
-    Ocean4RGB = @{ R = 0; G = 205; B = 230 }
-
-    # Украинские цвета 🇺🇦
-    UkraineBlueRGB = @{ R = 0; G = 87; B = 183 }
-    UkraineYellowRGB = @{ R = 255; G = 213; B = 0 }
-}
-
-# Функция для создания RGB цвета
-function Get-RGBColor
-{
-    param($Color)
-    return $PSStyle.Foreground.FromRgb($Color.R, $Color.G, $Color.B)
-}
-
-function Write-RGB
-{
-    param(
-        [Parameter(Position = 0, ValueFromPipeline = $true, ValueFromRemainingArguments = $true)]
-        [string[]] $Text,
-        [string] $FC = 'White',
-        [switch] $newline = $false
-    )
-
-    $fullText = $Text -join ' '
-
-    $systemColors = @(
-        "Black", "DarkBlue", "DarkGreen", "DarkCyan",
-        "DarkRed", "DarkMagenta", "DarkYellow", "Gray",
-        "DarkGray", "Blue", "Green", "Cyan",
-        "Red", "Magenta", "Yellow", "White"
-    )
-
-    if ($FC -in $systemColors)
-    {
-        Write-Host $fullText -ForegroundColor $FC -NoNewline:(-not $newline)
-    }
-    elseif ($global:RGB.ContainsKey($FC))
-    {
-        $rgbColor = Get-RGBColor $global:RGB[$FC]
-        Write-Host "${rgbColor}${fullText}${PSStyle.Reset}" -NoNewline:(-not $newline)
-    }
-    elseif ($FC -match '^#[0-9A-Fa-f]{6}$')
-    {
-        $r = [Convert]::ToInt32($FC.Substring(1, 2), 16)
-        $g = [Convert]::ToInt32($FC.Substring(3, 2), 16)
-        $b = [Convert]::ToInt32($FC.Substring(5, 2), 16)
-        $rgbColor = $PSStyle.Foreground.FromRgb($r, $g, $b)
-        Write-Host "${rgbColor}${fullText}${PSStyle.Reset}" -NoNewline:(-not $newline)
-    }
-    else
-    {
-        Write-Host $fullText -ForegroundColor White -NoNewline:(-not $newline)
-    }
 }
 
 # ===== УЛУЧШЕННАЯ ФУНКЦИЯ МЕНЮ С ГРАДИЕНТАМИ =====

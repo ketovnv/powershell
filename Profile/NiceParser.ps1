@@ -1,5 +1,5 @@
 # ╔═══════════════════════════════════════════════════════════════════════════╗
-# ║                       🎨 NICE PARSER v2.0 - RGB Edition                    ║
+# ║                       🎨 NICE PARSER v2.1 - RGB Edition                    ║
 # ║                     Enhanced PowerShell Text Parser                         ║
 # ║                         With Full RGB Support 🌈                           ║
 # ╚═══════════════════════════════════════════════════════════════════════════╝
@@ -8,330 +8,53 @@
 
 # Проверка и импорт необходимых модулей
 $requiredModules = @('Parser', 'ColoredText')
-foreach ($module in $requiredModules) {
-    if (-not (Get-Module -ListAvailable -Name $module)) {
+foreach ($module in $requiredModules)
+{
+    if (-not (Get-Module -ListAvailable -Name $module))
+    {
         Write-Warning "Модуль $module не найден. Установите: Install-Module $module"
-    } else {
+    }
+    else
+    {
         Import-Module $module -ErrorAction SilentlyContinue
     }
 }
 
+# Импорт цветов
+            . (Join-Path $PSScriptRoot 'NiceColors.ps1')
 #endregion
 
-#region RGB Палитра и базовые функции
-
-# Расширенная RGB палитра с дополнительными цветами
-if (-not $global:RGB) {
-    $global:RGB = @{}
+if (-not $global:RGB)
+{
+    $global:RGB = @{ }
 }
 
-# Добавляем новые цвета к существующей палитре
-$additionalColors = @{
-# Пастельные тона
-    "PastelPink"     = "#FFD1DC"
-    "PastelBlue"     = "#AEC6CF"
-    "PastelGreen"    = "#77DD77"
-    "PastelYellow"   = "#FDFD96"
-    "PastelPurple"   = "#B19CD9"
 
-    # Металлические оттенки
-    "Silver"         = "#C0C0C0"
-    "Bronze"         = "#CD7F32"
-    "Copper"         = "#B87333"
-    "Platinum"       = "#E5E4E2"
+# Функция для получения цвета (совместимость со старым кодом)
 
-    # Природные цвета
-    "SkyBlue"        = "#87CEEB"
-    "SeaGreen"       = "#2E8B57"
-    "SandyBrown"     = "#F4A460"
-    "Turquoise"      = "#40E0D0"
-
-    # Энергетические цвета
-    "ElectricLime"   = "#CCFF00"
-    "LaserRed"       = "#FF0F0F"
-    "NeonOrange"     = "#FF6600"
-    "PlasmaViolet"   = "#8B00FF"
-}
-
-foreach ($color in $additionalColors.GetEnumerator()) {
-    if (-not $global:RGB.ContainsKey($color.Key)) {
-        $global:RGB[$color.Key] = $color.Value
-    }
-}
-
-# Функция конвертации HEX в RGB компоненты
-function ConvertTo-RGBComponents {
-    param([string]$HexColor)
-
-    $hex = $HexColor.TrimStart('#')
-    if ($hex.Length -eq 3) {
-        $hex = $hex[0] + $hex[0] + $hex[1] + $hex[1] + $hex[2] + $hex[2]
-    }
-
-    return @{
-        R = [Convert]::ToInt32($hex.Substring(0, 2), 16)
-        G = [Convert]::ToInt32($hex.Substring(2, 2), 16)
-        B = [Convert]::ToInt32($hex.Substring(4, 2), 16)
-    }
-}
-
-# Функция создания ANSI escape последовательности для RGB
-function Get-RGBAnsiSequence {
-    param(
-        [string]$HexColor,
-        [switch]$Background
-    )
-
-    $rgb = ConvertTo-RGBComponents -HexColor $HexColor
-    $type = if ($Background) { 48 } else { 38 }
-
-    return "`e[${type};2;$($rgb.R);$($rgb.G);$($rgb.B)m"
-}
-
-#endregion
-
-#region Основная функция Write-RGB
-
-function Write-RGB {
-    <#
-    .SYNOPSIS
-        Выводит текст с поддержкой RGB цветов
-    
-    .DESCRIPTION
-        Универсальная функция для вывода текста с RGB цветами переднего плана и фона,
-        поддержкой стилей и различных режимов вывода
-    
-    .PARAMETER Text
-        Текст для вывода
-    
-    .PARAMETER ForegroundColor
-        Цвет текста (имя из палитры или HEX)
-    
-    .PARAMETER BackgroundColor
-        Цвет фона (имя из палитры или HEX)
-    
-    .PARAMETER Style
-        Стиль текста: Bold, Italic, Underline, Blink
-    
-    .PARAMETER NoNewLine
-        Не добавлять перевод строки
-    
-    .EXAMPLE
-        Write-RGB "Hello World" -ForegroundColor "#FF6B6B" -Style Bold
-    
-    .EXAMPLE
-        Write-RGB "Warning!" -ForegroundColor "ElectricLime" -BackgroundColor "#2C0000" -Style Blink
-    #>
-
-    [CmdletBinding()]
-    param(
-        [Parameter(Position = 0, ValueFromPipeline = $true)]
-        [string]$Text,
-
-        [Alias('FC', 'FG')]
-        [string]$ForegroundColor = 'White',
-
-        [Alias('BC', 'BG')]
-        [string]$BackgroundColor,
-
-        [ValidateSet('Normal', 'Bold', 'Italic', 'Underline', 'Blink')]
-        [string[]]$Style = 'Normal',
-
-        [Alias('NNL')]
-        [switch]$NoNewLine
-    )
-
-    begin {
-        # Проверка поддержки ANSI
-        if (-not $PSStyle) {
-            Write-Warning "PSStyle не поддерживается в данной версии PowerShell"
-            return
-        }
-    }
-
-    process {
-        $output = ""
-
-        # Применение стилей
-        foreach ($s in $Style) {
-            switch ($s) {
-                'Bold'      { $output += $PSStyle.Bold }
-                'Italic'    { $output += $PSStyle.Italic }
-                'Underline' { $output += $PSStyle.Underline }
-                'Blink'     { $output += $PSStyle.Blink }
-            }
-        }
-
-        # Применение цвета переднего плана
-        if ($global:RGB.ContainsKey($ForegroundColor)) {
-            $output += Get-RGBAnsiSequence -HexColor $global:RGB[$ForegroundColor]
-        } elseif ($ForegroundColor -match '^#[0-9A-Fa-f]{3,6}$') {
-            $output += Get-RGBAnsiSequence -HexColor $ForegroundColor
-        } else {
-            # Попытка использовать системные цвета
-            try {
-                $output += $PSStyle.Foreground.$ForegroundColor
-            } catch {
-                # Используем белый по умолчанию
-                $output += $PSStyle.Foreground.White
-            }
-        }
-
-        # Применение цвета фона
-        if ($BackgroundColor) {
-            if ($global:RGB.ContainsKey($BackgroundColor)) {
-                $output += Get-RGBAnsiSequence -HexColor $global:RGB[$BackgroundColor] -Background
-            } elseif ($BackgroundColor -match '^#[0-9A-Fa-f]{3,6}$') {
-                $output += Get-RGBAnsiSequence -HexColor $BackgroundColor -Background
-            } else {
-                try {
-                    $output += $PSStyle.Background.$BackgroundColor
-                } catch {
-                    # Игнорируем ошибку
-                }
-            }
-        }
-
-        # Добавляем текст и сброс стилей
-        $output += $Text + $PSStyle.Reset
-
-        # Вывод
-        if ($NoNewLine) {
-            Write-Host $output -NoNewline
-        } else {
-            Write-Host $output
-        }
-    }
-}
-
-#endregion
-
-#region Функции для создания градиентов
-
-function Get-GradientColor {
-    <#
-    .SYNOPSIS
-        Вычисляет цвет в градиенте между двумя цветами
-    
-    .PARAMETER StartColor
-        Начальный цвет градиента
-    
-    .PARAMETER EndColor
-        Конечный цвет градиента
-    
-    .PARAMETER Position
-        Позиция в градиенте (0.0 - 1.0)
-    
-    .PARAMETER Steps
-        Количество шагов в градиенте (для дискретных градиентов)
-    #>
-
-    param(
-        [string]$StartColor,
-        [string]$EndColor,
-        [double]$Position,
-        [int]$Steps = 0
-    )
-
-    # Конвертируем цвета в RGB
-    $start = ConvertTo-RGBComponents -HexColor $StartColor
-    $end = ConvertTo-RGBComponents -HexColor $EndColor
-
-    # Если указаны шаги, квантуем позицию
-    if ($Steps -gt 0) {
-        $Position = [Math]::Floor($Position * $Steps) / $Steps
-    }
-
-    # Интерполяция
-    $r = [Math]::Round($start.R + ($end.R - $start.R) * $Position)
-    $g = [Math]::Round($start.G + ($end.G - $start.G) * $Position)
-    $b = [Math]::Round($start.B + ($end.B - $start.B) * $Position)
-
-    # Возвращаем HEX цвет
-    return "{0:X2}{1:X2}{2:X2}" -f [int][double]$r, [int][double]$g, [int][double]$b
-}
-
-function Get-GradientColorVariant {
-    param(
-        [string]$StartColor,
-        [string]$EndColor,
-        [double]$Ratio
-    )
-
-    $startR = [Convert]::ToInt32($StartColor.Substring(1, 2), 16)
-    $startG = [Convert]::ToInt32($StartColor.Substring(3, 2), 16)
-    $startB = [Convert]::ToInt32($StartColor.Substring(5, 2), 16)
-
-    $endR = [Convert]::ToInt32($EndColor.Substring(1, 2), 16)
-    $endG = [Convert]::ToInt32($EndColor.Substring(3, 2), 16)
-    $endB = [Convert]::ToInt32($EndColor.Substring(5, 2), 16)
-
-    $newR = [int]($startR + ($endR - $startR) * $Ratio)
-    $newG = [int]($startG + ($endG - $startG) * $Ratio)
-    $newB = [int]($startB + ($endB - $startB) * $Ratio)
-
-    return "#{0:X2}{1:X2}{2:X2}" -f $newR, $newG, $newB
-}
-
-function Write-GradientText {
-    <#
-    .SYNOPSIS
-        Выводит текст с градиентом
-    
-    .PARAMETER Text
-        Текст для вывода
-    
-    .PARAMETER StartColor
-        Начальный цвет градиента
-    
-    .PARAMETER EndColor
-        Конечный цвет градиента
-    
-    .PARAMETER Style
-        Стиль текста
-    #>
-
-    param(
-        [string]$Text,
-        [string]$StartColor = "#FF0000",
-        [string]$EndColor = "#0000FF",
-        [string[]]$Style = 'Normal'
-    )
-
-    $chars = $Text.ToCharArray()
-    $length = $chars.Length
-
-    for ($i = 0; $i -lt $length; $i++) {
-        $position = if ($length -eq 1) { 0.5 } else { $i / ($length - 1) }
-        $color = Get-GradientColor -StartColor $StartColor -EndColor $EndColor -Position $position
-
-        Write-RGB -Text $chars[$i] -ForegroundColor $color -Style $Style -NoNewLine
-    }
-
-    Write-Host ""  # Перевод строки в конце
-}
 
 #endregion
 
 #region Визуальные компоненты - Заголовки
 
-function Show-RGBHeader {
+function Show-RGBHeader
+{
     <#
     .SYNOPSIS
         Отображает красивый заголовок с градиентом и рамкой
-    
+
     .PARAMETER Title
         Текст заголовка
-    
+
     .PARAMETER Width
         Ширина заголовка (по умолчанию авто)
-    
+
     .PARAMETER BorderStyle
         Стиль рамки: Single, Double, Rounded, Heavy, Dashed
-    
+
     .PARAMETER TitleColor
         Цвет заголовка или градиент
-    
+
     .PARAMETER BorderColor
         Цвет рамки
     #>
@@ -355,17 +78,18 @@ function Show-RGBHeader {
 
     # Определение символов рамки
     $borders = @{
-        'Single'  = @{ TL = "┌"; TR = "┐"; BL = "└"; BR = "┘"; H = "─"; V = "│" }
-        'Double'  = @{ TL = "╔"; TR = "╗"; BL = "╚"; BR = "╝"; H = "═"; V = "║" }
+        'Single' = @{ TL = "┌"; TR = "┐"; BL = "└"; BR = "┘"; H = "─"; V = "│" }
+        'Double' = @{ TL = "╔"; TR = "╗"; BL = "╚"; BR = "╝"; H = "═"; V = "║" }
         'Rounded' = @{ TL = "╭"; TR = "╮"; BL = "╰"; BR = "╯"; H = "─"; V = "│" }
-        'Heavy'   = @{ TL = "┏"; TR = "┓"; BL = "┗"; BR = "┛"; H = "━"; V = "┃" }
-        'Dashed'  = @{ TL = "┌"; TR = "┐"; BL = "└"; BR = "┘"; H = "╌"; V = "┆" }
+        'Heavy' = @{ TL = "┏"; TR = "┓"; BL = "┗"; BR = "┛"; H = "━"; V = "┃" }
+        'Dashed' = @{ TL = "┌"; TR = "┐"; BL = "└"; BR = "┘"; H = "╌"; V = "┆" }
     }
 
     $border = $borders[$BorderStyle]
 
     # Вычисление ширины
-    if ($Width -eq 0) {
+    if ($Width -eq 0)
+    {
         $Width = $Title.Length + 6
     }
     $Width = [Math]::Max($Width, $Title.Length + 6)
@@ -376,56 +100,95 @@ function Show-RGBHeader {
     $rightPad = [Math]::Ceiling($padding)
 
     # Верхняя граница
-    Write-RGB -Text $border.TL -ForegroundColor $BorderColor -NoNewLine
-    Write-RGB -Text ($border.H * ($Width - 2)) -ForegroundColor $BorderColor -NoNewLine
-    Write-RGB -Text $border.TR -ForegroundColor $BorderColor
+    Write-RGB -Text $border.TL -FC $BorderColor
+    Write-RGB -Text ($border.H * ($Width - 2)) -FC $BorderColor
+    Write-RGB -Text $border.TR -FC $BorderColor
 
     # Строка с заголовком
-    Write-RGB -Text $border.V -ForegroundColor $BorderColor -NoNewLine
-    Write-RGB -Text (" " * $leftPad) -NoNewLine
+    Write-RGB -Text $border.V -FC $BorderColor
+    Write-RGB -Text (" " * $leftPad)
 
     # Градиентный заголовок
-    if ($TitleColor.StartColor -and $TitleColor.EndColor) {
-        Write-GradientText -Text $Title -StartColor $TitleColor.StartColor -EndColor $TitleColor.EndColor -Style Bold
-        # Курсор уже на новой строке после Write-GradientText
-        Write-RGB -Text ("`r" + $border.V + (" " * $leftPad + $Title + " " * $rightPad)) -ForegroundColor $BorderColor -NoNewLine
-    } else {
-        Write-RGB -Text $Title -ForegroundColor $TitleColor -Style Bold -NoNewLine
-        Write-RGB -Text (" " * $rightPad) -NoNewLine
+    if ($TitleColor.StartColor -and $TitleColor.EndColor)
+    {
+        # Сохраняем текущую позицию
+        $currentY = $Host.UI.RawUI.CursorPosition.Y
+
+        # Выводим градиентный заголовок
+#
+
+        # Возвращаемся на ту же строку
+        $Host.UI.RawUI.CursorPosition = @{X = 0; Y = $currentY}
+
+        # Перерисовываем всю строку правильно
+        Write-RGB -Text $border.V -FC $BorderColor
+        Write-RGB -Text (" " * $leftPad)
+        Write-GradientText -Text $Title -StartColor $TitleColor.StartColor -EndColor $TitleColor.EndColor
+#        Write-RGB -Text $Title -FC "#1177FF"
+        Write-RGB -Text (" " * $rightPad)
+    }
+    else
+    {
+        $titleColorName = if ($TitleColor -is [string])
+        {
+            $TitleColor
+        }
+        else
+        {
+            "White"
+        }
+        Write-RGB -Text $Title -FC $titleColorName -Style Bold
+        Write-RGB -Text (" " * $rightPad)
     }
 
-    Write-RGB -Text $border.V -ForegroundColor $BorderColor
+    Write-RGB -Text $border.V -FC $BorderColor -newline
 
     # Нижняя граница
-    Write-RGB -Text $border.BL -ForegroundColor $BorderColor -NoNewLine
-    Write-RGB -Text ($border.H * ($Width - 2)) -ForegroundColor $BorderColor -NoNewLine
-    Write-RGB -Text $border.BR -ForegroundColor $BorderColor
+    Write-RGB -Text $border.BL -FC $BorderColor
+    Write-RGB -Text ($border.H * ($Width - 2)) -FC $BorderColor
+    Write-RGB -Text $border.BR -FC $BorderColor -newline
+}
+
+# Альтернативная функция для простых заголовков (совместимость)
+function Show-Header
+{
+    param(
+        [string]$Title,
+        [string]$StartColor = "#FF6B6B",
+        [string]$EndColor = "#4ECDC4"
+    )
+
+    Show-RGBHeader -Title $Title -TitleColor @{
+        StartColor = $StartColor
+        EndColor = $EndColor
+    }
 }
 
 #endregion
 
 #region Визуальные компоненты - Прогресс-бары
 
-function Show-RGBProgress {
+function Show-RGBProgress
+{
     <#
     .SYNOPSIS
         Отображает красивый прогресс-бар с градиентом
-    
+
     .PARAMETER Activity
         Описание выполняемой операции
-    
+
     .PARAMETER PercentComplete
         Процент выполнения (0-100)
-    
+
     .PARAMETER Status
         Дополнительный статус
-    
+
     .PARAMETER Width
         Ширина прогресс-бара
-    
+
     .PARAMETER ShowPercentage
         Показывать процент
-    
+
     .PARAMETER BarStyle
         Стиль прогресс-бара
     #>
@@ -438,7 +201,7 @@ function Show-RGBProgress {
 
         [string]$Status = "",
 
-        [int]$Width = 50,
+        [int]$Width = 30,
 
         [switch]$ShowPercentage,
 
@@ -448,10 +211,10 @@ function Show-RGBProgress {
 
     # Символы для разных стилей
     $styles = @{
-        'Blocks'   = @{ Full = "█"; Empty = "░" }
+        'Blocks' = @{ Full = "█"; Empty = "░" }
         'Gradient' = @{ Full = "█"; Empty = "░" }
-        'Dots'     = @{ Full = "●"; Empty = "○" }
-        'Lines'    = @{ Full = "━"; Empty = "╌" }
+        'Dots' = @{ Full = "●"; Empty = "○" }
+        'Lines' = @{ Full = "━"; Empty = "╌" }
     }
 
     $chars = $styles[$BarStyle]
@@ -459,42 +222,86 @@ function Show-RGBProgress {
     $empty = $Width - $filled
 
     # Вывод активности
-    Write-RGB -Text "$Activity " -ForegroundColor "Lavender" -Style Bold -NoNewLine
+    Write-RGB -Text "$Activity " -FC "Lavender" -Style Bold -newline
 
-    if ($Status) {
-        Write-RGB -Text "($Status) " -ForegroundColor "PastelYellow" -NoNewLine
+    if ($Status)
+    {
+        Write-RGB -Text "($Status) " -FC "PastelYellow"
     }
 
     # Открывающая скобка
-    Write-RGB -Text "[" -ForegroundColor "Silver" -NoNewLine
+    Write-RGB -Text "[" -FC "Silver"
 
     # Прогресс-бар
-    if ($BarStyle -eq 'Gradient') {
+    if ($BarStyle -eq 'Gradient')
+    {
         for ($i = 0; $i -lt $filled; $i++) {
             $position = $i / $Width
             $color = Get-GradientColor -StartColor "#FF0000" -EndColor "#00FF00" -Position $position
-            Write-RGB -Text $chars.Full -ForegroundColor $color -NoNewLine
+            Write-RGB -Text $chars.Full -FC $color
         }
-    } else {
-        $progressColor = if ($PercentComplete -lt 33) { "#FF6B6B" }
-        elseif ($PercentComplete -lt 66) { "#FFD93D" }
-        else { "#6BCF7F" }
+    }
+    else
+    {
+        $progressColor = if ($PercentComplete -lt 33)
+        {
+            "#FF6B6B"
+        }
+        elseif ($PercentComplete -lt 66)
+        {
+            "#FFD93D"
+        }
+        else
+        {
+            "#6BCF7F"
+        }
 
-        Write-RGB -Text ($chars.Full * $filled) -ForegroundColor $progressColor -NoNewLine
+        Write-RGB -Text ($chars.Full * $filled) -FC $progressColor
     }
 
     # Пустая часть
-    Write-RGB -Text ($chars.Empty * $empty) -ForegroundColor "#333333" -NoNewLine
+    Write-RGB -Text ($chars.Empty * $empty) -FC "#333333" -newline
 
     # Закрывающая скобка
-    Write-RGB -Text "]" -ForegroundColor "Silver" -NoNewLine
+    Write-RGB -Text "]" -FC "Silver" -newline
 
     # Процент
-    if ($ShowPercentage) {
-        Write-RGB -Text " $PercentComplete%" -ForegroundColor "ElectricBlue" -Style Bold
-    } else {
+    if ($ShowPercentage)
+    {
+        Write-RGB -Text " $PercentComplete%" -FC "ElectricBlue" -Style Bold
+    }
+    else
+    {
         Write-Host ""
     }
+
+    # Дополнительное сообщение о завершении
+    if ($PercentComplete -eq 100)
+    {
+        Write-RGB "✅ Complete!" -FC "LimeGreen" -Style Bold
+    }
+}
+
+# Совместимость со старым кодом
+function Show-Progress
+{
+    param(
+        [int]$Current,
+        [int]$Total,
+        [string]$Activity = "Обработка",
+        [string]$ProgressColor = "#00FF7F",
+        [string]$BC = "#333333"
+    )
+
+    $percent = if ($Total -gt 0)
+    {
+        [Math]::Round(($Current / $Total) * 100)
+    }
+    else
+    {
+        0
+    }
+    Show-RGBProgress -Activity $Activity -PercentComplete $percent -ShowPercentage
 }
 
 #endregion
@@ -506,61 +313,62 @@ $script:RGBParsingRules = @(
     @{
         Name = "Errors"
         Pattern = '\b(ERROR|ОШИБКА|FATAL|КРИТИЧНО|EXCEPTION)\b'
-        ForegroundColor = "LaserRed"
-        BackgroundColor = "#2C0000"
+        FC = "LaserRed"
+        BC = "#2C0000"
         Style = @('Bold')
     },
     @{
         Name = "Success"
         Pattern = '\b(SUCCESS|УСПЕШНО|OK|COMPLETE|ГОТОВО)\b'
-        ForegroundColor = "LimeGreen"
+        FC = "LimeGreen"
         Style = @('Bold')
     },
     @{
         Name = "Warnings"
         Pattern = '\b(WARNING|ВНИМАНИЕ|WARN|ПРЕДУПРЕЖДЕНИЕ)\b'
-        ForegroundColor = "GoldYellow"
+        FC = "GoldYellow"
         Style = @('Bold')
     },
     @{
         Name = "Info"
         Pattern = '\b(INFO|ИНФОРМАЦИЯ|СВЕДЕНИЯ|NOTE)\b'
-        ForegroundColor = "ElectricBlue"
+        FC = "ElectricBlue"
     },
     @{
         Name = "Timestamps"
         Pattern = '\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}'
-        ForegroundColor = "Silver"
+        FC = "Silver"
     },
     @{
         Name = "IPAddresses"
         Pattern = '\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b'
-        ForegroundColor = "Turquoise"
+        FC = "Turquoise"
     },
     @{
         Name = "URLs"
         Pattern = 'https?://[^\s]+'
-        ForegroundColor = "SkyBlue"
+        FC = "SkyBlue"
         Style = @('Underline')
     },
     @{
         Name = "Paths"
         Pattern = '(?:[A-Za-z]:)?[\\/](?:[^\\/\s]+[\\/])*[^\\/\s]+'
-        ForegroundColor = "PastelGreen"
+        FC = "PastelGreen"
     }
 )
 
-function Out-RGBParsed {
+function Out-RGBParsed
+{
     <#
     .SYNOPSIS
         Парсит и выводит текст с RGB подсветкой согласно правилам
-    
+
     .PARAMETER InputText
         Текст для парсинга
-    
+
     .PARAMETER Rules
         Массив правил парсинга
-    
+
     .PARAMETER PassThru
         Вернуть обработанный текст вместо вывода
     #>
@@ -575,17 +383,20 @@ function Out-RGBParsed {
     )
 
     process {
-        foreach ($line in $InputText) {
+        foreach ($line in $InputText)
+        {
             $segments = @()
             $lastIndex = 0
 
             # Находим все совпадения
             $matches = @()
-            foreach ($rule in $Rules) {
+            foreach ($rule in $Rules)
+            {
                 $regex = [regex]$rule.Pattern
                 $regexMatches = $regex.Matches($line)
 
-                foreach ($match in $regexMatches) {
+                foreach ($match in $regexMatches)
+                {
                     $matches += @{
                         Index = $match.Index
                         Length = $match.Length
@@ -599,12 +410,14 @@ function Out-RGBParsed {
             $matches = $matches | Sort-Object Index
 
             # Обрабатываем совпадения
-            foreach ($match in $matches) {
+            foreach ($match in $matches)
+            {
                 # Добавляем текст до совпадения
-                if ($match.Index -gt $lastIndex) {
+                if ($match.Index -gt $lastIndex)
+                {
                     $segments += @{
                         Text = $line.Substring($lastIndex, $match.Index - $lastIndex)
-                        ForegroundColor = "White"
+                        FC = "White"
                         Style = @('Normal')
                     }
                 }
@@ -612,8 +425,8 @@ function Out-RGBParsed {
                 # Добавляем совпадение
                 $segments += @{
                     Text = $match.Value
-                    ForegroundColor = $match.Rule.ForegroundColor
-                    BackgroundColor = $match.Rule.BackgroundColor
+                    FC = $match.Rule.FC
+                    BC = $match.Rule.BC
                     Style = $match.Rule.Style
                 }
 
@@ -621,30 +434,37 @@ function Out-RGBParsed {
             }
 
             # Добавляем оставшийся текст
-            if ($lastIndex -lt $line.Length) {
+            if ($lastIndex -lt $line.Length)
+            {
                 $segments += @{
                     Text = $line.Substring($lastIndex)
-                    ForegroundColor = "White"
+                    FC = "White"
                     Style = @('Normal')
                 }
             }
 
             # Выводим сегменты
-            if ($PassThru) {
+            if ($PassThru)
+            {
                 return $segments
-            } else {
-                foreach ($segment in $segments) {
+            }
+            else
+            {
+                foreach ($segment in $segments)
+                {
                     $params = @{
                         Text = $segment.Text
-                        ForegroundColor = $segment.ForegroundColor
-                        NoNewLine = $true
+                        FC = $segment.FC
+                        newline = $false
                     }
 
-                    if ($segment.BackgroundColor) {
-                        $params.BackgroundColor = $segment.BackgroundColor
+                    if ($segment.BC)
+                    {
+                        $params.BC = $segment.BC
                     }
 
-                    if ($segment.Style) {
+                    if ($segment.Style)
+                    {
                         $params.Style = $segment.Style
                     }
 
@@ -657,7 +477,12 @@ function Out-RGBParsed {
 }
 
 #endregion
-function Write-Rainbow {
+
+#region Дополнительные визуальные эффекты
+
+# Функция для создания радужного текста
+function Write-Rainbow
+{
     param([string]$Text)
 
     $rainbowColors = @("#FF0000", "#FF7F00", "#FFFF00", "#00FF00", "#0000FF", "#4B0082", "#9400D3")
@@ -665,13 +490,14 @@ function Write-Rainbow {
 
     for ($i = 0; $i -lt $chars.Length; $i++) {
         $colorIndex = $i % $rainbowColors.Length
-        Write-RGB $chars[$i] -FC $rainbowColors[$colorIndex] -Bold
+        Write-RGB $chars[$i] -FC $rainbowColors[$colorIndex] -Bold -NoNewLine
     }
     Write-Host ""
 }
 
 # Функция для создания мигающего RGB текста
-function Write-BlinkingRGB {
+function Write-BlinkingRGB
+{
     param(
         [string]$Text,
         [int]$Times = 5,
@@ -680,15 +506,59 @@ function Write-BlinkingRGB {
     )
 
     for ($i = 0; $i -lt $Times; $i++) {
-        $color = if ($i % 2 -eq 0) { $Color1 } else { $Color2 }
+        $color = if ($i % 2 -eq 0)
+        {
+            $Color1
+        }
+        else
+        {
+            $Color2
+        }
         Write-RGB $Text -FC $color -Bold
         Start-Sleep -Milliseconds 500
         Write-Host ("`r" + (" " * $Text.Length) + "`r") -NoNewline
     }
 }
+
+# Функция для создания RGB рамки
+function Write-RGBBox
+{
+    param(
+        [string[]]$Content,
+        [string]$BorderColor = "#00FFFF",
+        [string]$TextColor = "#FFFFFF"
+    )
+
+    $maxLength = ($Content | Measure-Object -Property Length -Maximum).Maximum
+    $boxWidth = $maxLength + 4
+
+    # Верхняя граница
+    Write-RGB "╔" -FC $BorderColor
+    Write-RGB ("═" * ($boxWidth - 2)) -FC $BorderColor
+    Write-RGB "╗" -FC $BorderColor
+
+    # Содержимое
+    foreach ($line in $Content)
+    {
+        $padding = $boxWidth - $line.Length - 3
+        Write-RGB "║ " -FC $BorderColor
+        Write-RGB $line -FC $TextColor
+        Write-RGB (" " * $padding) -FC $TextColor
+        Write-RGB "║" -FC $BorderColor -newline
+    }
+
+    # Нижняя граница
+    Write-RGB "╚" -FC $BorderColor
+    Write-RGB ("═" * ($boxWidth - 2)) -FC $BorderColor
+    Write-RGB "╝" -FC $BorderColor -newline
+}
+
+#endregion
+
 #region Демонстрация возможностей
 
-function Show-NiceParserDemo {
+function Show-NiceParserDemo
+{
     <#
     .SYNOPSIS
         Демонстрирует возможности NiceParser
@@ -701,30 +571,24 @@ function Show-NiceParserDemo {
     Write-Host ""
 
     # Градиентный текст
-    Write-RGB "Градиентный текст:" -ForegroundColor "Lavender" -Style Bold
+    Write-RGB "Градиентный текст:" -FC "SeaGreen" -Style Bold -newline
     Write-GradientText -Text "PowerShell RGB Paradise!" -StartColor "#FF00FF" -EndColor "#00FFFF"
     Write-Host ""
 
     # Цветовая палитра
-    Write-RGB "Доступные цвета:" -ForegroundColor "Lavender" -Style Bold
-    $colorIndex = 0
-    foreach ($colorName in $global:RGB.Keys | Select-Object -First 20) {
-        Write-RGB "  $colorName " -ForegroundColor $colorName -NoNewLine
-        $colorIndex++
-        if ($colorIndex % 4 -eq 0) { Write-Host "" }
-    }
-    Write-Host "`n"
+    Write-RGB "Доступные цвета:" -FC "SeaGreen" -Style Bold -newline
+    showColors
 
     # Прогресс-бары
-    Write-RGB "Примеры прогресс-баров:" -ForegroundColor "Lavender" -Style Bold
+    Write-RGB "Примеры прогресс-баров:" -FC "Lavender" -Style Bold
 
     Show-RGBProgress -Activity "Загрузка данных" -PercentComplete 25 -ShowPercentage
     Show-RGBProgress -Activity "Обработка" -PercentComplete 60 -BarStyle Dots -ShowPercentage
-    Show-RGBProgress -Activity "Завершение" -PercentComplete 95 -BarStyle Lines -ShowPercentage
+    Show-RGBProgress -Activity "Завершение" -PercentComplete 100 -BarStyle Lines -ShowPercentage
     Write-Host ""
 
     # Парсинг логов
-    Write-RGB "Пример парсинга логов:" -ForegroundColor "Lavender" -Style Bold
+    Write-RGB "Пример парсинга логов:" -FC "SeaGreen" -Style Bold
 
     $sampleLog = @"
 2024-01-15 10:30:15 INFO: Приложение запущено успешно
@@ -732,7 +596,7 @@ function Show-NiceParserDemo {
 2024-01-15 10:30:17 INFO: Загрузка конфигурации из C:\Config\app.json
 2024-01-15 10:30:18 WARNING: Низкий уровень свободной памяти (15%)
 2024-01-15 10:30:19 ERROR: Не удалось подключиться к https://api.example.com
-2024-01-15 10:30:20 INFO: Попытка переподключения через 30 секундОШИБКА
+2024-01-15 10:30:20 INFO: Попытка переподключения через 30 секунд
 2024-01-15 10:30:51 SUCCESS: Переподключение выполнено успешно
 "@
 
@@ -744,25 +608,32 @@ function Show-NiceParserDemo {
 
 #endregion
 
-# Экспорт функций
-#if ($MyInvocation.MyCommand.Path -match '\.psm1) {
-#    Export-ModuleMember -Function @(
-#        'Write-RGB',
-#        'Write-GradientText',
-#        'Get-GradientColor',
-#        'Show-RGBHeader',
-#        'Show-RGBProgress',
-#        'Out-RGBParsed',
-#        'Show-NiceParserDemo'
-#)
-
+# Экспорт функций (если используется как модуль)
+if ($MyInvocation.MyCommand.Path -match '\.psm1$')
+{
+    Export-ModuleMember -Function @(
+        'Write-RGB',
+        'Write-GradientText',
+        'Get-GradientColor',
+        'Show-RGBHeader',
+        'Show-Header',
+        'Show-RGBProgress',
+        'Show-Progress',
+        'Out-RGBParsed',
+        'Write-Rainbow',
+        'Write-BlinkingRGB',
+        'Write-RGBBox',
+        'Show-NiceParserDemo'
+    )
+}
 
 # Алиасы для удобства
-Set-Alias -Name wrgb -Value Write-RGB
-Set-Alias -Name wgrad -Value Write-GradientText
-Set-Alias -Name orgb -Value Out-RGBParsed
+Set-Alias -Name wrgb -Value Write-RGB -Scope Global -Force
+Set-Alias -Name wgrad -Value Write-GradientText -Scope Global -Force
+Set-Alias -Name orgb -Value Out-RGBParsed -Scope Global -Force
 
-Write-RGB "`n✨ NiceParser v2.0 загружен успешно!" -ForegroundColor "ElectricLime" -Style Bold
-Write-RGB "Введите " -ForegroundColor "Silver" -NoNewLine
-Write-RGB "Show-NiceParserDemo" -ForegroundColor "SkyBlue" -Style @('Bold', 'Underline') -NoNewLine
-Write-RGB " для демонстрации возможностей`n" -ForegroundColor "Silver"
+# Сообщение о загрузке
+#Write-RGB "`n✨ NiceParser v2.1 загружен успешно!" -FC "ElectricLime" -Style Bold
+#Write-RGB "Введите " -FC "Silver" -NoNewLine
+#Write-RGB "Show-NiceParserDemo" -FC "SkyBlue" -Style @('Bold', 'Underline') -NoNewLine
+#Write-RGB " для демонстрации возможностей`n" -FC "Silver"

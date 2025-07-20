@@ -1,5 +1,5 @@
 function Show-Welcome {
-    Clear-Host
+#    Clear-Host
 
     # Подсказка с градиентом
 #    Write-RGB "`n💡 " -FC White
