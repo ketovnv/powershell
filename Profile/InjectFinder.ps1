@@ -1,20 +1,3 @@
-
-#function Write-RGB {
-#    param(
-#        [string]$Text,
-#        [string]$FC = "#FFFFFF",
-#        [switch]$newline
-#    )
-#    $esc = "`e"
-#    $rgb = $FC -replace "#", ""
-#    $r = [convert]::ToInt32($rgb.Substring(0,2),16)
-#    $g = [convert]::ToInt32($rgb.Substring(2,2),16)
-#    $b = [convert]::ToInt32($rgb.Substring(4,2),16)
-#    $seq = "$esc[38;2;${r};${g};${b}m$Text$esc[0m"
-#    if ($newline) { Write-Host $seq } else { Write-Host -NoNewline $seq }
-#}
-
-
 function Normalize-Path {
     param([string]$path)
     # Убираем эмодзи и любые неASCII символы

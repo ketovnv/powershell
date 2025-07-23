@@ -5,6 +5,7 @@ using module Parser
 
 using module .\Src\Types.psm1
 
+using module .\Src\Rules\SharedRules.psm1
 using module .\Src\Rules\ListViewRules.psm1
 using module .\Src\Rules\TableViewRules.psm1
 using module .\Src\Rules\MembersViewRules.psm1

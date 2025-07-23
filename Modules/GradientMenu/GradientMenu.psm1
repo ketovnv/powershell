@@ -61,7 +61,7 @@ function Show-GradientMenu {
         Write-Host "$($i + 1). $($MenuItems[$i])" -ForegroundColor $consoleColor
     }
     
-    Write-Host "`nВыберите пункт меню (1-$($MenuItems.Count)): " -NoNewline -ForegroundColor Gray
+    Write-Host "`nВыберите пункт меню (1-$($MenuItems.Count)): " -ForegroundColor Gray
 }
 
 # Вспомогательная функция для приблизительного соответствия консольным цветам

@@ -1,57 +1,6 @@
-# ╔═══════════════════════════════════════════════════════════════════════════╗
-# ║                    🎨 POWERSHELL PROFILE v4.0 ULTRA RGB                   ║
-# ║                         Ukraine Edition 🇺🇦                                 ║
-# ╚═══════════════════════════════════════════════════════════════════════════╝
-[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12
-#f45873b3-b655-43a6-b217-97c00aa0db58 PowerToys CommandNotFound module
-Import-Module -Name Microsoft.WinGet.CommandNotFound -ErrorAction SilentlyContinue
-#f45873b3-b655-43a6-b217-97c00aa0db58
-Import-Module Microsoft.PowerShell.PSResourceGet -Force
+$global:profilePath = "${PSScriptRoot}\Profile\"
+. "${global:profilePath}Utils\Init.ps1"
 
-
-$newModulePath = "C:\Users\ketov\Documents\PowerShell\Modules"
-$env:PSModulePath = $newModulePath
-[Environment]::SetEnvironmentVariable("PSModulePath", $newModulePath, "User")
-$env:POSH_IGNORE_ALLUSER_PROFILES = $true
-
-# ===== ИМПОРТ Aliases и GRADIENT ФУНКЦИЙ =====
-
-
-$scripts = @(
-    'NiceParser',
-    'Aliases',
-    'NetworkSystem',
-    'Welcome',
-    'MenuItems',
-    'AppsBrowsersMenu'
-)
-
-
-foreach ($script in $scripts) {
-    . "$PSScriptRoot/Profile/$script.ps1"
-}
-
-
-# ===== МОДУЛИ =====
-$modules = @(
-    'GradientMenu',
-    'PSColor',
-    'Terminal-Icons',
-    'PSFzf',
-    'syntax-highlighting'
-)
-
-foreach ($module in $modules)
-{
-    if (Get-Module -ListAvailable -Name $module)
-    {
-        Import-Module -Name $module -ErrorAction SilentlyContinue
-    }
-    else
-    {
-        Write-Host "[!] Модуль $module отсутствует. Установите: Install-Module $module" -ForegroundColor    Red
-    }
-}
 
 #$items = @("Файл", "Редактировать", "Просмотр", "Справка")
 #$gradientSettings = @{
@@ -61,15 +10,6 @@ foreach ($module in $modules)
 #    RedCoefficient = 1.2
 #}
 #Show-GradientMenu -MenuItems $items -Title "Главное меню" -GradientOptions $gradientSettings
-#
-
-
-# ===== OH-MY-POSH =====
-$ompConfig = 'C:\scripts\OhMyPosh\free-ukraine.omp.json'
-if (Test-Path $ompConfig)
-{
-    oh-my-posh init pwsh --config $ompConfig | Invoke-Expression
-}
 
 # ===== УЛУЧШЕННАЯ ФУНКЦИЯ МЕНЮ С ГРАДИЕНТАМИ =====
 function Show-Menu
@@ -81,7 +21,7 @@ function Show-Menu
         [string]$Prompt = "Select option",
         [hashtable]$GradientOptions = @{
         StartColor = "#01BB01"
-        EndColor = "#FF9955"
+        EndColor = "#0099cc"
         GradientType = "Linear"
     }
 
@@ -97,33 +37,33 @@ function Show-Menu
 
         for ($i = 0; $i -lt $MenuItems.Count; $i++) {
             $num = $i + 1
-            $numberColor = ($num -lt $MenuItems.Count) ? "Ocean2RGB ": "#FF5522"
+            $numberColor = ($num -lt $MenuItems.Count) ? "Ocean2RGB": "#FF5522"
             $hexColor = ($num -lt $MenuItems.Count) ? (Get-GradientColor -Index $i -TotalItems $MenuItems.Count @GradientOptions):  "#FF5522"
 
-            Write-RGB "[" -FC NeonGreenRGB
+            Write-RGB "[" -FC NeonMaterial_LightGreen
             Write-RGB $num -FC $numberColor
-            Write-RGB "] " -FC NeonGreenRGB
+            Write-RGB "] " -FC NeonMaterial_LightGreen
             Write-RGB $MenuItems[$i].Text -FC $hexColor -newline
             Start-Sleep -Milliseconds 50
         }
 
 
         Write-RGB "`n" -newline
-        Write-RGB "➤ " -FC NeonGreenRGB
+        Write-RGB "➤ " -FC NeonMaterial_LightGreen
         Write-RGB "$Prompt (1-$( $MenuItems.Count )): " -FC  "99CCFF"
 
         # ИСПРАВЛЕНИЕ: правильное чтение ввода
-        $input = [Console]::ReadLine()
+        $menuInput = [Console]::ReadLine()
 
-        if ($input -match '^\d+$')
+        if ($menuInput -match '^\d+$')
         {
-            $choice = [int]$input
+            $choice = [int]$menuInput
             if ($choice -ge 1 -and $choice -le $MenuItems.Count)
             {
                 # Анимация выбора
                 Write-RGB "`n✨ " -FC YellowRGB
                 Write-RGB "Выбрано: " -FC White
-                Write-RGB $MenuItems[$choice - 1].Text -FC NeonGreenRGB -newline
+                Write-RGB $MenuItems[$choice - 1].Text -FC NeonMaterial_LightGreen -newline
                 Start-Sleep -Milliseconds 750
                 return $MenuItems[$choice - 1]
             }
@@ -135,41 +75,6 @@ function Show-Menu
     }
 }
 
-# ===== РАСШИРЕННЫЕ НАСТРОЙКИ PSREADLINE =====
-Set-PSReadLineOption -PredictionSource HistoryAndPlugin
-Set-PSReadLineOption -PredictionViewStyle ListView
-Set-PSReadLineOption -HistorySearchCursorMovesToEnd
-Set-PSReadLineOption -ShowToolTips
-Set-PSReadLineOption -BellStyle Visual
-Set-PSReadLineOption -EditMode Windows
-
-# Горячие клавиши
-Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
-Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
-Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete
-Set-PSReadLineKeyHandler -Key Ctrl+z -Function Undo
-Set-PSReadLineKeyHandler -Key Ctrl+y -Function Redo
-Set-PSReadLineKeyHandler -Key Ctrl+d -Function DeleteChar
-Set-PSReadLineKeyHandler -Key Ctrl+w -Function BackwardDeleteWord
-Set-PSReadLineKeyHandler -Key Alt+d -Function DeleteWord
-
-# RGB цветовая схема для PSReadLine
-Set-PSReadLineOption -Colors @{
-    Command = $PSStyle.Foreground.FromRgb(0, 255, 157)
-    Parameter = $PSStyle.Foreground.FromRgb(255, 101, 69)
-    Operator = $PSStyle.Foreground.FromRgb(255, 215, 0)
-    Variable = $PSStyle.Foreground.FromRgb(139, 43, 255)
-    String = $PSStyle.Foreground.FromRgb(15, 188, 249)
-    Number = $PSStyle.Foreground.FromRgb(240, 31, 255)
-    Member = $PSStyle.Foreground.FromRgb(0, 191, 255)
-    Type = $PSStyle.Foreground.FromRgb(255, 255, 255)
-    Emphasis = $PSStyle.Foreground.FromRgb(255, 145, 0)
-    Error = $PSStyle.Foreground.FromRgb(255, 0, 0)
-    Selection = $PSStyle.Background.FromRgb(64, 64, 64)
-    InlinePrediction = $PSStyle.Foreground.FromRgb(102, 102, 102)
-    ListPrediction = $PSStyle.Foreground.FromRgb(185, 185, 185)
-    ContinuationPrompt = $PSStyle.Foreground.FromRgb(100, 255, 0)
-}
 
 # ===== ФУНКЦИИ УВЕДОМЛЕНИЙ =====
 function Show-Notification
@@ -218,7 +123,7 @@ function Show-Notification
     # Wezterm notification если доступен
     if (Get-Command wezterm -ErrorAction SilentlyContinue)
     {
-        wezterm cli send-text "--[\x1b]9;${Title}:${Message}\x1b\\"
+        wezterm cli send-text  --no-paste "${Title}:${Message}"
     }
 }
 
@@ -231,7 +136,7 @@ function Show-RGBLoader
     )
 
     $frames = @('⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏')
-    $colors = @('NeonBlueRGB', 'NeonGreenRGB', 'NeonPinkRGB', 'CyanRGB', 'MagentaRGB')
+    $colors = @('NeonBlueRGB', 'NeonMaterial_LightGreen', 'NeonPinkRGB', 'CyanRGB', 'MagentaRGB')
 
     $endTime = (Get-Date).AddSeconds($Duration)
     $i = 0
@@ -294,18 +199,15 @@ function Show-RGBProgress
     Write-RGB "`n✅ Complete!" -FC LimeRGB -newline
 }
 
-# ===== CHOCOLATEY =====
-$ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-if (Test-Path($ChocolateyProfile))
-{
-    Write-RGB "🍫 Chocolatey Profile Loaded" -FC CocoaBeanRGB -newline
-    Import-Module "$ChocolateyProfile"
-}
 
 # ===== УЛУЧШЕННЫЙ LS С RGB И ИКОНКАМИ =====
 function lss
 {
-    param([string]$Path = ".")
+    param(
+        [string]$Path = ".",
+        [string]$StartColor = "#8B00FF",
+        [string]$EndColor = "#00BFFF"
+    )
 
     Write-RGB "`n📁 " -FC CyanRGB
     Write-RGB "Directory: " -FC CyanRGB
@@ -314,20 +216,23 @@ function lss
     # Градиентная линия
     $lineLength = 60
     for ($i = 0; $i -lt $lineLength; $i++) {
-        $color = Get-GradientColor -Index $i -TotalItems $lineLength -StartColor "#8B00FF" -EndColor "#00BFFF"
+        $color = Get-GradientColor -Index $i -TotalItems $lineLength -StartColor $StartColor -EndColor  $EndColor
         Write-RGB "─" -FC $color
     }
     Write-RGB "" -newline
 
     $items = Get-ChildItem $Path | Sort-Object PSIsContainer -Descending
 
+    $col = 0
     foreach ($item in $items)
     {
+        $color = Get-GradientColor -Index $col -TotalItems $items.length -StartColor "#8B00FF" -EndColor "#00BFFF"
+        $col++
         if ($item.PSIsContainer)
         {
             Write-RGB "📂 " -FC Ocean1RGB
             Write-RGB ("{0,-35}" -f $item.Name) -FC Ocean1RGB
-            Write-RGB " <DIR>" -FC Ocean2RGB -newline
+            Write-RGB " <DIR>" -FC $color  -newline
         }
         else
         {
@@ -420,26 +325,41 @@ function lss
                 ".svelte" {
                     "🧡"
                 }
+                ".lua" {
+                    "❤️"
+                }
                 default {
                     "📄"
                 }
             }
 
-            $sizeColor = if ($item.Length -gt 1MB)
+            $sizeColor = if ($item.Length -gt 1GB)
+            {
+                "#FF0000"
+            }
+            elseif ($item.Length -gt 100MB)
+            {
+                "Sunset1RGB"
+            }
+            elseif ($item.Length -gt 10MB)
             {
                 "NeonRedRGB"
             }
-            elseif ($item.Length -gt 100KB)
+            elseif ($item.Length -gt 1MB)
             {
                 "OrangeRGB"
             }
-            else
+            elseif ($item.Length -gt 100KB)
             {
                 "LimeRGB"
             }
+            else
+            {
+                "TealRGB"
+            }
 
             Write-RGB "$icon " -FC White
-            Write-RGB ("{0,-35}" -f $item.Name) -FC NeonGreenRGB
+            Write-RGB ("{0,-35}" -f $item.Name) -FC NeonMaterial_LightGreen
             Write-RGB (" {0,10:N2} KB" -f ($item.Length / 1KB)) -FC $sizeColor
             Write-RGB ("  {0}" -f $item.LastWriteTime.ToString("yyyy-MM-dd HH:mm")) -FC TealRGB -newline
         }
@@ -465,10 +385,11 @@ function lss
 # ===== ГЛАВНОЕ МЕНЮ С RGB =====
 function Show-MainMenu
 {
+    In
     #Clear-Host
 
     # Анимированный заголовок с градиентом
-    $title = "🔵🔵 POWERSHELL ULTRA MENU 🟡🟡"
+    $title = "👻👻  POWERSHELL ULTRA MENU  🥷🥷"
     $padding = " " * ((60 - $title.Length) / 2)
 
     Write-Host $padding -NoNewline
@@ -556,24 +477,24 @@ function Show-MainMenu
 function Show-RGBDemo
 {
     #Clear-Host
-#    Write-RGB "`n🌈 RGB COLOR DEMONSTRATION 🌈" -FC UkraineBlueRGB -newline
+    #    Write-RGB "`n🌈 RGB COLOR DEMONSTRATION 🌈" -FC UkraineBlueRGB -newline
 
     # Градиентная линия
-#    for ($i = 0; $i -lt 60; $i++) {
-#        $color = Get-GradientColor -Index $i -TotalItems 60 -StartColor "#FF0000" -EndColor "#0000FF" -GradientType "Sine"
-#        Write-RGB "═" -FC $color
-#    }
-#    Write-RGB "" -newline
+    #    for ($i = 0; $i -lt 60; $i++) {
+    #        $color = Get-GradientColor -Index $i -TotalItems 60 -StartColor "#FF0000" -EndColor "#0000FF" -GradientType "Sine"
+    #        Write-RGB "═" -FC $color
+    #    }
+    #    Write-RGB "" -newline
 
     # Цветовая волна
-#    Write-RGB "`n🎨 Color Wave:" -FC White -newline
-#    for ($i = 0; $i -lt 360; $i += 5) {
-#        $r = [Math]::Sin($i * [Math]::PI / 180)  + 128
-#        $g = [Math]::Sin($i * [Math]::PI / 180)  + 128
-#        $b = [Math]::Sin($i  * [Math]::PI / 180)  + 128
-#        Write-RGB "█" -FC $PSStyle.Foreground.FromRgb([int]$r, [int]$g, [int]$b)
-#    }
-#    Write-RGB "" -newline
+    #    Write-RGB "`n🎨 Color Wave:" -FC White -newline
+    #    for ($i = 0; $i -lt 360; $i += 5) {
+    #        $r = [Math]::Sin($i * [Math]::PI / 180)  + 128
+    #        $g = [Math]::Sin($i * [Math]::PI / 180)  + 128
+    #        $b = [Math]::Sin($i  * [Math]::PI / 180)  + 128
+    #        Write-RGB "█" -FC $PSStyle.Foreground.FromRgb([int]$r, [int]$g, [int]$b)
+    #    }
+    #    Write-RGB "" -newline
 
     # Матрица с градиентом
     Write-RGB "`n💻 Matrix Effect:" -FC LimeRGB -newline
@@ -588,7 +509,7 @@ function Show-RGBDemo
 
     # Неоновые цвета
     Write-RGB "`n✨ Neon Colors:" -FC White -newline
-    $neonColors = @("NeonBlueRGB", "NeonGreenRGB", "NeonPinkRGB", "NeonRedRGB", "CyanRGB", "MagentaRGB", "YellowRGB", "OrangeRGB")
+    $neonColors = @("NeonBlueRGB", "NeonMaterial_LightGreen", "NeonPinkRGB", "NeonRedRGB", "CyanRGB", "MagentaRGB", "YellowRGB", "OrangeRGB")
     foreach ($colorName in $neonColors)
     {
         Write-RGB "████ " -FC $colorName
@@ -626,9 +547,68 @@ if (Get-Module -ListAvailable -Name SecurityWatcher)
 # ===== ПОКАЗАТЬ ПРИВЕТСТВИЕ =====
 Show-Welcome
 
-function prompt {
-    $currentPath = $PWD.Path
-    Write-Host $currentPath -NoNewline -ForegroundColor Green
-    Write-Host "`n> " -NoNewline
-    return " "
-}return [String]::Format("{0:X2}{1:X2}{2:X2}", $r, $g, $b)
+
+# Oh My Posh инициализация
+try
+{
+    if (Get-Command oh-my-posh -ErrorAction SilentlyContinue)
+    {
+        $configPath = "C:\Program Files (x86)\oh-my-posh\themes\freeu.omp.json"
+        if (Test-Path $configPath)
+        {
+            oh-my-posh init pwsh --config $configPath | Invoke-Expression
+        }
+        else
+        {
+            Write-Warning "Oh My Posh theme file not found: $configPath"
+        }
+    }
+    else
+    {
+        Write-Warning "Oh My Posh not found in PATH"
+    }
+}
+catch
+{
+    Write-Warning "Failed to initialize Oh My Posh: $_"
+}
+
+$VerbosePreference = "Continue"
+
+# SIG # Begin signature block
+# MIIFuQYJKoZIhvcNAQcCoIIFqjCCBaYCAQExDzANBglghkgBZQMEAgEFADB5Bgor
+# BgEEAYI3AgEEoGswaTA0BgorBgEEAYI3AgEeMCYCAwEAAAQQH8w7YFlLCE63JNLG
+# KX7zUQIBAAIBAAIBAAIBAAIBADAxMA0GCWCGSAFlAwQCAQUABCDvZHvp8zN9rynb
+# S4lfOj1+3Fri94W5Q/xa+vDHVehvg6CCAyIwggMeMIICBqADAgECAhBiLIVmAdNa
+# pEvbYvK7Awv6MA0GCSqGSIb3DQEBCwUAMCcxJTAjBgNVBAMMHFBvd2VyU2hlbGwg
+# Q29kZSBTaWduaW5nIENlcnQwHhcNMjUwNzIzMDU0NjM4WhcNMjYwNzIzMDYwNjM4
+# WjAnMSUwIwYDVQQDDBxQb3dlclNoZWxsIENvZGUgU2lnbmluZyBDZXJ0MIIBIjAN
+# BgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxFnljrxXVoCqg6r4XZALR44aR12G
+# rWwVYrmXATeVt8/QiZE6bENceCyrUQ68Iy+O2hkJTX4RUMkLc7nX8UuWtaCNZAAr
+# pxIciCmT1XQ7aoSCxeH4fTShKD3jiCWH8tukLeuotNLJ4kIVPwy6qKM8mZ3sGJvr
+# 28Pmi89ykAP2Ng9KXK5t/bCsLb/gEspB7WcRDI8adp+7LSTbtfCsE453jtwn+cAy
+# Uyfg8x7JxtCpgKWC4nD7kphfhZzLf/MlS0aRmCiRpJzqSZ2F+UydwwPa8yD0PC9n
+# fqzYOUEMN9/gAxVI7X5KFLHmj4y05vaNHgeedI3fi9s7ee/2oZkJGnyXPQIDAQAB
+# o0YwRDAOBgNVHQ8BAf8EBAMCB4AwEwYDVR0lBAwwCgYIKwYBBQUHAwMwHQYDVR0O
+# BBYEFBCYx/NaWY00AODmjDhwnH6Tqs2MMA0GCSqGSIb3DQEBCwUAA4IBAQB+Pfz3
+# w45mLd+hLvPiX0hdI9QsK6vlR1fVeB3C+wPzETE1NvVrWUYy0uqXm7Mjfv8APO9Y
+# tq7tciaKashJI60fBC0x+SK6sbzuwFltMaYhA8CuYEsH/GJV7cY8zU1bInsz8fP7
+# W7HG4pgIyhPTBC93vgsmMsBB6Ffn6m/X/TJ3VrlsfdF2YH0kGRm03Tr7NWO5eHTE
+# 3J0kQ1l3G2Z/O4rAfhLDcwMV6QgOI8JLmsum7aLnTPmKyT2M/hYW1glPwMN/U5H+
+# crCAfaRaK2nFXev7l20dyJ+3oyY6cpE8g2sCLDC0n7YbZmOysua0xaScw8mfnpT7
+# XUvG/pJIlq0ovXwPMYIB7TCCAekCAQEwOzAnMSUwIwYDVQQDDBxQb3dlclNoZWxs
+# IENvZGUgU2lnbmluZyBDZXJ0AhBiLIVmAdNapEvbYvK7Awv6MA0GCWCGSAFlAwQC
+# AQUAoIGEMBgGCisGAQQBgjcCAQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwG
+# CisGAQQBgjcCAQQwHAYKKwYBBAGCNwIBCzEOMAwGCisGAQQBgjcCARUwLwYJKoZI
+# hvcNAQkEMSIEIJf0HHz6GGnz4zBS2XPckLHLH8eBFubG/RVjZqytQJQuMA0GCSqG
+# SIb3DQEBAQUABIIBAF5hdPVzK0Pd4jTuyjx2njdlt24iH5TXQBEwYsB8qedv/P7C
+# oVAGGygqZIMgkEuAoyYo1lqF1cUiD5IsEKDpGgfm+5+CxQiiciSvCjt7MiJRBfq7
+# 1ZR6Oa0dPhvE2JuRHut4O+GdWViQtAMbOpS7ZXNbYdMedXbV83eFPxUXZRN2WX5w
+# eKxrjL5xq+Gywprm7e/+ockaBV+FXZcCmdNa8EIERQtITfdir2GRetBO8Ynt0KsT
+# Zv7Rn3TCV3MrsdY2EOZsMyxvRXDlGrir5OsRX46H7yTytJAun5KU/uexBiV4ODrV
+# ZRINZTarsj//rs8OCOhYmDT5MO54J995HnH+tFY=
+# SIG # End signature block
+
+##f45873b3-b655-43a6-b217-97c00aa0db58 PowerToys CommandNotFound module
+#Import-Module -Name Microsoft.WinGet.CommandNotFound
+##f45873b3-b655-43a6-b217-97c00aa0db58

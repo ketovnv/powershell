@@ -1,10 +1,10 @@
 function Run-Application {
     $menuItems = @(
-        @{ Text = "💻 WebStorm 2025.2 EAP"; Data = @{ Path = "ws" } },
+        @{ Text = "💻 WebStorm 2025.1.ws3"; Data = @{ Path = "pwsh ws" } },
         @{ Text = "📝 Zed"; Data = @{ Path = "zed" } },
         @{ Text = "🖥️  Wezterm"; Data = @{ Path = "wezterm-gui" } },
         @{ Text = "🪟 Windows Terminal Preview"; Data = @{ Path = "wt" } },
-        @{ Text = "💬 Telegram"; Data = @{ Path = "ttg" } },
+        @{ Text = "💬 Telegram"; Data = @{ Path = "pwsh ttg black" } },
         @{ Text = "📘 VS Code"; Data = @{ Path = "code" } },
         @{ Text = "📗 VS Code Insiders"; Data = @{ Path = "code-insiders" } },
         @{ Text = "🦀 RustRover"; Data = @{ Path = "rustrover" } },
@@ -27,7 +27,7 @@ function Run-Application {
     } else {
         try {
             Write-RGB "`n🚀 Запускаю " -FC White
-            Write-RGB $selected.Text -FC NeonGreenRGB -newline
+            Write-RGB $selected.Text -FC NeonMaterial_LightGreen -newline
             Start-Process $selected.Data.Path -ErrorAction Stop
             Show-Notification -Title "Приложение запущено" -Message $selected.Text -Type "Success"
         } catch {

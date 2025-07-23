@@ -28,7 +28,7 @@ function Show-DevToolsMenu {
         "rust-update" {
             Write-RGB "`n🦀 Обновление Rust..." -FC OrangeRGB -newline
             Show-RGBLoader -Text "Updating Rust to nightly" -Duration 2
-            rustup update nightly
+            rustup update nightly -v
             Write-RGB "✅ Rust обновлен!" -FC LimeRGB -newline
             Pause
             Show-DevToolsMenu
@@ -334,7 +334,7 @@ function proj {
     if ($Name -and $projects.ContainsKey($Name)) {
         Set-Location $projects[$Name]
         Write-RGB "📁 Switched to project: " -FC White
-        Write-RGB $Name -FC NeonGreenRGB -newline
+        Write-RGB $Name -FC NeonMaterial_LightGreen -newline
         ls
     } else {
         Write-RGB "📁 Available projects:" -FC CyanRGB -newline

@@ -52,7 +52,7 @@ function Show-NetworkMenu {
                 $ipInfo = Invoke-RestMethod -Uri "http://ip-api.com/json/$ip"
 
                 Write-RGB "📍 IP: " -FC White
-                Write-RGB $ip -FC NeonGreenRGB -newline
+                Write-RGB $ip -FC NeonMaterial_LightGreen -newline
                 Write-RGB "🌍 Страна: " -FC White
                 Write-RGB $ipInfo.country -FC YellowRGB -newline
                 Write-RGB "🏙️  Город: " -FC White
@@ -101,13 +101,13 @@ function Show-NetworkToolsMenu {
             Show-NetworkToolsMenu
         }
         "ssl-check" {
-            $host = Read-Host "`nВведите домен"
-            Write-RGB "`n🔓 Проверка SSL для $host`..." -FC YellowRGB -newline
+            $host1 = Read-Host "`nВведите домен"
+            Write-RGB "`n🔓 Проверка SSL для $host1`..." -FC YellowRGB -newline
             $tcpClient = New-Object System.Net.Sockets.TcpClient
             try {
-                $tcpClient.Connect($host, 443)
+                $tcpClient.Connect($host1, 443)
                 $sslStream = New-Object System.Net.Security.SslStream($tcpClient.GetStream())
-                $sslStream.AuthenticateAsClient($host)
+                $sslStream.AuthenticateAsClient($host1)
                 $cert = $sslStream.RemoteCertificate
                 Write-RGB "✅ SSL сертификат действителен до: $($cert.GetExpirationDateString())" -FC LimeRGB -newline
             } catch {
@@ -205,7 +205,7 @@ function Show-NetworkInfo {
 
     # Внешний IP
     try {
-        Write-RGB "`n🌍 External IP: " -FC NeonGreenRGB
+        Write-RGB "`n🌍 External IP: " -FC NeonMaterial_LightGreen
         $extIP = (Invoke-RestMethod -Uri "https://api.ipify.org?format=json" -TimeoutSec 5).ip
         Write-RGB $extIP -FC GoldRGB -newline
     } catch {
@@ -229,7 +229,7 @@ function Test-ConnectionVisual {
         try {
             $result = Test-Connection -ComputerName $ComputerName -Count 1 -ErrorAction Stop
             $time = $result.ResponseTime
-
+            Write-Rbg $time -fc "#FF0000"
             $color = if ($time -lt 50) { "LimeRGB" }
             elseif ($time -lt 100) { "YellowRGB" }
             else { "NeonRedRGB" }
@@ -304,7 +304,7 @@ function Show-PortScanner {
             Write-RGB "✅ Port " -FC White
             Write-RGB $port -FC $portColor
             Write-RGB " - " -FC White
-            Write-RGB "OPEN" -FC NeonGreenRGB
+            Write-RGB "OPEN" -FC NeonMaterial_LightGreen
             Write-RGB " ($($commonPorts[$port]))" -FC CyanRGB -newline
         } else {
             Write-RGB "❌ Port " -FC White
