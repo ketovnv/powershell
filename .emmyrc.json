@@ -79,7 +79,6 @@
       ".git",
       ".vscode",
       ".idea",
-      "main.lua",
       "build",
       "Help",
       "PowerShell-Docs",
