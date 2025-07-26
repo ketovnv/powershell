@@ -7,15 +7,42 @@ $env:PSModulePath = $newModulePath
 [Environment]::SetEnvironmentVariable("PSModulePath", $newModulePath, "User")
 $env:POSH_IGNORE_ALLUSER_PROFILES = $true
 
-
+$global:initStartScripts = @()
+$global:initEndScripts = @()
 
 # ===== ИМПОРТ  СКРИПТОВ =====
+#importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
 function importProcess
 {
     param(
         [string]$name,
-        [switch]$start = $false
+        [switch]$start,
+        [switch]$finalInitialiazation
     )
+
+    if ($finalInitialiazation)
+    {
+        #    Импорт оставшихся скриптов
+        foreach ($script in $scriptsAfter)
+        {
+            . "${global:profilePath}${script}.ps1"
+        }
+        # Проверка на успешную инициализацию
+        foreach ($scriptInitStart in $global:initStartScripts)
+        {
+            if ($global:initEndScripts -contains $scriptInitStart)
+            {
+                Write-Status -Success $scriptInitStart"  "
+            }
+            else
+            {
+                Write-Status -Problem $scriptInitStart"  "
+            }
+        }
+        Write-Host ""
+        return
+    }
+
     if ($start)
     {
         $global:initStartScripts += $name
@@ -25,18 +52,18 @@ function importProcess
         $global:initEndScripts += $name
     }
 }
+
 $scriptsBefore = @(
     'Utils\resourses\emoji',
     'Utils\Colors',
     'Utils\NiceColors',
     'Utils\Keyboard'
 #'Utils\ProgressBar',
-'Utils\Aliases'
+    'Utils\Aliases'
 #'ErrorMethods'
 #'Menu\Welcome'
 #    'ErrorHandler',
 )
-
 
 foreach ($script in $scriptsBefore)
 {
@@ -50,7 +77,7 @@ $scriptsAfter = @(
 #    'Menu  /AppsBrowsersMenu',
 #    'Parser/NiceParser'
 #        'Utils/Rainbow'
-# 'Helper'
+    'Helper'
 )
 
 

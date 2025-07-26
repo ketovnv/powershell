@@ -1347,8 +1347,12 @@ function Get-GradientList
         $i++
     }
 
-
     Write-Host""
+}
+
+function GetGradientIcons{
+
+
 }
 
 

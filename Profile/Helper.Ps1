@@ -2365,5 +2365,5 @@ if ($MyInvocation.MyCommand.Path -match '\.psm1$')
     Export-ModuleMember -Function * -Alias * -Variable *
 }
 
-#Show-PracticalProxyExamples
+Show-PracticalProxyExamples
 importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')

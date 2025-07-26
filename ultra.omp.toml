@@ -2,8 +2,15 @@
 final_space = true
 version = 3
 
+
+[var]
+Hello = "hello"
+UpstreamIcon = "world"
+
+
 [palette]
-blue = "#0057B7"
+primary-blue = "#0057B7"
+primary-yellow = "#FBD951"
 darkblue = "#003D7A"
 brightblue = "#2030FF"
 lightblue = "#00AAFF"
@@ -15,7 +22,10 @@ lightyellow = "#FFF8CC"
 lemon = "#E0FF75"
 red = "#FF0000"
 white = "#FFFFFF"
+orange = "#ff7e03"
 yellow = "#FFD700"
+
+
 
 
 [secondary_prompt]
@@ -41,7 +51,7 @@ type = 'session'
 style = 'powerline'
 
 [[blocks.segments]]
-foreground = 'p:blue'
+foreground = 'p:primary-blue'
 background = 'p:yellow'
 type = 'os'
 style = 'powerline'
@@ -58,26 +68,48 @@ style = 'powerline'
 [blocks.segments.properties]
 user_icon = ' '
 
+
 [[blocks.segments]]
-template = "  <p:yellow>{{ round .PhysicalPercentUsed .Precision }}%</> "
-foreground = '#1177DD'
+type = 'sysinfo'
+template= "   "
+foreground = "p:lightblue"
+foreground_templates = [
+    "{{if gt .PhysicalPercentUsed 88}}p:red{{end}}",
+    "{{if gt .PhysicalPercentUsed 75}}p:orange{{end}}",
+    "{{if gt .PhysicalPercentUsed 65}}p:yellow{{end}}",
+    "{{if gt .PhysicalPercentUsed 55}}p:lemon{{end}}"
+]
+
+
+[blocks.segments.properties]
+cache_duration = 'none'
+
+
+[[blocks.segments]]
+template = "<p:yellow>{{ round .PhysicalPercentUsed .Precision }}</><#1177DD>%</> "
 type = 'sysinfo'
 style = 'powerline'
 
 [blocks.segments.properties]
 cache_duration = 'none'
 
+
+[[blocks.segments]]
+type = "react"
+style = "powerline"
+powerline_symbol = ""
+background = "p:primary-yellow"
+foreground = "p:primary-blue"
+template = '{{ .Full }}⚛️'
+
 #[[blocks.segments]]
 #template = '🇺🇦'
-#foreground = 'p:blue'
+#foreground = 'p:primary-blue'
 #type = 'text'
 #style = 'plain'
 
 #[blocks.segments.properties]
 #cache_duration = 'none'
-
-
-
 
 
 [[blocks.segments]]
@@ -111,16 +143,26 @@ alignment = 'right'
 overflow = 'hide'
 
 
+# Custom segments using environment variables
 [[blocks.segments]]
-template = '<p:lightblue>🌍 {{ .IP }}</> 🕒'
-type = 'ipify'
+template = '{{ .Env.OMP_WEATHER }}'
+foreground = 'p:yellow'
+type = 'text'
 
-[blocks.segments.properties]
-http_timeout = 1000
-[blocks.segments.cache]
-duration = '2m0s'
-strategy = 'folder'
+[[blocks.segments]]
+template = '{{ .Env.OMP_NETWORK }}'
+foreground = 'p:green'
+type = 'text'
 
+[[blocks.segments]]
+template = '{{ .Env.OMP_SYSTEM_HEALTH }}'
+foreground = 'p:lightblue'
+type = 'text'
+
+[[blocks.segments]]
+template = '{{ .Env.OMP_DISK_USAGE }}'
+foreground = 'p:orange'
+type = 'text'
 
 [[blocks.segments]]
 template = ' {{ .CurrentDate | date .Format }}'
@@ -138,8 +180,21 @@ alignment = 'left'
 newline = true
 
 [[blocks.segments]]
-template = ' {{ if .Writable }}⌨️{{ else }}🔒{{ end }} {{ .Path }} '
-foreground = 'p:yellow'
+template = '❯❯'
+foreground = 'p:lightblue'
+foreground_templates = [
+    "{{if gt .PhysicalPercentUsed 88}}p:red{{end}}",
+    "{{if gt .PhysicalPercentUsed 75}}p:orange{{end}}",
+    "{{if gt .PhysicalPercentUsed 65}}p:yellow{{end}}",
+    "{{if gt .PhysicalPercentUsed 55}}p:lemon{{end}}"
+]
+style = 'powerline'
+type = 'sysinfo'
+
+[[blocks.segments]]
+powerline_symbol = "❯❯"
+template = '{{ if .Writable }}⌨️{{ else }}🔒{{ end }} ❯❯{{.Path }}'
+foreground = 'p:lightblue'
 type = 'path'
 style = 'diamond'
 
@@ -158,19 +213,44 @@ style = 'full'
 'C:\Projects\crypta' = '💲'
 'C:\Projects\crypta\src-tauri' = '🦀'
 
+
 [[blocks.segments]]
 template = '❯❯ '
-background = 'transparent'
-foreground = '#FFFF00'
-type = 'text'
+foreground = 'p:lightblue'
+foreground_templates = [
+    "{{if gt .PhysicalPercentUsed 88}}p:red{{end}}",
+    "{{if gt .PhysicalPercentUsed 75}}p:orange{{end}}",
+    "{{if gt .PhysicalPercentUsed 65}}p:yellow{{end}}",
+    "{{if gt .PhysicalPercentUsed 55}}p:lemon{{end}}"
+]
 style = 'powerline'
+type = 'sysinfo'
 
 
+[blocks.segments.properties]
+cache_duration = 'none'
 
 
-[[error.line]]
-background = 'transparent'
-foreground = 'p:red'
+[[blocks]]
+type = 'prompt'
+alignment = 'left'
+newline = true
+
+[valid_line]
+background = "transparent"
+foreground = "#ffffff"
+template = "<#e0def4,#286983> </><#286983,transparent></> "
+
+[error_line]
+background = "transparent"
+foreground = "#ffffff"
 template = "<#eb6f92,#286983> </><#286983,transparent></> "
+
+
+
+#[[error.line]]
+#background = 'transparent'
+#foreground = 'p:red'
+#template = "<#eb6f92,#286983> </><#286983,transparent></> "
 
 

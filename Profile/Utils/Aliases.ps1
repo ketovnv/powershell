@@ -507,4 +507,6 @@ function pr_
     Write-Warning "`nСтрока ${string} добавлена в ${filePath}`n"
 }
 
-
+# ===== АЛИАС ДЛЯ БЫСТРОГО ДОСТУПА К МЕНЮ =====
+Set-Alias -Name menu -Value Show-MainMenu
+Set-Alias -Name mm -Value Show-MainMenu

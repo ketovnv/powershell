@@ -227,57 +227,68 @@ $colorsRGB = @{
 
 
 $RAINBOWGRADIENT = @(
-"#FF0000",
-"#FF4000",
-"#FF8000",
-"#FFBF00",
-"#FFFF00",
-"#CCFF00",
-"#80FF00",
-"#40FF00",
-"#00FF00",
-"#00FF40",
-"#00FF80",
-"#00FFBF",
-"#00FFFF",
-"#8000FF",
-"#BF00FF",
-"#FF00FF")
+    "#FF0000",
+    "#FF4000",
+    "#FF8000",
+    "#FFBF00",
+    "#FFFF00",
+    "#CCFF00",
+    "#80FF00",
+    "#40FF00",
+    "#00FF00",
+    "#00FF40",
+    "#00FF80",
+    "#00FFBF",
+    "#00FFFF",
+    "#8000FF",
+    "#BF00FF",
+    "#FF00FF")
 
 $RAINBOWGRADIENT2 = @(
-'#FF0000',
-'#FF5500',
-'#FFAA00',
-'#FFFF00',
-'#AAFF00',
-'#55FF00',
-'#00FF00',
-'#00FF55',
-'#00FFAA',
-'#00FFFF',
-'#00AAFF',
-'#0055FF',
-'#0000FF',
-'#5500FF',
-'#AA00FF',
-'#FF00FF'
+    '#FF0000',
+    '#FF5500',
+    '#FFAA00',
+    '#FFFF00',
+    '#AAFF00',
+    '#55FF00',
+    '#00FF00',
+    '#00FF55',
+    '#00FFAA',
+    '#00FFFF',
+    '#00AAFF',
+    '#0055FF',
+    '#0000FF',
+    '#5500FF',
+    '#AA00FF',
+    '#FF00FF'
 )
 
 
+
+function Get-TerminalIcons{
+    $terminalIcons = Import-PowerShellDataFile "$global:profilePath/Utils/resourses/glyphs.psd1"
+}
 # Подгрузка PSD1 файла
 $fileColors = Import-PowerShellDataFile "$global:profilePath/Utils/resourses/filecolors.psd1"
 # Функция для получения цвета файла
-function Get-FileColor($fileName) {
+function Get-FileColor($fileName)
+{
     $extension = [System.IO.Path]::GetExtension($fileName).ToLower()
-    
+
     # Прямое обращение к хеш-таблице (быстрее)
     $color = $fileColors.Types.Files[$extension]
-    if ($color) { return $color }
-    
+    if ($color)
+    {
+        return $color
+    }
+
     # Если не найден точный match, проверяем WellKnown файлы
     $wellKnownColor = $fileColors.Types.Files.WellKnown[$fileName]
-    if ($wellKnownColor) { return $wellKnownColor }
-    
+    if ($wellKnownColor)
+    {
+        return $wellKnownColor
+    }
+
     # Возвращаем цвет по умолчанию
     return $fileColors.Types.Files['']
 }
@@ -286,26 +297,31 @@ function Get-FileColor($fileName) {
 # $color = Get-FileColor "README.md"   # '#00FFFF'     # '#e4eee4'
 
 # Функция для получения цвета директории
-function Get-DirectoryColor($dirName) {
+function Get-DirectoryColor($dirName)
+{
     $dirNameLower = $dirName.ToLower()
-    
+
     # Проверяем WellKnown папки
     $wellKnownColor = $fileColors.Types.Directories.WellKnown[$dirNameLower]
-    if ($wellKnownColor) { 
-        return $wellKnownColor 
+    if ($wellKnownColor)
+    {
+        return $wellKnownColor
     }
-    
+
     # Проверяем специальные типы
-    if (Test-Path $dirName -PathType Container) {
+    if (Test-Path $dirName -PathType Container)
+    {
         $item = Get-Item $dirName
-        if ($item.LinkType -eq 'SymbolicLink') {
+        if ($item.LinkType -eq 'SymbolicLink')
+        {
             return $fileColors.Types.Directories.symlink
         }
-        if ($item.LinkType -eq 'Junction') {
+        if ($item.LinkType -eq 'Junction')
+        {
             return $fileColors.Types.Directories.junction
         }
     }
-    
+
     # Цвет по умолчанию для обычных папок
     return $fileColors.Types.Directories['']
 }
