@@ -19,6 +19,6 @@ That almost instantly finds all cpp and h files with Bytes in it's name on all N
 
 On my system,
 
-Search-Everything -ext h
+Search-EverythingSearch-Everything -ext h
 
 returned 61082 '.h' files in 344 ms.

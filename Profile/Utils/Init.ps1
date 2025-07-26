@@ -1,7 +1,6 @@
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+[Console]::OutputEncoding = [Text.Encoding]::UTF8
 Import-Module Microsoft.PowerShell.PSResourceGet -Force
-
-Invoke-Expression (&scoop-search --hook)
 
 $newModulePath = "C:\Users\ketov\Documents\PowerShell\Modules"
 $env:PSModulePath = $newModulePath
@@ -11,42 +10,59 @@ $env:POSH_IGNORE_ALLUSER_PROFILES = $true
 
 
 # ===== ИМПОРТ  СКРИПТОВ =====
-
-#if (Test-Path (Join-Path $PSScriptRoot 'UltimateParser.ps1')) {
-#    . (Join-Path $PSScriptRoot 'UltimateParser.ps1')
-#    . (Join-Path $PSScriptRoot 'ParserIntegration.ps1')
-#    . (Join-Path $PSScriptRoot 'ParserFix.ps1')
-#    . (Join-Path $PSScriptRoot 'Helper.ps1')
-#}
-
-
-$scripts = @(
-    'Utils/Colors',
-    'Utils/NiceColors'
-    'Utils/ProgressBar',
-    'Utils/Aliases'
-    'ErrorMethods',
+function importProcess
+{
+    param(
+        [string]$name,
+        [switch]$start = $false
+    )
+    if ($start)
+    {
+        $global:initStartScripts += $name
+    }
+    else
+    {
+        $global:initEndScripts += $name
+    }
+}
+$scriptsBefore = @(
+    'Utils\resourses\emoji',
+    'Utils\Colors',
+    'Utils\NiceColors',
+    'Utils\Keyboard'
+#'Utils\ProgressBar',
+'Utils\Aliases'
+#'ErrorMethods'
+#'Menu\Welcome'
 #    'ErrorHandler',
-    'Menu/NetworkSystem',
-    'Menu/Welcome',
-    'Menu/MenuItems',
-    'Menu/AppsBrowsersMenu',
-    'Helper'
 )
 
-#
-foreach ($script in $scripts)
+
+foreach ($script in $scriptsBefore)
 {
     . "${global:profilePath}${script}.ps1"
 }
+
+
+$scriptsAfter = @(
+#    'Menu/NetworkSystem',
+#    'Menu/MenuItems',
+#    'Menu  /AppsBrowsersMenu',
+#    'Parser/NiceParser'
+#        'Utils/Rainbow'
+# 'Helper'
+)
+
+
+
 
 # ===== МОДУЛИ =====
 $modules = @(
     'Logger',
     'PSColor',
-    'Terminal-Icons',
     'PSFzf',
-    'syntax-highlighting'
+    'syntax-highlighting',
+    'z'
 )
 
 foreach ($module in $modules)

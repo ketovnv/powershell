@@ -5,18 +5,18 @@
 
 # Установка необходимых компонентов
 function Install-TranslatorDependencies {
-    Write-RGB "📦 Установка зависимостей..." -FC "Cyan" -Style Bold -newline
+    wrgb "📦 Установка зависимостей..." -FC "Cyan" -Style Bold -newline
 
     # Selenium PowerShell Module
     if (-not (Get-Module -ListAvailable -Name Selenium)) {
-        Write-RGB "  • Устанавливаем Selenium..." -FC "Yellow"
+        wrgb "  • Устанавливаем Selenium..." -FC "Yellow"
         Install-Module -Name Selenium -Force -Scope CurrentUser
-        Write-RGB " ✅" -FC "Green" -newline
+        wrgb " ✅" -FC "Green" -newline
     }
 
     # WebDriver для Edge
     if (-not (Test-Path "$env:USERPROFILE\.webdrivers\msedgedriver.exe")) {
-        Write-RGB "  • Загружаем Edge WebDriver..." -FC "Yellow"
+        wrgb "  • Загружаем Edge WebDriver..." -FC "Yellow"
 
         # Создаем папку для драйверов
         New-Item -Path "$env:USERPROFILE\.webdrivers" -ItemType Directory -Force | Out-Null
@@ -33,7 +33,7 @@ function Install-TranslatorDependencies {
         Expand-Archive -Path $zipPath -DestinationPath "$env:USERPROFILE\.webdrivers" -Force
         Remove-Item $zipPath
 
-        Write-RGB " ✅" -FC "Green" -newline
+        wrgb " ✅" -FC "Green" -newline
     }
 
     # Добавляем в PATH
@@ -63,7 +63,7 @@ function Quick-Translate {
         [string]$To = 'ru'
     )
 
-    Write-RGB "🌐 Перевод на $To..." -FC "Cyan" -newline
+    wrgb "🌐 Перевод на $To..." -FC "Cyan" -newline
 
     # Простой метод через Google Translate URL
     $encoded = [System.Web.HttpUtility]::UrlEncode($Text)
@@ -72,7 +72,7 @@ function Quick-Translate {
     # Открываем в браузере
     Start-Process $url
 
-    Write-RGB "✅ Открыто в браузере!" -FC "Green" -newline
+    wrgb "✅ Открыто в браузере!" -FC "Green" -newline
 }
 
 # Супер-простая версия с Selenium
@@ -85,13 +85,13 @@ function Simple-BrowserTranslate {
     )
 
     begin {
-        Write-RGB "🤖 Запускаем браузер..." -FC "Cyan"
+        wrgb "🤖 Запускаем браузер..." -FC "Cyan"
 
         Import-Module Selenium
 
         # Запускаем Edge в фоне
         $driver = Start-SeEdge -Headless
-        Write-RGB " ✅" -FC "Green" -newline
+        wrgb " ✅" -FC "Green" -newline
     }
 
     process {
@@ -111,10 +111,10 @@ function Simple-BrowserTranslate {
             # Получаем результат
             $result = $driver.FindElementByClassName("J0lOec").Text
 
-            Write-RGB "📝 Оригинал: " -FC "Gray"
-            Write-RGB $Text -FC "White" -newline
-            Write-RGB "🔄 Перевод: " -FC "Gray"
-            Write-RGB $result -FC "Green" -Style Bold -newline
+            wrgb "📝 Оригинал: " -FC "Gray"
+            wrgb $Text -FC "White" -newline
+            wrgb "🔄 Перевод: " -FC "Gray"
+            wrgb $result -FC "Green" -Style Bold -newline
 
             return $result
 
@@ -125,7 +125,7 @@ function Simple-BrowserTranslate {
 
     end {
         $driver.Quit()
-        Write-RGB "👋 Браузер закрыт" -FC "DarkGray" -newline
+        wrgb "👋 Браузер закрыт" -FC "DarkGray" -newline
     }
 }
 
@@ -144,10 +144,10 @@ function Translate-FileSimple {
     $content = Get-Content $Path -Raw
     $lines = $content -split "`n"
 
-    Write-RGB "📄 Переводим файл: " -FC "Cyan"
-    Write-RGB (Split-Path $Path -Leaf) -FC "Yellow" -Style Bold -newline
-    Write-RGB "📏 Строк: " -FC "Gray"
-    Write-RGB $lines.Count -FC "White" -newline
+    wrgb "📄 Переводим файл: " -FC "Cyan"
+    wrgb (Split-Path $Path -Leaf) -FC "Yellow" -Style Bold -newline
+    wrgb "📏 Строк: " -FC "Gray"
+    wrgb $lines.Count -FC "White" -newline
 
     # Создаем выходной файл
     $outPath = [System.IO.Path]::GetFileNameWithoutExtension($Path) + "_$To.txt"
@@ -198,7 +198,7 @@ function Translate-FileSimple {
 function Mini-Translator {
     Write-GradientHeader -Title "MINI TRANSLATOR" -StartColor "#4285F4" -EndColor "#34A853"
 
-    Write-RGB "💡 Команды: [Enter] - перевести, 'exit' - выход" -FC "DarkGray" -newline
+    wrgb "💡 Команды: [Enter] - перевести, 'exit' - выход" -FC "DarkGray" -newline
 
     Import-Module Selenium
     $driver = Start-SeEdge -Headless
@@ -208,7 +208,7 @@ function Mini-Translator {
         Start-Sleep -Seconds 1
 
         while ($true) {
-            Write-RGB "`n📝 Текст: " -FC "Cyan"
+            wrgb "`n📝 Текст: " -FC "Cyan"
             $text = Read-Host
 
             if ($text -eq 'exit') { break }
@@ -223,8 +223,8 @@ function Mini-Translator {
 
             $result = $driver.FindElementByClassName("J0lOec").Text
 
-            Write-RGB "🔄 " -FC "Green"
-            Write-RGB $result -FC "White" -Style Bold -newline
+            wrgb "🔄 " -FC "Green"
+            wrgb $result -FC "White" -Style Bold -newline
         }
     } finally {
         $driver.Quit()
@@ -247,8 +247,8 @@ function Lightning-Translate {
         $response = Invoke-RestMethod -Uri $url -Method Get
         $translation = $response[0][0][0]
 
-        Write-RGB "⚡ " -FC "Yellow"
-        Write-RGB $translation -FC "Green" -Style Bold -newline
+        wrgb "⚡ " -FC "Yellow"
+        wrgb $translation -FC "Green" -Style Bold -newline
 
         return $translation
     } catch {
@@ -262,44 +262,44 @@ function Show-TranslatorExamples {
 
     Write-GradientHeader -Title "TRANSLATOR EXAMPLES" -StartColor "#4285F4" -EndColor "#34A853"
 
-    Write-RGB "🌐 Простые примеры использования:" -FC "Gold" -Style Bold -newline
+    wrgb "🌐 Простые примеры использования:" -FC "Gold" -Style Bold -newline
 
     # Пример 1
-    Write-RGB "`n1️⃣ Быстрый перевод текста:" -FC "Cyan" -newline
-    Write-RGB "   " -FC "White"
-    Write-RGB '"Hello, World!" | Lightning-Translate' -FC "Dracula_Comment" -newline
+    wrgb "`n1️⃣ Быстрый перевод текста:" -FC "Cyan" -newline
+    wrgb "   " -FC "White"
+    wrgb '"Hello, World!" | Lightning-Translate' -FC "Material_Comment" -newline
     "Hello, World!" | Lightning-Translate
 
     # Пример 2
-    Write-RGB "`n2️⃣ Перевод в браузере:" -FC "Cyan" -newline
-    Write-RGB "   " -FC "White"
-    Write-RGB 'Quick-Translate "Welcome to PowerShell"' -FC "Dracula_Comment" -newline
+    wrgb "`n2️⃣ Перевод в браузере:" -FC "Cyan" -newline
+    wrgb "   " -FC "White"
+    wrgb 'Quick-Translate "Welcome to PowerShell"' -FC "Material_Comment" -newline
 
     # Пример 3
-    Write-RGB "`n3️⃣ Перевод из буфера обмена:" -FC "Cyan" -newline
-    Write-RGB "   " -FC "White"
-    Write-RGB 'Get-Clipboard | Lightning-Translate | Set-Clipboard' -FC "Dracula_Comment" -newline
+    wrgb "`n3️⃣ Перевод из буфера обмена:" -FC "Cyan" -newline
+    wrgb "   " -FC "White"
+    wrgb 'Get-Clipboard | Lightning-Translate | Set-Clipboard' -FC "Material_Comment" -newline
 
     # Пример 4
-    Write-RGB "`n4️⃣ Интерактивный мини-переводчик:" -FC "Cyan" -newline
-    Write-RGB "   " -FC "White"
-    Write-RGB 'Mini-Translator' -FC "Dracula_Comment" -newline
+    wrgb "`n4️⃣ Интерактивный мини-переводчик:" -FC "Cyan" -newline
+    wrgb "   " -FC "White"
+    wrgb 'Mini-Translator' -FC "Material_Comment" -newline
 
     # Пример 5
-    Write-RGB "`n5️⃣ Перевод файла:" -FC "Cyan" -newline
-    Write-RGB "   " -FC "White"
-    Write-RGB 'Translate-FileSimple -Path "document.txt"' -FC "Dracula_Comment" -newline
+    wrgb "`n5️⃣ Перевод файла:" -FC "Cyan" -newline
+    wrgb "   " -FC "White"
+    wrgb 'Translate-FileSimple -Path "document.txt"' -FC "Material_Comment" -newline
 
-    Write-RGB "`n💡 Полезные однострочники:" -FC "Yellow" -Style Bold -newline
+    wrgb "`n💡 Полезные однострочники:" -FC "Yellow" -Style Bold -newline
 
-    Write-RGB "`n# Перевести и озвучить:" -FC "Green" -newline
-    Write-RGB '"Good morning" | Lightning-Translate | ForEach-Object { (New-Object -ComObject SAPI.SpVoice).Speak($_) }' -FC "White" -newline
+    wrgb "`n# Перевести и озвучить:" -FC "Green" -newline
+    wrgb '"Good morning" | Lightning-Translate | ForEach-Object { (New-Object -ComObject SAPI.SpVoice).Speak($_) }' -FC "White" -newline
 
-    Write-RGB "`n# Перевести help команды:" -FC "Green" -newline
-    Write-RGB 'Get-Help Get-Process | Out-String | Lightning-Translate' -FC "White" -newline
+    wrgb "`n# Перевести help команды:" -FC "Green" -newline
+    wrgb 'Get-Help Get-Process | Out-String | Lightning-Translate' -FC "White" -newline
 
-    Write-RGB "`n# Создать словарь:" -FC "Green" -newline
-    Write-RGB '@("Hello", "Goodbye", "Thank you") | ForEach-Object { "$_ = $(Lightning-Translate $_)" }' -FC "White" -newline
+    wrgb "`n# Создать словарь:" -FC "Green" -newline
+    wrgb '@("Hello", "Goodbye", "Thank you") | ForEach-Object { "$_ = $(Lightning-Translate $_)" }' -FC "White" -newline
 }
 
 # Автоустановка при первом запуске
@@ -308,7 +308,7 @@ $script:TranslatorInitialized = $false
 function Initialize-TranslatorIfNeeded {
     if (-not $script:TranslatorInitialized) {
         if (-not (Get-Module -ListAvailable -Name Selenium)) {
-            Write-RGB "⚡ Первый запуск - устанавливаем компоненты..." -FC "Yellow" -newline
+            wrgb "⚡ Первый запуск - устанавливаем компоненты..." -FC "Yellow" -newline
             Install-TranslatorDependencies
         }
         $script:TranslatorInitialized = $true
@@ -320,20 +320,20 @@ Set-Alias -Name tr -Value Lightning-Translate -Force
 Set-Alias -Name translate -Value Translate-Text -Force
 Set-Alias -Name mt -Value Mini-Translator -Force
 
-Write-RGB "`n🌐 " -FC "Gold"
+wrgb "`n🌐 " -FC "Gold"
 Write-GradientText "Quick Translator" -StartColor "#4285F4" -EndColor "#34A853" -NoNewline
-Write-RGB " готов!" -FC "Gold" -newline
+wrgb " готов!" -FC "Gold" -newline
 
-Write-RGB "`n⚡ Быстрые команды:" -FC "Cyan" -Style Bold -newline
-Write-RGB "  • " -FC "DarkGray"
-Write-RGB "tr" -FC "Yellow"
-Write-RGB ' "Hello"' -FC "White"
-Write-RGB " - молниеносный перевод" -FC "Gray" -newline
+wrgb "`n⚡ Быстрые команды:" -FC "Cyan" -Style Bold -newline
+wrgb "  • " -FC "DarkGray"
+wrgb "tr" -FC "Yellow"
+wrgb ' "Hello"' -FC "White"
+wrgb " - молниеносный перевод" -FC "Gray" -newline
 
-Write-RGB "  • " -FC "DarkGray"
-Write-RGB "mt" -FC "Yellow"
-Write-RGB " - мини-переводчик" -FC "Gray" -newline
+wrgb "  • " -FC "DarkGray"
+wrgb "mt" -FC "Yellow"
+wrgb " - мини-переводчик" -FC "Gray" -newline
 
-Write-RGB "  • " -FC "DarkGray"
-Write-RGB "Show-TranslatorExamples" -FC "Yellow"
-Write-RGB " - примеры" -FC "Gray" -newline
+wrgb "  • " -FC "DarkGray"
+wrgb "Show-TranslatorExamples" -FC "Yellow"
+wrgb " - примеры" -FC "Gray" -newline

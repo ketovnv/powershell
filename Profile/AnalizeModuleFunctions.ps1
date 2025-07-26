@@ -18,7 +18,7 @@ if (-not (Test-Path $exportPath)) {
 if ($Module) {
     $modules = Get-Module -ListAvailable -Name $Module
     if (-not $modules) {
-        Write-RGB "❌ Модуль '$Module' не найден.`n" -FC "#FF4444"
+        wrgb "❌ Модуль '$Module' не найден.`n" -FC "#FF4444"
         exit
     }
 } else {
@@ -37,7 +37,7 @@ $functions = $modules | ForEach-Object {
 } | Sort-Object Name -Unique
 
 if (-not $functions) {
-    Write-RGB "❗ Функции не найдены для анализа.`n" -FC "#FF8800"
+    wrgb "❗ Функции не найдены для анализа.`n" -FC "#FF8800"
     exit
 }
 
@@ -53,13 +53,13 @@ foreach ($func in $functions) {
         $color = $colors[$colorIndex % $colors.Count]
         $colorIndex++
 
-        Write-RGB "`n📦 Модуль: " -FC "#00CED1"; Write-RGB "$module`n" -FC "#AAAAAA"
-        Write-RGB "⚙️  Функция: " -FC "#00FF00"; Write-RGB "$name`n" -FC "#FFFFFF"
+        wrgb "`n📦 Модуль: " -FC "#00CED1"; wrgb "$module`n" -FC "#AAAAAA"
+        wrgb "⚙️  Функция: " -FC "#00FF00"; wrgb "$name`n" -FC "#FFFFFF"
 
         # Парсинг
         $parsed = Parse-Code -ScriptText $definition
 
-        Write-RGB "🔍 Токены:`n" -FC "#FFAA00"
+        wrgb "🔍 Токены:`n" -FC "#FFAA00"
         foreach ($token in $parsed.Tokens) {
             $tokColor = switch ($token.Kind) {
                 "Keyword"      { "#00FFFF" }
@@ -69,8 +69,8 @@ foreach ($func in $functions) {
                 "Comment"      { "#888888" }
                 default        { "#DDDDDD" }
             }
-            Write-RGB "  $($token.Kind): " -FC "#8888FF"
-            Write-RGB "$($token.Text)`n" -FC $tokColor
+            wrgb "  $($token.Kind): " -FC "#8888FF"
+            wrgb "$($token.Text)`n" -FC $tokColor
         }
 
         # Экспорт AST
@@ -79,12 +79,12 @@ foreach ($func in $functions) {
         $astFile = Join-Path $exportPath "$safeModule`__$safeName.json"
         $parsed.Ast | ConvertTo-Json -Depth 10 | Out-File $astFile -Encoding utf8
 
-        Write-RGB "💾 AST сохранён: $astFile`n" -FC "#44FF44"
-        Write-RGB "────────────────────────────────────────────────────`n" -FC "#555555"
+        wrgb "💾 AST сохранён: $astFile`n" -FC "#44FF44"
+        wrgb "────────────────────────────────────────────────────`n" -FC "#555555"
 
         Start-Sleep -Milliseconds 400
 
     } catch {
-        Write-RGB "⚠️ Ошибка при анализе '$($func.Name)': $_`n" -FC "#FF0000"
+        wrgb "⚠️ Ошибка при анализе '$($func.Name)': $_`n" -FC "#FF0000"
     }
 }

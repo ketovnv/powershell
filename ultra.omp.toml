@@ -1,0 +1,176 @@
+"$schema" = "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json"
+final_space = true
+version = 3
+
+[palette]
+blue = "#0057B7"
+darkblue = "#003D7A"
+brightblue = "#2030FF"
+lightblue = "#00AAFF"
+gray = "#808080"
+darkgrey = "#222222"
+black = "#000000"
+green = "#00FF55"
+lightyellow = "#FFF8CC"
+lemon = "#E0FF75"
+red = "#FF0000"
+white = "#FFFFFF"
+yellow = "#FFD700"
+
+
+[secondary_prompt]
+template = '❯ '
+foreground = 'p:lemon'
+background = 'transparent'
+
+[transient_prompt]
+template = '🇺🇦 ❯ '
+foreground = 'p:brightblue'
+background = 'transparent'
+
+[[blocks]]
+type = 'prompt'
+alignment = 'left'
+newline = true
+
+
+[[blocks.segments]]
+foreground = 'p:yellow'
+template = "\ue0c5"
+type = 'session'
+style = 'powerline'
+
+[[blocks.segments]]
+foreground = 'p:blue'
+background = 'p:yellow'
+type = 'os'
+style = 'powerline'
+
+[blocks.segments.properties]
+always_enabled = true
+
+[[blocks.segments]]
+foreground = 'p:yellow'
+background = 'p:darkblue'
+type = 'session'
+style = 'powerline'
+
+[blocks.segments.properties]
+user_icon = ' '
+
+[[blocks.segments]]
+template = "  <p:yellow>{{ round .PhysicalPercentUsed .Precision }}%</> "
+foreground = '#1177DD'
+type = 'sysinfo'
+style = 'powerline'
+
+[blocks.segments.properties]
+cache_duration = 'none'
+
+#[[blocks.segments]]
+#template = '🇺🇦'
+#foreground = 'p:blue'
+#type = 'text'
+#style = 'plain'
+
+#[blocks.segments.properties]
+#cache_duration = 'none'
+
+
+
+
+
+[[blocks.segments]]
+#template = ' {{ if gt .Formatted 50 }}🔥{{ else if gt .Value 25 }}⚡{{ else }}❄️{{ end }} CPU: {{ .FormattedMs }}% '
+foreground = 'p:yellow'
+background = 'p:darkblue'
+type = 'executiontime'
+trailing_diamond = "\ue0b4"
+style = 'diamond'
+template = ' ❄️ {{ .FormattedMs}} 🔥 '
+
+[blocks.segments.properties]
+style = 'austin'
+treshhold = 0
+
+[[blocks.segments]]
+foreground_templates = ['{{ if gt .Code 0 }}p:red{{ end }}']
+foreground = 'p:green'
+template = ' {{ if gt .Code 0 }} {{ reason .Code }} ✗ 🙁 {{ else }}✓{{ end }}  '
+type = 'status'
+style = 'plain'
+
+
+[blocks.segments.properties]
+always_enabled = true
+cache_duration = 'none'
+
+[[blocks]]
+type = 'prompt'
+alignment = 'right'
+overflow = 'hide'
+
+
+[[blocks.segments]]
+template = '<p:lightblue>🌍 {{ .IP }}</> 🕒'
+type = 'ipify'
+
+[blocks.segments.properties]
+http_timeout = 1000
+[blocks.segments.cache]
+duration = '2m0s'
+strategy = 'folder'
+
+
+[[blocks.segments]]
+template = ' {{ .CurrentDate | date .Format }}'
+foreground = '#FFFF99'
+type = 'time'
+
+[blocks.segments.properties]
+cache_duration = 'none'
+time_format = '15:04'
+
+
+[[blocks]]
+type = 'prompt'
+alignment = 'left'
+newline = true
+
+[[blocks.segments]]
+template = ' {{ if .Writable }}⌨️{{ else }}🔒{{ end }} {{ .Path }} '
+foreground = 'p:yellow'
+type = 'path'
+style = 'diamond'
+
+[blocks.segments.properties]
+cache_duration = 'none'
+folder_icon = '📁'
+home_icon = '🏰'
+max_depth = 3
+mixed_threshold = 8
+style = 'full'
+
+[blocks.segments.properties.mapped_locations]
+'~\Documents' = '📝'
+'~\Downloads' = '⬇️'
+'C:\Projects' = '🏭'
+'C:\Projects\crypta' = '💲'
+'C:\Projects\crypta\src-tauri' = '🦀'
+
+[[blocks.segments]]
+template = '❯❯ '
+background = 'transparent'
+foreground = '#FFFF00'
+type = 'text'
+style = 'powerline'
+
+
+
+
+[[error.line]]
+background = 'transparent'
+foreground = 'p:red'
+template = "<#eb6f92,#286983> </><#286983,transparent></> "
+
+

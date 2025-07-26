@@ -2,7 +2,6 @@
 # ║                   🌈 ENHANCED RAINBOW & INTEGRATION                         ║
 # ║                 Объединение всех систем парсинга и эффектов                ║
 # ╚═══════════════════════════════════════════════════════════════════════════╝
-
 #region Улучшенная функция Rainbow
 function Write-Rainbow {
     <#
@@ -77,6 +76,9 @@ function Write-Rainbow {
             Ukraine = @("#0057B7", "#0057B7", "#FFD500", "#FFD500")
         }
 
+
+
+
         # Выбираем палитру
         if ($Style -eq "Custom" -and $Palette) {
             $colors = $Palette
@@ -117,7 +119,7 @@ function Write-Rainbow {
                                     $colorIndex = [Math]::Abs([int](($colorIndex + $waveOffset * $colors.Length) % $colors.Length))
                                 }
 
-                                Write-RGB $chars[$i] -FC $colors[$colorIndex] -Style $styles
+                                wrgb $chars[$i] -FC $colors[$colorIndex] -Style $styles
                             }
                         }
 
@@ -125,7 +127,7 @@ function Write-Rainbow {
                             $words = $Text -split '\s+'
                             for ($i = 0; $i -lt $words.Length; $i++) {
                                 $colorIndex = ($i + $shift) % $colors.Length
-                                Write-RGB "$($words[$i]) " -FC $colors[$colorIndex] -Style $styles
+                                wrgb "$($words[$i]) " -FC $colors[$colorIndex] -Style $styles
                             }
                         }
                     }
@@ -147,7 +149,7 @@ function Write-Rainbow {
                 $chars = $Text.ToCharArray()
                 foreach ($char in $chars) {
                     $color = $colors[$index % $colors.Length]
-                    Write-RGB $char -FC $color -Style $styles
+                    wrgb $char -FC $color -Style $styles
                     $index++
                 }
                 Write-Host ""
@@ -157,7 +159,7 @@ function Write-Rainbow {
                 $words = $Text -split '\s+'
                 foreach ($word in $words) {
                     $color = $colors[$index % $colors.Length]
-                    Write-RGB "$word " -FC $color -Style $styles
+                    wrgb "$word " -FC $color -Style $styles
                     $index++
                 }
                 Write-Host ""
@@ -165,7 +167,7 @@ function Write-Rainbow {
 
             "Line" {
                 $color = $colors[$index % $colors.Length]
-                Write-RGB $Text -FC $color -Style $styles -newline
+                wrgb $Text -FC $color -Style $styles -newline
                 $index++
             }
 
@@ -187,7 +189,7 @@ function Write-Rainbow {
                                               -StartColor $startColor `
                                               -EndColor $endColor
 
-                    Write-RGB $chars[$i] -FC $color -Style $styles
+                    wrgb $chars[$i] -FC $color -Style $styles
                 }
                 Write-Host ""
             }
@@ -199,7 +201,7 @@ function Write-Rainbow {
                     $wave = [Math]::Sin($i * $WaveFrequency) * 0.5 + 0.5
                     $colorIndex = [int]($wave * ($colors.Length - 1))
                     $color = $colors[$colorIndex]
-                    Write-RGB $chars[$i] -FC $color -Style $styles
+                    wrgb $chars[$i] -FC $color -Style $styles
                 }
                 Write-Host ""
             }
@@ -229,7 +231,7 @@ function Watch-ParsedFile {
     }
 
     Write-Status -Info "Отслеживание файла: $Path"
-    Write-RGB "Нажмите Ctrl+C для остановки" -FC "DarkGray" -newline
+    wrgb "Нажмите Ctrl+C для остановки" -FC "DarkGray" -newline
 
     $lastWriteTime = (Get-Item $Path).LastWriteTime
 
@@ -278,25 +280,25 @@ function Compare-ParsedFiles {
 
     Write-GradientHeader -Title "FILE COMPARISON" -StartColor "#FF6B6B" -EndColor "#4ECDC4"
 
-    Write-RGB "📄 Файл 1: " -FC "Cyan"
-    Write-RGB $Path1 -FC "White" -newline
-    Write-RGB "📄 Файл 2: " -FC "Cyan"
-    Write-RGB $Path2 -FC "White" -newline
-    Write-RGB "" -newline
+    wrgb "📄 Файл 1: " -FC "Cyan"
+    wrgb $Path1 -FC "White" -newline
+    wrgb "📄 Файл 2: " -FC "Cyan"
+    wrgb $Path2 -FC "White" -newline
+    wrgb "" -newline
 
     foreach ($line in $diff) {
         switch ($line.SideIndicator) {
             '<=' {
-                Write-RGB "- " -FC "Red" -Style Bold
-                Write-RGB $line.InputObject -FC "Dracula_Red" -newline
+                wrgb "- " -FC "Red" -Style Bold
+                wrgb $line.InputObject -FC "Material_Red" -newline
             }
             '=>' {
-                Write-RGB "+ " -FC "Green" -Style Bold
-                Write-RGB $line.InputObject -FC "Dracula_Green" -newline
+                wrgb "+ " -FC "Green" -Style Bold
+                wrgb $line.InputObject -FC "Material_Green" -newline
             }
             '==' {
-                Write-RGB "  " -FC "Gray"
-                Write-RGB $line.InputObject -FC "DarkGray" -newline
+                wrgb "  " -FC "Gray"
+                wrgb $line.InputObject -FC "DarkGray" -newline
             }
         }
     }
@@ -337,11 +339,11 @@ function ConvertTo-ParsedOutput {
             $props = $InputObject.PSObject.Properties
 
             if ($ShowType) {
-                Write-RGB "[$($InputObject.GetType().Name)]" -FC "DarkCyan" -newline
+                wrgb "[$($InputObject.GetType().Name)]" -FC "DarkCyan" -newline
             }
 
             foreach ($prop in $props) {
-                Write-RGB "$($prop.Name): " -FC "Dracula_Purple" -Style Bold
+                wrgb "$($prop.Name): " -FC "Material_Purple" -Style Bold
 
                 $value = $prop.Value
                 $valueStr = if ($null -eq $value) { "<null>" } else { $value.ToString() }
@@ -354,15 +356,15 @@ function ConvertTo-ParsedOutput {
 
                 # Специальная обработка для разных типов
                 switch ($prop.TypeNameOfValue) {
-                    { $_ -match 'DateTime' } { $color = "Dracula_Cyan" }
-                    { $_ -match 'Int|Long|Double' } { $color = "Dracula_Pink" }
+                    { $_ -match 'DateTime' } { $color = "Material_Cyan" }
+                    { $_ -match 'Int|Long|Double' } { $color = "Material_Pink" }
                     { $_ -match 'Bool' } { $color = if ($value) { "LimeGreen" } else { "Red" } }
                 }
 
-                Write-RGB $valueStr -FC $color -newline
+                wrgb $valueStr -FC $color -newline
             }
 
-            Write-RGB "" -newline
+            wrgb "" -newline
         }
     }
 }
@@ -385,7 +387,7 @@ function Show-MegaParserDemo {
     $title = "MEGA PARSER DEMONSTRATION"
     Write-Rainbow -Text $title -Mode Gradient -Style Neon -Animated -Speed 30
 
-    Write-RGB "`n🚀 Добро пожаловать в мир продвинутого парсинга!" -FC "GoldRGB" -Style Bold -newline
+    wrgb "`n🚀 Добро пожаловать в мир продвинутого парсинга!" -FC "GoldRGB" -Style Bold -newline
 
     # Меню демонстраций
     $demos = @(
@@ -400,15 +402,15 @@ function Show-MegaParserDemo {
     )
 
     do {
-        Write-RGB "`nВыберите демонстрацию:" -FC "Cyan" -Style Bold -newline
+        wrgb "`nВыберите демонстрацию:" -FC "Cyan" -Style Bold -newline
 
         for ($i = 0; $i -lt $demos.Length; $i++) {
             $color = Get-MenuGradientColor -Index $i -Total $demos.Length -Style Ocean
-            Write-RGB "  [$($i + 1)] " -FC "White"
-            Write-RGB $demos[$i] -FC $color -newline
+            wrgb "  [$($i + 1)] " -FC "White"
+            wrgb $demos[$i] -FC $color -newline
         }
 
-        Write-RGB "`nВаш выбор: " -FC "Yellow"
+        wrgb "`nВаш выбор: " -FC "Yellow"
         $choice = Read-Host
 
         switch ($choice) {
@@ -417,22 +419,22 @@ function Show-MegaParserDemo {
 #                Clear-Host
                 Write-GradientHeader -Title "RAINBOW EFFECTS"
 
-                Write-RGB "`nБазовый Rainbow:" -FC "Cyan" -newline
+                wrgb "`nБазовый Rainbow:" -FC "Cyan" -newline
                 "Hello, PowerShell World!" | Write-Rainbow
 
-                Write-RGB "`nRainbow по словам:" -FC "Cyan" -newline
+                wrgb "`nRainbow по словам:" -FC "Cyan" -newline
                 "The quick brown fox jumps over the lazy dog" | Write-Rainbow -Mode Word -Bold
 
-                Write-RGB "`nГрадиентный Rainbow:" -FC "Cyan" -newline
+                wrgb "`nГрадиентный Rainbow:" -FC "Cyan" -newline
                 "Gradient Rainbow Effect" | Write-Rainbow -Mode Gradient -Style Fire
 
-                Write-RGB "`nВолновой эффект:" -FC "Cyan" -newline
+                wrgb "`nВолновой эффект:" -FC "Cyan" -newline
                 "~~~~ Wave Effect Demo ~~~~" | Write-Rainbow -Mode Wave -Style Ocean
 
-                Write-RGB "`nАнимированный Rainbow:" -FC "Cyan" -newline
+                wrgb "`nАнимированный Rainbow:" -FC "Cyan" -newline
                 "Animated Magic!" | Write-Rainbow -Animated -Speed 100 -Loop -LoopCount 3
 
-                Write-RGB "`nНажмите Enter..." -FC "DarkGray"
+                wrgb "`nНажмите Enter..." -FC "DarkGray"
                 Read-Host
             }
 
@@ -440,7 +442,7 @@ function Show-MegaParserDemo {
                 # Прогресс-бары
 #                Clear-Host
                 Show-ProgressDemo
-                Write-RGB "`nНажмите Enter..." -FC "DarkGray"
+                wrgb "`nНажмите Enter..." -FC "DarkGray"
                 Read-Host
             }
 
@@ -448,7 +450,7 @@ function Show-MegaParserDemo {
                 # Парсинг текста
 #                Clear-Host
                 Show-ParserDemo
-                Write-RGB "`nНажмите Enter..." -FC "DarkGray"
+                wrgb "`nНажмите Enter..." -FC "DarkGray"
                 Read-Host
             }
 
@@ -493,7 +495,7 @@ Write-Output $data
                 Out-ParsedFile -Path $demoFile -ShowFileInfo -ShowLineNumbers
 
                 Remove-Item $demoFile -Force
-                Write-RGB "`nНажмите Enter..." -FC "DarkGray"
+                wrgb "`nНажмите Enter..." -FC "DarkGray"
                 Read-Host
             }
 
@@ -507,11 +509,11 @@ Write-Output $data
 #                Clear-Host
                 Write-GradientHeader -Title "PIPELINE INTEGRATION"
 
-                Write-RGB "Get-Process (top 5 by CPU):" -FC "Cyan" -Style Bold -newline
+                wrgb "Get-Process (top 5 by CPU):" -FC "Cyan" -Style Bold -newline
                 Get-Process | Sort-Object CPU -Descending | Select-Object -First 5 |
                         ConvertTo-ParsedOutput -HighlightProperty CPU -ShowType
 
-                Write-RGB "`nНажмите Enter..." -FC "DarkGray"
+                wrgb "`nНажмите Enter..." -FC "DarkGray"
                 Read-Host
             }
 
@@ -520,10 +522,10 @@ Write-Output $data
 #                Clear-Host
                 Write-Rainbow "ULTIMATE COMBO DEMO" -Mode Gradient -Style Rainbow -Bold -Animated
 
-                Write-RGB "`n📊 Загрузка системы парсинга..." -FC "Cyan" -newline
+                wrgb "`n📊 Загрузка системы парсинга..." -FC "Cyan" -newline
                 Show-AnimatedProgress -Activity "Инициализация" -TotalSteps 30
 
-                Write-RGB "`n✨ Система готова!" -FC "LimeGreen" -Style Bold -newline
+                wrgb "`n✨ Система готова!" -FC "LimeGreen" -Style Bold -newline
 
                 # Парсим лог с Rainbow заголовком
                 "=== SYSTEM LOG ===" | Write-Rainbow -Mode Line -Style Fire -Bold
@@ -537,7 +539,7 @@ Write-Output $data
 2024-01-15 10:30:05 [SUCCESS] ✅ Connection restored successfully!
 "@ -split "`n" | Out-ParsedText
 
-                Write-RGB "`nНажмите Enter..." -FC "DarkGray"
+                wrgb "`nНажмите Enter..." -FC "DarkGray"
                 Read-Host
             }
         }
@@ -546,16 +548,16 @@ Write-Output $data
     # Прощальное сообщение
 #    Clear-Host
     "Thanks for using MEGA PARSER!" | Write-Rainbow -Mode Gradient -Style Rainbow -Animated
-    Write-RGB "`n👋 До встречи!" -FC "GoldRGB" -Style Bold -newline
+    wrgb "`n👋 До встречи!" -FC "GoldRGB" -Style Bold -newline
 }
 #endregion
 
 # Финальная инициализация
 Write-GradientHeader -Title "PARSER SYSTEM READY" -StartColor "#00C851" -EndColor "#00FF00"
 
-Write-RGB "🎯 Все системы парсинга загружены и готовы к работе!" -FC "LimeGreen" -Style Bold -newline
+wrgb "🎯 Все системы парсинга загружены и готовы к работе!" -FC "LimeGreen" -Style Bold -newline
 
-Write-RGB "`n📚 Доступные команды:" -FC "Cyan" -Style Bold -newline
+wrgb "`n📚 Доступные команды:" -FC "Cyan" -Style Bold -newline
 
 $commands = @(
     @{ Cmd = "Write-Rainbow"; Desc = "Радужный текст с эффектами" }
@@ -567,16 +569,16 @@ $commands = @(
 )
 
 foreach ($cmd in $commands) {
-    Write-RGB "  • " -FC "DarkGray"
-    Write-RGB $cmd.Cmd -FC "Yellow" -Style Bold
-    Write-RGB " - " -FC "DarkGray"
-    Write-RGB $cmd.Desc -FC "White" -newline
+    wrgb "  • " -FC "DarkGray"
+    wrgb $cmd.Cmd -FC "Yellow" -Style Bold
+    wrgb " - " -FC "DarkGray"
+    wrgb $cmd.Desc -FC "White" -newline
 }
 
-Write-RGB "`n💡 Совет: " -FC "Dracula_Orange"
-Write-RGB "Используйте " -FC "Gray"
-Write-RGB "Show-MegaParserDemo" -FC "Cyan" -Style Bold
-Write-RGB " для полной демонстрации!" -FC "Gray" -newline
+wrgb "`n💡 Совет: " -FC "Material_Orange"
+wrgb "Используйте " -FC "Gray"
+wrgb "Show-MegaParserDemo" -FC "Cyan" -Style Bold
+wrgb " для полной демонстрации!" -FC "Gray" -newline
 
 # Экспортируем все функции если это модуль
 if ($MyInvocation.MyCommand.Path -match '\.psm1$') {

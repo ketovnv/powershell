@@ -4,7 +4,7 @@ function Normalize-Path {
     return ($path -replace '[^\x20-\x7E]', '').ToLowerInvariant()
 }
 
-Write-RGB "Ищем внедрения..." -FC "#FFCC33" -newline
+wrgb "Ищем внедрения..." -FC "#FFCC33" -newline
 
 # Белый список с эмодзи в отображении, но чистим потом
 $knownInjectors = @(
@@ -17,10 +17,10 @@ $knownInjectors = @(
 # Очищенный список путей
 $knownCleaned = $knownInjectors | ForEach-Object { Normalize-Path $_ }
 
-Write-RGB "Доверенные процессы (игнорируются):" -FC "#1133CC" -newline
-$knownInjectors | ForEach-Object { Write-RGB "- $_" -FC "#3399FF" -newline }
+wrgb "Доверенные процессы (игнорируются):" -FC "#1133CC" -newline
+$knownInjectors | ForEach-Object { wrgb "- $_" -FC "#3399FF" -newline }
 
-Write-RGB ("{0,-25} {1,-8} {2,-45} {3,-8} {4,-45}" -f "TimeCreated", "SrcPID", "SourceImage", "TgtPID", "TargetImage") -FC "#444444" -newline
+wrgb ("{0,-25} {1,-8} {2,-45} {3,-8} {4,-45}" -f "TimeCreated", "SrcPID", "SourceImage", "TgtPID", "TargetImage") -FC "#444444" -newline
 $knownCleaned = $knownInjectors | ForEach-Object { Normalize-Path $_ }
 # Данные
 Get-WinEvent -LogName 'Microsoft-Windows-Sysmon/Operational' -ErrorAction SilentlyContinue |
@@ -38,13 +38,13 @@ Get-WinEvent -LogName 'Microsoft-Windows-Sysmon/Operational' -ErrorAction Silent
             $tgtID = $_.Properties[6].Value
             $tgt   = $_.Properties[7].Value
 
-            Write-RGB ("{0,-25}" -f $time) -FC "#AAAAAA"
-            Write-RGB ("{0,-8}"  -f $srcID) -FC "#FFAA00"
-            Write-RGB ("{0,-45}" -f $src)   -FC "#FF5555"
-            Write-RGB ("{0,-8}"  -f $tgtID) -FC "#00CC66"
-            Write-RGB ("{0,-45}" -f $tgt)   -FC "#00DDFF" -newline
+            wrgb ("{0,-25}" -f $time) -FC "#AAAAAA"
+            wrgb ("{0,-8}"  -f $srcID) -FC "#FFAA00"
+            wrgb ("{0,-45}" -f $src)   -FC "#FF5555"
+            wrgb ("{0,-8}"  -f $tgtID) -FC "#00CC66"
+            wrgb ("{0,-45}" -f $tgt)   -FC "#00DDFF" -newline
         }
 
-Write-RGB "Поиск завершен" -FC "#3322FF" -newline
-Write-RGB "Если вывод пуст - не найдено ничего подозрительного" -FC "#00FF77" -newline
-Write-RGB "Если в списке есть процессы - это повод для серьезного расследования" -FC "#FF3355" -newline
+wrgb "Поиск завершен" -FC "#3322FF" -newline
+wrgb "Если вывод пуст - не найдено ничего подозрительного" -FC "#00FF77" -newline
+wrgb "Если в списке есть процессы - это повод для серьезного расследования" -FC "#FF3355" -newline

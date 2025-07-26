@@ -1,3 +1,16 @@
+#function ultra { oh-my-posh init pwsh --config "C:\Users\ketov\Documents\PowerShell\ua-ultra.omp.yaml" | Invoke-Expression }
+#function ultraultra { oh-my-posh init pwsh --config "C:\Users\ketov\Documents\PowerShell\ultraultra.omp.yaml" | Invoke-Expression }
+#function gpt { oh-my-posh init pwsh --config "C:\Users\ketov\Documents\PowerShell\ua-gpt.omp.yaml" | Invoke-Expression }
+#function deb { oh-my-posh init pwsh --config "CC:\Users\ketov\Documents\PowerShell\free-ukraine-debug.omp.yaml" | Invoke-Expression }
+#
+#function fr  { oh-my-posh init pwsh --config "C:\Users\ketov\Documents\PowerShell\OmpThemes\froczh.omp.json" | Invoke-Expression }
+#function grr  { oh-my-posh init pwsh --config "C:\Users\ketov\Documents\PowerShell\glowsticks.omp.yaml" | Invoke-Expression }
+#$configPath = "C:\Users\ketov\Documents\PowerShell\ua-gpt.omp.yaml"
+$configPath = "C:\Users\ketov\Documents\PowerShell\ultra.omp.toml"
+
+$global:initStartScripts =  @()
+$global:initEndScripts =  @()
+
 $global:profilePath = "${PSScriptRoot}\Profile\"
 . "${global:profilePath}Utils\Init.ps1"
 
@@ -61,7 +74,7 @@ function Show-Menu
             if ($choice -ge 1 -and $choice -le $MenuItems.Count)
             {
                 # Анимация выбора
-                Write-RGB "`n✨ " -FC YellowRGB
+                Write-RGB "`n✨ " -FC YelloWrite-RGB
                 Write-RGB "Выбрано: " -FC White
                 Write-RGB $MenuItems[$choice - 1].Text -FC NeonMaterial_LightGreen -newline
                 Start-Sleep -Milliseconds 750
@@ -166,7 +179,7 @@ function Show-RGBProgress
         $percent = [int](($i / $TotalSteps) * 100)
         $filled = [int](($i / $TotalSteps) * 30)
         $empty = 30 - $filled
-
+Color
         if ($Gradient)
         {
             # Градиентный прогресс бар
@@ -211,7 +224,7 @@ function lss
 
     Write-RGB "`n📁 " -FC CyanRGB
     Write-RGB "Directory: " -FC CyanRGB
-    Write-RGB (Resolve-Path $Path).Path -FC YellowRGB -newline
+    Write-RGB (Resolve-Path $Path).Path -FC Yellow -newline
 
     # Градиентная линия
     $lineLength = 60
@@ -226,6 +239,8 @@ function lss
     $col = 0
     foreach ($item in $items)
     {
+
+
         $color = Get-GradientColor -Index $col -TotalItems $items.length -StartColor "#8B00FF" -EndColor "#00BFFF"
         $col++
         if ($item.PSIsContainer)
@@ -236,102 +251,8 @@ function lss
         }
         else
         {
-            $icon = switch -Wildcard ( $item.Extension.ToLower())
-            {
-                ".ps1" {
-                    "📜"
-                }
-                ".exe" {
-                    "⚙️"
-                }
-                ".dll" {
-                    "🔧"
-                }
-                ".txt" {
-                    "📄"
-                }
-                ".md" {
-                    "📝"
-                }
-                ".json" {
-                    "🔮"
-                }
-                ".xml" {
-                    "📋"
-                }
-                ".zip" {
-                    "📦"
-                }
-                ".rar" {
-                    "📦"
-                }
-                ".7z" {
-                    "📦"
-                }
-                ".pdf" {
-                    "📕"
-                }
-                ".jpg" {
-                    "🖼️"
-                }
-                ".png" {
-                    "🖼️"
-                }
-                ".gif" {
-                    "🎞️"
-                }
-                ".mp4" {
-                    "🎬"
-                }
-                ".mp3" {
-                    "🎵"
-                }
-                ".js" {
-                    "🟨"
-                }
-                ".jsx" {
-                    "⚛️"
-                }
-                ".ts" {
-                    "🔷"
-                }
-                ".tsx" {
-                    "⚛️"
-                }
-                ".rs" {
-                    "🦀"
-                }
-                ".py" {
-                    "🐍"
-                }
-                ".cpp" {
-                    "🔵"
-                }
-                ".cs" {
-                    "🟣"
-                }
-                ".html" {
-                    "🌐"
-                }
-                ".css" {
-                    "🎨"
-                }
-                ".scss" {
-                    "🎨"
-                }
-                ".vue" {
-                    "💚"
-                }
-                ".svelte" {
-                    "🧡"
-                }
-                ".lua" {
-                    "❤️"
-                }
-                default {
-                    "📄"
-                }
-            }
+            $icon = Get-FileIcon  $item.Extension
+            $color = Get-FileColor $item.Extension
 
             $sizeColor = if ($item.Length -gt 1GB)
             {
@@ -359,9 +280,9 @@ function lss
             }
 
             Write-RGB "$icon " -FC White
-            Write-RGB ("{0,-35}" -f $item.Name) -FC NeonMaterial_LightGreen
+            Write-RGB ("{0,-35}" -f $item.Name) -FC $color
             Write-RGB (" {0,10:N2} KB" -f ($item.Length / 1KB)) -FC $sizeColor
-            Write-RGB ("  {0}" -f $item.LastWriteTime.ToString("yyyy-MM-dd HH:mm")) -FC TealRGB -newline
+            Write-RGB ("  {0}" -f $item.LastWriteTime.ToString("yyyy-MM-dd HH:mm"),,[System.Globalization.CultureInfo]::GetCultureInfo("ru-RU")) -FC TealRGB -newline
         }
     }
 
@@ -385,7 +306,6 @@ function lss
 # ===== ГЛАВНОЕ МЕНЮ С RGB =====
 function Show-MainMenu
 {
-    In
     #Clear-Host
 
     # Анимированный заголовок с градиентом
@@ -509,7 +429,7 @@ function Show-RGBDemo
 
     # Неоновые цвета
     Write-RGB "`n✨ Neon Colors:" -FC White -newline
-    $neonColors = @("NeonBlueRGB", "NeonMaterial_LightGreen", "NeonPinkRGB", "NeonRedRGB", "CyanRGB", "MagentaRGB", "YellowRGB", "OrangeRGB")
+    $neonColors = @("NeonBlueRGB", "NeonMaterial_LightGreen", "NeonPinkRGB", "NeonRedRGB", "CyanRGB", "MagentaRGB", "YelloWrite-RGB", "OrangeRGB")
     foreach ($colorName in $neonColors)
     {
         Write-RGB "████ " -FC $colorName
@@ -544,8 +464,6 @@ if (Get-Module -ListAvailable -Name SecurityWatcher)
     Write-RGB "🛡️  SecurityWatcher loaded" -FC LimeRGB -newline
 }
 
-# ===== ПОКАЗАТЬ ПРИВЕТСТВИЕ =====
-Show-Welcome
 
 
 # Oh My Posh инициализация
@@ -553,9 +471,10 @@ try
 {
     if (Get-Command oh-my-posh -ErrorAction SilentlyContinue)
     {
-        $configPath = "C:\Program Files (x86)\oh-my-posh\themes\freeu.omp.json"
+        #        $configPath = "C:\Program Files (x86)\oh-my-posh\themes\freeu.omp.json"
         if (Test-Path $configPath)
         {
+#            oh-my-posh init pwsh --config ~/custom.omp.json | Invoke-Expression
             oh-my-posh init pwsh --config $configPath | Invoke-Expression
         }
         else
@@ -573,7 +492,24 @@ catch
     Write-Warning "Failed to initialize Oh My Posh: $_"
 }
 
-$VerbosePreference = "Continue"
+foreach ($script in $scriptsAfter)
+{
+    . "${global:profilePath}${script}.ps1"
+}
+Write-Host ""
+Switch-KeyboardLayout en-Us
+Write-Host ""
+foreach ($scriptInitStart in $global:initStartScripts)
+{
+     if($global:initEndScripts -contains $scriptInitStart){
+         Write-Status -Success $scriptInitStart"  "
+     } else {
+         Write-Status -Problem $scriptInitStart"  "
+     }
+}
+Write-Host ""
+
+#$VerbosePreference = "Continue"
 
 # SIG # Begin signature block
 # MIIFuQYJKoZIhvcNAQcCoIIFqjCCBaYCAQExDzANBglghkgBZQMEAgEFADB5Bgor
@@ -612,3 +548,5 @@ $VerbosePreference = "Continue"
 ##f45873b3-b655-43a6-b217-97c00aa0db58 PowerToys CommandNotFound module
 #Import-Module -Name Microsoft.WinGet.CommandNotFound
 ##f45873b3-b655-43a6-b217-97c00aa0db58
+
+

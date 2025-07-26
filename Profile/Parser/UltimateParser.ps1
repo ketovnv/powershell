@@ -234,23 +234,23 @@ function Out-ParsedFile {
     if ($ShowFileInfo) {
         Write-GradientHeader -Title "FILE INFO" -StartColor "#4ECDC4" -EndColor "#44A08D"
 
-        Write-RGB "📄 Имя: " -FC "Cyan"
-        Write-RGB $fileInfo.Name -FC "White" -Style Bold -newline
+        wrgb "📄 Имя: " -FC "Cyan"
+        wrgb $fileInfo.Name -FC "White" -Style Bold -newline
 
-        Write-RGB "📁 Путь: " -FC "Cyan"
-        Write-RGB $fileInfo.DirectoryName -FC "Gray" -newline
+        wrgb "📁 Путь: " -FC "Cyan"
+        wrgb $fileInfo.DirectoryName -FC "Gray" -newline
 
-        Write-RGB "📏 Размер: " -FC "Cyan"
+        wrgb "📏 Размер: " -FC "Cyan"
         $size = switch ($fileInfo.Length) {
             { $_ -gt 1GB } { "{0:N2} GB" -f ($_ / 1GB) }
             { $_ -gt 1MB } { "{0:N2} MB" -f ($_ / 1MB) }
             { $_ -gt 1KB } { "{0:N2} KB" -f ($_ / 1KB) }
             default { "$_ bytes" }
         }
-        Write-RGB $size -FC "Yellow" -newline
+        wrgb $size -FC "Yellow" -newline
 
-        Write-RGB "📅 Изменен: " -FC "Cyan"
-        Write-RGB $fileInfo.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss") -FC "Dracula_Purple" -newline
+        wrgb "📅 Изменен: " -FC "Cyan"
+        wrgb $fileInfo.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss") -FC "Material_Purple" -newline
 
         Write-GradientLine -Length 50 -StartColor "#4ECDC4" -EndColor "#44A08D"
     }
@@ -260,7 +260,7 @@ function Out-ParsedFile {
 
     if ($MaxLines -gt 0 -and $content.Count -gt $MaxLines) {
         $content = $content | Select-Object -First $MaxLines
-        Write-RGB "`n... Показаны первые $MaxLines строк из $($content.Count) ..." -FC "DarkGray" -newline
+        wrgb "`n... Показаны первые $MaxLines строк из $($content.Count) ..." -FC "DarkGray" -newline
     }
 
     # Определяем тип если не указан
@@ -284,9 +284,9 @@ function Out-ParsedFile {
     Apply-ParserTheme -Theme $Theme
 
     # Выводим с подсветкой
-    Write-RGB "`nТип файла: " -FC "Gray"
-    Write-RGB $Type -FC "Cyan" -Style Bold -newline
-    Write-RGB ""  -newline
+    wrgb "`nТип файла: " -FC "Gray"
+    wrgb $Type -FC "Cyan" -Style Bold -newline
+    wrgb ""  -newline
 
     switch ($Type) {
         'PowerShell' {
@@ -344,14 +344,14 @@ function Out-ParsedPowerShell {
                 Patterns = @(
                     @{ Regex = '\b(function|param|begin|process|end|if|else|elseif|switch|for|foreach|while|do|try|catch|finally|return|break|continue|throw|class|enum)\b'; Priority = 100 }
                 )
-                Style = @{ FC = "Dracula_Pink"; Effects = @('Bold') }
+                Style = @{ FC = "Material_Pink"; Effects = @('Bold') }
             }
 
             Cmdlets = @{
                 Patterns = @(
                     @{ Regex = '\b(Get|Set|New|Remove|Add|Clear|Copy|Move|Rename|Test|Start|Stop|Restart|Select|Where|ForEach|Sort|Group|Measure|Export|Import|ConvertTo|ConvertFrom|Out|Write|Read)-[A-Z]\w+\b'; Priority = 90 }
                 )
-                Style = @{ FC = "Dracula_Cyan"; Effects = @('Bold') }
+                Style = @{ FC = "Material_Cyan"; Effects = @('Bold') }
             }
 
             Variables = @{
@@ -359,7 +359,7 @@ function Out-ParsedPowerShell {
                     @{ Regex = '\$[A-Za-z_]\w*'; Priority = 80 }
                     @{ Regex = '\$\{[^}]+\}'; Priority = 85 }
                 )
-                Style = @{ FC = "Dracula_Green" }
+                Style = @{ FC = "Material_Green" }
             }
 
             Comments = @{
@@ -367,7 +367,7 @@ function Out-ParsedPowerShell {
                     @{ Regex = '#.*$'; Priority = 70 }
                     @{ Regex = '<#[\s\S]*?#>'; Priority = 75 }
                 )
-                Style = @{ FC = "Dracula_Comment"; Effects = @('Italic') }
+                Style = @{ FC = "Material_Comment"; Effects = @('Italic') }
             }
 
             Strings = @{
@@ -377,7 +377,7 @@ function Out-ParsedPowerShell {
                     @{ Regex = '@"[\s\S]*?"@'; Priority = 65 }
                     @{ Regex = "@'[\s\S]*?'@"; Priority = 65 }
                 )
-                Style = @{ FC = "Dracula_Yellow" }
+                Style = @{ FC = "Material_Yellow" }
             }
         }
     }
@@ -401,35 +401,35 @@ function Out-ParsedJSON {
                 Patterns = @(
                     @{ Regex = '"[^"]+"\s*:'; Priority = 90 }
                 )
-                Style = @{ FC = "Dracula_Purple"; Effects = @('Bold') }
+                Style = @{ FC = "Material_Purple"; Effects = @('Bold') }
             }
 
             StringValues = @{
                 Patterns = @(
                     @{ Regex = ':\s*"[^"]*"'; Priority = 80 }
                 )
-                Style = @{ FC = "Dracula_Green" }
+                Style = @{ FC = "Material_Green" }
             }
 
             Numbers = @{
                 Patterns = @(
                     @{ Regex = ':\s*-?\d+\.?\d*([eE][+-]?\d+)?'; Priority = 80 }
                 )
-                Style = @{ FC = "Dracula_Pink" }
+                Style = @{ FC = "Material_Pink" }
             }
 
             Booleans = @{
                 Patterns = @(
                     @{ Regex = ':\s*(true|false|null)'; Priority = 85 }
                 )
-                Style = @{ FC = "Dracula_Orange"; Effects = @('Bold') }
+                Style = @{ FC = "Material_Orange"; Effects = @('Bold') }
             }
 
             Structure = @{
                 Patterns = @(
                     @{ Regex = '[\{\}\[\]]'; Priority = 95 }
                 )
-                Style = @{ FC = "Dracula_Cyan"; Effects = @('Bold') }
+                Style = @{ FC = "Material_Cyan"; Effects = @('Bold') }
             }
         }
 
@@ -494,9 +494,9 @@ function Out-ParsedLog {
         if ($GroupBySeverity) {
             foreach ($severity in @('ERROR', 'WARN', 'INFO', 'DEBUG', 'OTHER')) {
                 if ($logEntries[$severity].Count -gt 0) {
-                    Write-RGB "`n=== $severity (" -FC "Cyan"
-                    Write-RGB $logEntries[$severity].Count -FC "Yellow" -Style Bold
-                    Write-RGB ") ===" -FC "Cyan" -newline
+                    wrgb "`n=== $severity (" -FC "Cyan"
+                    wrgb $logEntries[$severity].Count -FC "Yellow" -Style Bold
+                    wrgb ") ===" -FC "Cyan" -newline
 
                     $logEntries[$severity] | Out-ParsedText
                 }
@@ -525,31 +525,31 @@ function Start-InteractiveParser {
     $showLineNumbers = $true
 
     while ($running) {
-        Write-RGB "`nКоманды: " -FC "Yellow" -Style Bold
-        Write-RGB "[O]" -FC "Cyan" -Style Bold
-        Write-RGB "pen file, " -FC "Gray"
-        Write-RGB "[T]" -FC "Cyan" -Style Bold
-        Write-RGB "heme, " -FC "Gray"
-        Write-RGB "[L]" -FC "Cyan" -Style Bold
-        Write-RGB "ine numbers, " -FC "Gray"
-        Write-RGB "[R]" -FC "Cyan" -Style Bold
-        Write-RGB "efresh, " -FC "Gray"
-        Write-RGB "[C]" -FC "Cyan" -Style Bold
-        Write-RGB "lear, " -FC "Gray"
-        Write-RGB "[Q]" -FC "Cyan" -Style Bold
-        Write-RGB "uit" -FC "Gray" -newline
+        wrgb "`nКоманды: " -FC "Yellow" -Style Bold
+        wrgb "[O]" -FC "Cyan" -Style Bold
+        wrgb "pen file, " -FC "Gray"
+        wrgb "[T]" -FC "Cyan" -Style Bold
+        wrgb "heme, " -FC "Gray"
+        wrgb "[L]" -FC "Cyan" -Style Bold
+        wrgb "ine numbers, " -FC "Gray"
+        wrgb "[R]" -FC "Cyan" -Style Bold
+        wrgb "efresh, " -FC "Gray"
+        wrgb "[C]" -FC "Cyan" -Style Bold
+        wrgb "lear, " -FC "Gray"
+        wrgb "[Q]" -FC "Cyan" -Style Bold
+        wrgb "uit" -FC "Gray" -newline
 
         if ($currentPath) {
-            Write-RGB "Текущий файл: " -FC "Gray"
-            Write-RGB $currentPath -FC "Cyan" -newline
+            wrgb "Текущий файл: " -FC "Gray"
+            wrgb $currentPath -FC "Cyan" -newline
         }
 
-        Write-RGB "`nВыбор: " -FC "White"
+        wrgb "`nВыбор: " -FC "White"
         $choice = Read-Host
 
         switch ($choice.ToUpper()) {
             'O' {
-                Write-RGB "Путь к файлу: " -FC "Cyan"
+                wrgb "Путь к файлу: " -FC "Cyan"
                 $path = Read-Host
                 if (Test-Path $path) {
                     $currentPath = $path
@@ -561,7 +561,7 @@ function Start-InteractiveParser {
             }
 
             'T' {
-                Write-RGB "Выберите тему (Default/Dracula/Nord/OneDark/Material): " -FC "Cyan"
+                wrgb "Выберите тему (Default/Dracula/Nord/OneDark/Material): " -FC "Cyan"
                 $theme = Read-Host
                 if ($theme -in @('Default', 'Dracula', 'Nord', 'OneDark', 'Material')) {
                     $currentTheme = $theme
@@ -729,10 +729,10 @@ function Show-UltimateParserDemo {
 
     Write-GradientHeader -Title "ULTIMATE PARSER DEMO" -StartColor "#FF1744" -EndColor "#F50057"
 
-    Write-RGB "`n🧠 Интеллектуальные возможности парсера:" -FC "Cyan" -Style Bold -newline
+    wrgb "`n🧠 Интеллектуальные возможности парсера:" -FC "Cyan" -Style Bold -newline
 
     # Демо 1: Автоопределение типа
-    Write-RGB "`n1️⃣ Автоматическое определение типа контента:" -FC "Yellow" -newline
+    wrgb "`n1️⃣ Автоматическое определение типа контента:" -FC "Yellow" -newline
 
     $samples = @{
         "PowerShell" = '$users = Get-ADUser -Filter * | Where-Object {$_.Enabled -eq $true}'
@@ -743,18 +743,18 @@ function Show-UltimateParserDemo {
 
     foreach ($sample in $samples.GetEnumerator()) {
         $detected = Get-ContentType -Content $sample.Value
-        Write-RGB "  Sample: " -FC "Gray"
-        Write-RGB $sample.Value.Substring(0, [Math]::Min(50, $sample.Value.Length)) + "..." -FC "White" -newline
-        Write-RGB "  Detected: " -FC "Gray"
-        Write-RGB $detected -FC "LimeGreen" -Style Bold -newline
-        Write-RGB "" -newline
+        wrgb "  Sample: " -FC "Gray"
+        wrgb $sample.Value.Substring(0, [Math]::Min(50, $sample.Value.Length)) + "..." -FC "White" -newline
+        wrgb "  Detected: " -FC "Gray"
+        wrgb $detected -FC "LimeGreen" -Style Bold -newline
+        wrgb "" -newline
     }
 
-    Write-RGB "Нажмите Enter для продолжения..." -FC "DarkGray"
+    wrgb "Нажмите Enter для продолжения..." -FC "DarkGray"
     Read-Host
 
     # Демо 2: Живой парсинг
-    Write-RGB "`n2️⃣ Живой парсинг с подсветкой:" -FC "Yellow" -newline
+    wrgb "`n2️⃣ Живой парсинг с подсветкой:" -FC "Yellow" -newline
 
     $liveDemo = @'
 # PowerShell Security Scanner
@@ -793,7 +793,7 @@ $results | ConvertTo-Json
 
     $liveDemo -split "`n" | Out-ParsedPowerShell -ShowLineNumbers
 
-    Write-RGB "`n✨ Все функции парсера готовы к использованию!" -FC "LimeGreen" -Style Bold -newline
+    wrgb "`n✨ Все функции парсера готовы к использованию!" -FC "LimeGreen" -Style Bold -newline
 }
 
 # Алиасы
@@ -801,14 +801,14 @@ Set-Alias -Name pfile -Value Out-ParsedFile -Force
 Set-Alias -Name iparse -Value Start-InteractiveParser -Force
 Set-Alias -Name pexport -Value Export-ParsedContent -Force
 
-Write-RGB "`n🚀 Ultimate Parser Features загружены!" -FC "GoldRGB" -Style Bold -newline
-Write-RGB "Новые команды:" -FC "Cyan" -newline
-Write-RGB "  • " -FC "DarkGray"
-Write-RGB "Out-ParsedFile (pfile)" -FC "Yellow"
-Write-RGB " - парсинг файлов" -FC "Gray" -newline
-Write-RGB "  • " -FC "DarkGray"
-Write-RGB "Start-InteractiveParser (iparse)" -FC "Yellow"
-Write-RGB " - интерактивный режим" -FC "Gray" -newline
-Write-RGB "  • " -FC "DarkGray"
-Write-RGB "Show-UltimateParserDemo" -FC "Yellow"
-Write-RGB " - полная демонстрация" -FC "Gray" -newline
+wrgb "`n🚀 Ultimate Parser Features загружены!" -FC "GoldRGB" -Style Bold -newline
+wrgb "Новые команды:" -FC "Cyan" -newline
+wrgb "  • " -FC "DarkGray"
+wrgb "Out-ParsedFile (pfile)" -FC "Yellow"
+wrgb " - парсинг файлов" -FC "Gray" -newline
+wrgb "  • " -FC "DarkGray"
+wrgb "Start-InteractiveParser (iparse)" -FC "Yellow"
+wrgb " - интерактивный режим" -FC "Gray" -newline
+wrgb "  • " -FC "DarkGray"
+wrgb "Show-UltimateParserDemo" -FC "Yellow"
+wrgb " - полная демонстрация" -FC "Gray" -newline

@@ -176,19 +176,19 @@ function Get-ErrorSummary
     # Группируем ошибки по типу исключения
     $ErrorsByType = $Error | Group-Object { $_.Exception.GetType().Name } | Sort-Object Count -Descending
 
-    wrgb "По типу исключения:" -FC Dracula_Orange -newline
+    wrgb "По типу исключения:" -FC Material_Orange -newline
     $ErrorsByType | ForEach-Object {
-        wrgb   $_.Name" : " -FC Dracula_Purple
-        wrgb   $_.Count" " -FC Dracula_Comment
+        wrgb   $_.Name" : " -FC Material_Purple
+        wrgb   $_.Count" " -FC Material_Comment
     }
 
     # Группируем по категории
     $ErrorsByCategory = $Error | Group-Object { $_.CategoryInfo.Category } | Sort-Object Count -Descending
 
-    wrgb "`nПо категории:" -FC Dracula_Orange -newline
+    wrgb "`nПо категории:" -FC Material_Orange -newline
     $ErrorsByCategory | ForEach-Object {
-        wrgb   $_.Name" : " -FC Dracula_Purple
-        wrgb   $_.Count" " -FC Dracula_Comment
+        wrgb   $_.Name" : " -FC Material_Purple
+        wrgb   $_.Count" " -FC Material_Comment
     }
 
     wrgb "`nВсего ошибок:  "  -FC "FF0000"
@@ -499,19 +499,19 @@ function ConvertTo-SmartErrorView
         #
         #            # Заголовок ошибки
         #            $output += wrgb  "🔴  Ошибка: "  -FC "#FF0000"
-        #            $output += wrgb  $InputObject.Exception.Message  -FC "Dracula_Orange" -newline
+        #            $output += wrgb  $InputObject.Exception.Message  -FC "Material_Orange" -newline
         #
         #            # Категория
         #            $output += wrgb  "📋  Категория: " -FC "#FF3300"
-        #            $output += wrgb  $InputObject.CategoryInfo.Category -FC "Dracula_Yellow" -newline
+        #            $output += wrgb  $InputObject.CategoryInfo.Category -FC "Material_Yellow" -newline
         #
         #            # Тип исключения
         #            $output += wrgb "⚡  Тип исключения: " -FC "#FF5533"
-        #            $output += wrgb   $InputObject.Exception.GetType().Name -FC "Dracula_Pink" -newline
+        #            $output += wrgb   $InputObject.Exception.GetType().Name -FC "Material_Pink" -newline
         #
         #            # ID ошибки
         #            $output += wrgb "🆔  ID Ошибки: " -FC "#FF5555"
-        #            $output += wrgb  $InputObject.FullyQualifiedErrorId -FC Dracula_Purple -newline
+        #            $output += wrgb  $InputObject.FullyQualifiedErrorId -FC Material_Purple -newline
         #
         #            # Позиция (если доступна)
         #            if ($InputObject.InvocationInfo -and $InputObject.InvocationInfo.ScriptLineNumber)
@@ -654,15 +654,15 @@ function Enable-GlobalErrorHandler
     # Устанавливаем умный обработчик ошибок по умолчанию
     #    $global:ErrorView = "Colorful"
 
-    wrgb "✅ Включен глобальный обработчик ошибок" -FC Green
-    wrgb "Текущий ErrorView: $global:ErrorView" -FC White
+    wrgb "✅  Включен глобальный обработчик ошибок: " -FC TealRGB
+    wrgb  $global:ErrorView -BC GoldRGB -FC BlackRGB -Style Bold -newline
 }
 
 function Disable-GlobalErrorHandler
 {
     $global:ErrorView = "Simple"
-    wrgb "❌ Отключен глобальный обработчик ошибок" -FC Yellow
-    wrgb "Текущий ErrorView: $global:ErrorView" -FC White
+    wrgb "❌ Отключен глобальный обработчик ошибок: " -FC Material_Yellow
+    wrgb $global:ErrorView -FC WhiteRGB
 }
 #endregion
 
@@ -671,47 +671,53 @@ function Disable-GlobalErrorHandler
 Enable-GlobalErrorHandler
 
 
-wrgb "`n--- Конфигурация системы ---" -FC Yellow
-wrgb "Текущая конфигурация:" -FC Dracula_Pink -newline
-$config = Get-ErrorViewConfig
-$i = 0
-$config.GetEnumerator() | Sort-Object Key | ForEach-Object {
-    wrgb   $_.Key" :  " -FC Gray
-    $color = Get-GradientColor -Index (++$i) -TotalItems 4 -StartColor "#0057B7" -EndColor "#FFD700"
-    wrgb   $_.Value -FC $color -newline
-}
 
-wrgb "`n--- Доступные команды ---" -FC Yellow
-@(
-    "Enable-GlobalErrorHandler  - включить умный обработчик",
-    "Disable-GlobalErrorHandler - отключить умный обработчик",
-    "Set-ErrorViewConfig        - изменить настройки",
-    "Add-ErrorTemplate          - добавить шаблон ошибки",
-    "Add-ErrorTranslation       - добавить перевод",
-    "Format-Error Smart         - показать ошибку с умной обработкой",
-    "Format-Error Compact       - показать ошибку в компактном виде"
-) | ForEach-Object {
-    wrgb "  $_" -FC White -newline
-}
-
-#wrgb "`n--- Пример кастомизации ---" -FC Yellow
-
-# Добавляем кастомный шаблон
-Add-ErrorTemplate -ExceptionType "CustomException" -Icon "🎯" -Pattern "custom.*error" -Template "{Icon} Кастомная ошибка: {Message}" -Suggestion "💡 Обратитесь к документации"
-
-# Добавляем кастомный перевод
-Add-ErrorTranslation -Pattern "custom error occurred" -Translation "произошла кастомная ошибка"
-#wrgb "`nСистема готова к использованию! 🚀" -FC Green
-#wrgb "Все ошибки теперь будут автоматически обрабатываться с переводом и умными подсказками." -FC White
-
-# Показываем информацию о логах
-if ($ErrorViewConfig.LogErrors)
+function errorMethodsInfo
 {
-    wrgb "`n📝 Ошибки логируются в: " -FC "Dracula_Comment"
-    wrgb  $ErrorViewConfig.LogPath  -BC "#162022" -FC "#000000"
+    wrgb "`n--- Конфигурация системы ---" -FC Yellow
+    wrgb "Текущая конфигурация:" -FC Material_Pink -newline
+    $config = Get-ErrorViewConfig
+    $i = 0
+    $config.GetEnumerator() | Sort-Object Key | ForEach-Object {
+        wrgb   $_.Key" :  " -FC Gray
+        $color = Get-GradientColor -Index (++$i) -TotalItems 4 -StartColor "#0057B7" -EndColor "#FFD700"
+        wrgb   $_.Value -FC $color -newline
+    }
+
+    wrgb "`n--- Доступные команды ---" -FC Yellow
+    @(
+        "Enable-GlobalErrorHandler  - включить умный обработчик",
+        "Disable-GlobalErrorHandler - отключить умный обработчик",
+        "Set-ErrorViewConfig        - изменить настройки",
+        "Add-ErrorTemplate          - добавить шаблон ошибки",
+        "Add-ErrorTranslation       - добавить перевод",
+        "Format-Error Smart         - показать ошибку с умной обработкой",
+        "Format-Error Compact       - показать ошибку в компактном виде"
+    ) | ForEach-Object {
+        wrgb "  $_" -FC White -newline
+    }
+
+    #wrgb "`n--- Пример кастомизации ---" -FC Yellow
+
+    # Добавляем кастомный шаблон
+    Add-ErrorTemplate -ExceptionType "CustomException" -Icon "🎯" -Pattern "custom.*error" -Template "{Icon} Кастомная ошибка: {Message}" -Suggestion "💡 Обратитесь к документации"
+
+    # Добавляем кастомный перевод
+    Add-ErrorTranslation -Pattern "custom error occurred" -Translation "произошла кастомная ошибка"
+    #wrgb "`nСистема готова к использованию! 🚀" -FC Green
+    #wrgb "Все ошибки теперь будут автоматически обрабатываться с переводом и умными подсказками." -FC White
+
+    # Показываем информацию о логах
+    if ($ErrorViewConfig.LogErrors)
+    {
+        wrgb "`n📝 Ошибки логируются в: " -FC "Material_Comment"
+        wrgb  $ErrorViewConfig.LogPath  -BC "#162022" -FC "#000000"
+    }
+    else
+    {
+        Write-Host ""
+    }
 }
-else
-{
-    Write-Host ""
-}
+
+#errorMethodsInfo
 #endregion

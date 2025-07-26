@@ -97,15 +97,15 @@ function Show-RGBProgress {
     }
 
     # Вывод активности
-    Write-RGB "$Activity" -FC "Lavender" -Style Bold
+    wrgb "$Activity" -FC "Lavender" -Style Bold
 
     if ($Status) {
-        Write-RGB " ($Status)" -FC "PastelYellow"
+        wrgb " ($Status)" -FC "PastelYellow"
     }
     Write-Host ""  # Новая строка после активности
 
     # Открывающая скобка
-    Write-RGB "[" -FC "Silver"
+    wrgb "[" -FC "Silver"
 
     # Прогресс-бар
     if ($BarStyle -eq 'Gradient' -or $BarStyle -eq 'Smooth') {
@@ -128,7 +128,7 @@ function Show-RGBProgress {
                                  -EndColor $scheme.Colors[$nextColorIndex]
             }
 
-            Write-RGB $chars.Full -FC $color
+            wrgb $chars.Full -FC $color
         }
     } else {
         # Простой цвет на основе процента
@@ -140,25 +140,25 @@ function Show-RGBProgress {
             "#6BCF7F"
         }
 
-        Write-RGB ($chars.Full * $filled) -FC $progressColor
+        wrgb ($chars.Full * $filled) -FC $progressColor
     }
 
     # Пустая часть
-    Write-RGB ($chars.Empty * $empty) -FC "#333333"
+    wrgb ($chars.Empty * $empty) -FC "#333333"
 
     # Закрывающая скобка и процент на той же строке
-    Write-RGB "]" -FC "Silver"
+    wrgb "]" -FC "Silver"
 
     # Процент
     if ($ShowPercentage) {
-        Write-RGB " $PercentComplete%" -FC "ElectricBlue" -Style Bold
+        wrgb " $PercentComplete%" -FC "ElectricBlue" -Style Bold
     }
 
     Write-Host ""  # Новая строка в конце
 
     # Дополнительное сообщение о завершении
     if ($PercentComplete -eq 100) {
-        Write-RGB "✅ Complete!" -FC "LimeGreen" -Style Bold -newline
+        wrgb "✅ Complete!" -FC "LimeGreen" -Style Bold -newline
     }
 }
 
@@ -260,7 +260,7 @@ function Show-MultiProgress {
         Start-Sleep -Milliseconds 100
     }
 
-    Write-RGB "`n🎉 All tasks completed!" -FC "LimeGreen" -Style Bold -newline
+    wrgb "`n🎉 All tasks completed!" -FC "LimeGreen" -Style Bold -newline
 }
 
 # Демонстрация прогресс-баров
@@ -269,26 +269,26 @@ function Show-ProgressDemo {
 
     Write-GradientHeader -Title "PROGRESS BAR SHOWCASE"
 
-    Write-RGB "`n1️⃣ Различные стили прогресс-баров:" -FC "Cyan" -Style Bold -newline
+    wrgb "`n1️⃣ Различные стили прогресс-баров:" -FC "Cyan" -Style Bold -newline
 
     $styles = @('Blocks', 'Gradient', 'Dots', 'Lines', 'Smooth')
     $percent = 0
 
     foreach ($style in $styles) {
         $percent += 20
-        Write-RGB "`nСтиль: $style" -FC "Yellow" -newline
+        wrgb "`nСтиль: $style" -FC "Yellow" -newline
         Show-RGBProgress -Activity "Demo $style" `
                         -PercentComplete $percent `
                         -BarStyle $style `
                         -ShowPercentage
     }
 
-    Write-RGB "`n`n2️⃣ Градиентные схемы:" -FC "Cyan" -Style Bold -newline
+    wrgb "`n`n2️⃣ Градиентные схемы:" -FC "Cyan" -Style Bold -newline
 
     $gradients = @('RedToGreen', 'BlueToGreen', 'Rainbow', 'Fire', 'Ocean')
 
     foreach ($gradient in $gradients) {
-        Write-RGB "`n$gradient`:" -FC "Yellow" -newline
+        wrgb "`n$gradient`:" -FC "Yellow" -newline
         Show-RGBProgress -Activity "Gradient Demo" `
                         -PercentComplete 75 `
                         -BarStyle Gradient `
@@ -296,14 +296,14 @@ function Show-ProgressDemo {
                         -ShowPercentage
     }
 
-    Write-RGB "`n`n3️⃣ Анимированный прогресс:" -FC "Cyan" -Style Bold -newline
-    Write-RGB "Нажмите Enter для запуска анимации..." -FC "DarkGray"
+    wrgb "`n`n3️⃣ Анимированный прогресс:" -FC "Cyan" -Style Bold -newline
+    wrgb "Нажмите Enter для запуска анимации..." -FC "DarkGray"
     Read-Host
 
     Show-AnimatedProgress -Activity "Downloading files" -TotalSteps 50
 
-    Write-RGB "`n`n4️⃣ Мультипрогресс:" -FC "Cyan" -Style Bold -newline
-    Write-RGB "Нажмите Enter для запуска..." -FC "DarkGray"
+    wrgb "`n`n4️⃣ Мультипрогресс:" -FC "Cyan" -Style Bold -newline
+    wrgb "Нажмите Enter для запуска..." -FC "DarkGray"
     Read-Host
 
     $tasks = @(
@@ -317,7 +317,7 @@ function Show-ProgressDemo {
 
 # Исправленный вызов примеров прогресс-баров
 function Show-ProgressExamples {
-    Write-RGB "Примеры прогресс-баров:" -FC "Lavender" -Style Bold -newline
+    wrgb "Примеры прогресс-баров:" -FC "Lavender" -Style Bold -newline
 
     Show-RGBProgress -Activity "Загрузка данных" -PercentComplete 25 -ShowPercentage
     Show-RGBProgress -Activity "Обработка" -PercentComplete 60 -BarStyle Dots -ShowPercentage

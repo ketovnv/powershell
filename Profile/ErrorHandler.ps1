@@ -4,12 +4,12 @@
 # ║                    С полной поддержкой RGB и переводов                     ║
 # ╚═══════════════════════════════════════════════════════════════════════════╝
 
-Write-RGB "`nДоступные виды ошибок:" -FC Dracula_Orange -newline
+wrgb "`nДоступные виды ошибок:" -FC Material_Orange -newline
 $ErrorViews = (Get-Command ConvertTo-*ErrorView).Name -replace "ConvertTo-(.*)ErrorView", '$1'
-$ErrorViews | ForEach-Object { Write-RGB  "  - $_" -FC Dracula_Red}
-Write-RGB "`nМеняем на вид:"  -FC Gray
+$ErrorViews | ForEach-Object { wrgb  "  - $_" -FC Material_Red}
+wrgb "`nМеняем на вид:"  -FC Gray
 Set-MyErrorView -View "Colorful"
-Write-RGB "Colorful"  -FC Dracula_Green
+wrgb "Colorful"  -FC Material_Green
 #region Конфигурация
 $global:UnifiedErrorConfig = @{
 # Основные настройки
@@ -792,7 +792,7 @@ PowerShell Error Report
     Write-Status -Success "Ошибки экспортированы в: $Path"
 
     # Предложение открыть файл
-    Write-RGB "Открыть файл? (Y/N): " -FC "Cyan"
+    wrgb "Открыть файл? (Y/N): " -FC "Cyan"
     if ((Read-Host) -eq 'Y')
     {
     Invoke-Item $Path
@@ -817,7 +817,7 @@ function Get-ErrorStatistics
     return
     }
 
-    Write-RGB "" -newline
+    wrgb "" -newline
     Write-GradientHeader -Title "АНАЛИЗ ОШИБОК" -StartColor "#FF6B6B" -EndColor "#C92A2A"
 
     # Группировка по типам
@@ -826,7 +826,7 @@ function Get-ErrorStatistics
     } |
     Sort-Object Count -Descending
 
-    Write-RGB "`n📊 По типу исключения:" -FC "Cyan" -Style Bold -newline
+    wrgb "`n📊 По типу исключения:" -FC "Cyan" -Style Bold -newline
 
     $maxCount = ($errorsByType | Measure-Object -Property Count -Maximum).Maximum
     $i = 0
@@ -837,22 +837,22 @@ function Get-ErrorStatistics
 
     # Имя типа с градиентом
     $color = Get-MenuGradientColor -Index $i -Total $errorsByType.Count -Style "Fire"
-    Write-RGB ("  " + $group.Name.PadRight(30)) -FC $color -Style Bold
+    wrgb ("  " + $group.Name.PadRight(30)) -FC $color -Style Bold
 
     # График
     if ($ShowGraph) {
-    Write-RGB " [" -FC "DarkGray"
+    wrgb " [" -FC "DarkGray"
     for ($j = 0; $j -lt $barLength; $j++) {
     $barColor = Get-GradientColor -Index $j -TotalItems 30 `
                                              -StartColor "#FF0000" -EndColor "#00FF00"
-    Write-RGB "█" -FC $barColor
+    wrgb "█" -FC $barColor
     }
-    Write-RGB ("]".PadLeft(31 - $barLength)) -FC "DarkGray"
+    wrgb ("]".PadLeft(31 - $barLength)) -FC "DarkGray"
     }
 
     # Количество и процент
-    Write-RGB " $($group.Count) " -FC "White" -Style Bold
-    Write-RGB "($percentage%)" -FC "Gray" -newline
+    wrgb " $($group.Count) " -FC "White" -Style Bold
+    wrgb "($percentage%)" -FC "Gray" -newline
 
     $i++
     }
@@ -863,7 +863,7 @@ function Get-ErrorStatistics
     }
 
     if ($recentErrors) {
-    Write-RGB "`n📅 Распределение по времени:" -FC "Cyan" -Style Bold -newline
+    wrgb "`n📅 Распределение по времени:" -FC "Cyan" -Style Bold -newline
     # Здесь можно добавить более детальный анализ по времени
     }
 
@@ -878,29 +878,29 @@ function Get-ErrorStatistics
     Select-Object -First 5
 
     if ($errorsByCommand) {
-    Write-RGB "`n🔧 Топ-5 команд с ошибками:" -FC "Cyan" -Style Bold -newline
+    wrgb "`n🔧 Топ-5 команд с ошибками:" -FC "Cyan" -Style Bold -newline
 
     foreach ($cmd in $errorsByCommand) {
-    Write-RGB "  • " -FC "DarkGray"
-    Write-RGB $cmd.Name -FC "Yellow" -Style Bold
-    Write-RGB " - " -FC "DarkGray"
-    Write-RGB "$($cmd.Count) ошибок" -FC "Red" -newline
+    wrgb "  • " -FC "DarkGray"
+    wrgb $cmd.Name -FC "Yellow" -Style Bold
+    wrgb " - " -FC "DarkGray"
+    wrgb "$($cmd.Count) ошибок" -FC "Red" -newline
     }
     }
 
     # Сводка
-    Write-RGB "`n📈 Общая статистика:" -FC "Cyan" -Style Bold -newline
-    Write-RGB "  Всего ошибок: " -FC "Gray"
-    Write-RGB $Error.Count -FC "Red" -Style Bold -newline
-    Write-RGB "  Уникальных типов: " -FC "Gray"
-    Write-RGB $errorsByType.Count -FC "Magenta" -Style Bold -newline
-    Write-RGB "  Критических: " -FC "Gray"
+    wrgb "`n📈 Общая статистика:" -FC "Cyan" -Style Bold -newline
+    wrgb "  Всего ошибок: " -FC "Gray"
+    wrgb $Error.Count -FC "Red" -Style Bold -newline
+    wrgb "  Уникальных типов: " -FC "Gray"
+    wrgb $errorsByType.Count -FC "Magenta" -Style Bold -newline
+    wrgb "  Критических: " -FC "Gray"
     $criticalCount = $Error | Where-Object {
     $_.Exception -is [System.OutOfMemoryException] -or
     $_.Exception -is [System.StackOverflowException] -or
     $_.Exception -is [System.UnauthorizedAccessException]
     } | Measure-Object | Select-Object -ExpandProperty Count
-    Write-RGB $criticalCount -FC "Red" -Style Bold -newline
+    wrgb $criticalCount -FC "Red" -Style Bold -newline
 
     # Экспорт в файл
     if ($ExportToFile) {
@@ -1113,13 +1113,13 @@ function Show-ErrorBrowser
         Clear-Host
         Write-GradientHeader -Title "БРАУЗЕР ОШИБОК" -StartColor "#FF6B6B" -EndColor "#C92A2A"
 
-        Write-RGB "`nСтраница " -FC "Gray"
-        Write-RGB "$( $currentPage + 1 )" -FC "Cyan" -Style Bold
-        Write-RGB " из " -FC "Gray"
-        Write-RGB $totalPages -FC "Cyan" -Style Bold
-        Write-RGB " (Всего ошибок: " -FC "Gray"
-        Write-RGB $Error.Count -FC "Red" -Style Bold
-        Write-RGB ")" -FC "Gray" -newline
+        wrgb "`nСтраница " -FC "Gray"
+        wrgb "$( $currentPage + 1 )" -FC "Cyan" -Style Bold
+        wrgb " из " -FC "Gray"
+        wrgb $totalPages -FC "Cyan" -Style Bold
+        wrgb " (Всего ошибок: " -FC "Gray"
+        wrgb $Error.Count -FC "Red" -Style Bold
+        wrgb ")" -FC "Gray" -newline
 
         Write-GradientLine -Length 60
 
@@ -1128,30 +1128,30 @@ function Show-ErrorBrowser
         $endIndex = [Math]::Min($startIndex + $PageSize - 1, $Error.Count - 1)
 
         for ($i = $startIndex; $i -le $endIndex; $i++) {
-            Write-RGB "`n[$( $i + 1 )] " -FC "DarkCyan" -Style Bold
+            wrgb "`n[$( $i + 1 )] " -FC "DarkCyan" -Style Bold
             ConvertTo-UnifiedErrorView -InputObject $Error[$i] -Style Minimal -NoAnimation
         }
 
         Write-GradientLine -Length 60
 
         # Меню навигации
-        Write-RGB "`nКоманды: " -FC "Yellow" -Style Bold
-        Write-RGB "[N]" -FC "Cyan" -Style Bold
-        Write-RGB "ext, " -FC "Gray"
-        Write-RGB "[P]" -FC "Cyan" -Style Bold
-        Write-RGB "revious, " -FC "Gray"
-        Write-RGB "[G]" -FC "Cyan" -Style Bold
-        Write-RGB "oto, " -FC "Gray"
-        Write-RGB "[D]" -FC "Cyan" -Style Bold
-        Write-RGB "etails, " -FC "Gray"
-        Write-RGB "[S]" -FC "Cyan" -Style Bold
-        Write-RGB "tats, " -FC "Gray"
-        Write-RGB "[E]" -FC "Cyan" -Style Bold
-        Write-RGB "xport, " -FC "Gray"
-        Write-RGB "[Q]" -FC "Cyan" -Style Bold
-        Write-RGB "uit" -FC "Gray" -newline
+        wrgb "`nКоманды: " -FC "Yellow" -Style Bold
+        wrgb "[N]" -FC "Cyan" -Style Bold
+        wrgb "ext, " -FC "Gray"
+        wrgb "[P]" -FC "Cyan" -Style Bold
+        wrgb "revious, " -FC "Gray"
+        wrgb "[G]" -FC "Cyan" -Style Bold
+        wrgb "oto, " -FC "Gray"
+        wrgb "[D]" -FC "Cyan" -Style Bold
+        wrgb "etails, " -FC "Gray"
+        wrgb "[S]" -FC "Cyan" -Style Bold
+        wrgb "tats, " -FC "Gray"
+        wrgb "[E]" -FC "Cyan" -Style Bold
+        wrgb "xport, " -FC "Gray"
+        wrgb "[Q]" -FC "Cyan" -Style Bold
+        wrgb "uit" -FC "Gray" -newline
 
-        Write-RGB "`nВыбор: " -FC "White"
+        wrgb "`nВыбор: " -FC "White"
         $choice = Read-Host
 
         switch ( $choice.ToUpper())
@@ -1179,7 +1179,7 @@ function Show-ErrorBrowser
                 }
             }
             'G' {
-                Write-RGB "Введите номер страницы (1-$totalPages): " -FC "Cyan"
+                wrgb "Введите номер страницы (1-$totalPages): " -FC "Cyan"
                 $pageNum = Read-Host
                 if ($pageNum -match '^\d+$' -and [int]$pageNum -ge 1 -and [int]$pageNum -le $totalPages)
                 {
@@ -1192,25 +1192,25 @@ function Show-ErrorBrowser
                 }
             }
             'D' {
-                Write-RGB "Введите номер ошибки для детального просмотра: " -FC "Cyan"
+                wrgb "Введите номер ошибки для детального просмотра: " -FC "Cyan"
                 $errNum = Read-Host
                 if ($errNum -match '^\d+$' -and [int]$errNum -ge 1 -and [int]$errNum -le $Error.Count)
                 {
                     Clear-Host
                     Write-GradientHeader -Title "ДЕТАЛИ ОШИБКИ #$errNum"
                     ConvertTo-UnifiedErrorView -InputObject $Error[[int]$errNum - 1] -Style Modern
-                    Write-RGB "`nНажмите Enter для продолжения..." -FC "DarkGray"
+                    wrgb "`nНажмите Enter для продолжения..." -FC "DarkGray"
                     Read-Host
                 }
             }
             'S' {
                 Clear-Host
                 Get-ErrorStatistics -ShowGraph
-                Write-RGB "`nНажмите Enter для продолжения..." -FC "DarkGray"
+                wrgb "`nНажмите Enter для продолжения..." -FC "DarkGray"
                 Read-Host
             }
             'E' {
-                Write-RGB "Выберите формат экспорта (JSON/XML/CSV/HTML): " -FC "Cyan"
+                wrgb "Выберите формат экспорта (JSON/XML/CSV/HTML): " -FC "Cyan"
                 $format = Read-Host
                 if ($format -in @('JSON', 'XML', 'CSV', 'HTML'))
                 {
@@ -1271,7 +1271,7 @@ function Show-CriticalErrorNotification
 
     # Визуальное предупреждение
     5..1 | ForEach-Object {
-        Write-RGB "🚨 КРИТИЧЕСКАЯ ОШИБКА! 🚨" -FC "Red" -BC "DarkRed" -Style @('Bold', 'Blink')
+        wrgb "🚨 КРИТИЧЕСКАЯ ОШИБКА! 🚨" -FC "Red" -BC "DarkRed" -Style @('Bold', 'Blink')
         Start-Sleep -Milliseconds 200
         Write-Host "`r                            `r" -NoNewline
         Start-Sleep -Milliseconds 200
@@ -1372,62 +1372,62 @@ function Show-ModernError {
                       -EndColor $colorScheme.End
 
     # Заголовок с иконкой
-    Write-RGB " $($colorScheme.Icon) " -FC $colorScheme.Start -Style Bold
+    wrgb " $($colorScheme.Icon) " -FC $colorScheme.Start -Style Bold
     Write-GradientText -Text "ОШИБКА: " -StartColor $colorScheme.Start -EndColor $colorScheme.End -NoNewline
-    Write-RGB $details.Message -FC "White" -Style Bold -newline
+    wrgb $details.Message -FC "White" -Style Bold -newline
 
     # Детали с отступами
     if ($global:ErrorViewConfig.ShowErrorPosition -and $InputObject.InvocationInfo.ScriptLineNumber) {
-        Write-RGB "    📍 " -FC "Silver"
-        Write-RGB "Позиция: " -FC "DarkGray"
-        Write-RGB "Строка " -FC "Gray"
-        Write-RGB $InputObject.InvocationInfo.ScriptLineNumber -FC "White" -Style Bold
-        Write-RGB ", Колонка " -FC "Gray"
-        Write-RGB $InputObject.InvocationInfo.OffsetInLine -FC "White" -Style Bold -newline
+        wrgb "    📍 " -FC "Silver"
+        wrgb "Позиция: " -FC "DarkGray"
+        wrgb "Строка " -FC "Gray"
+        wrgb $InputObject.InvocationInfo.ScriptLineNumber -FC "White" -Style Bold
+        wrgb ", Колонка " -FC "Gray"
+        wrgb $InputObject.InvocationInfo.OffsetInLine -FC "White" -Style Bold -newline
     }
 
     if ($details.Command) {
-        Write-RGB "    🔧 " -FC "Silver"
-        Write-RGB "Команда: " -FC "DarkGray"
-        Write-RGB $details.Command -FC "Cyan" -Style Bold -newline
+        wrgb "    🔧 " -FC "Silver"
+        wrgb "Команда: " -FC "DarkGray"
+        wrgb $details.Command -FC "Cyan" -Style Bold -newline
     }
 
     if ($InputObject.Exception.GetType().Name -ne "RuntimeException") {
-        Write-RGB "    ⚡ " -FC "Silver"
-        Write-RGB "Тип: " -FC "DarkGray"
-        Write-RGB $InputObject.Exception.GetType().Name -FC "Magenta" -newline
+        wrgb "    ⚡ " -FC "Silver"
+        wrgb "Тип: " -FC "DarkGray"
+        wrgb $InputObject.Exception.GetType().Name -FC "Magenta" -newline
     }
 
     # Предложения по исправлению
     if ($global:ErrorViewConfig.ShowSuggestions -and $template.Suggestion) {
-        Write-RGB "`n    $($template.Suggestion)" -FC "LimeGreen" -newline
+        wrgb "`n    $($template.Suggestion)" -FC "LimeGreen" -newline
 
         if ($template.Actions.Count -gt 0) {
-            Write-RGB "    📋 Возможные действия:" -FC "DarkCyan" -newline
+            wrgb "    📋 Возможные действия:" -FC "DarkCyan" -newline
             foreach ($action in $template.Actions) {
                 # Заменяем плейсхолдеры
                 $action = $action -replace '\{Command\}', $details.Command
                 $action = $action -replace '\{Path\}', $details.Path
                 $action = $action -replace '\{FileName\}', $details.FileName
 
-                Write-RGB "       • " -FC "DarkGray"
-                Write-RGB $action -FC "Cyan" -newline
+                wrgb "       • " -FC "DarkGray"
+                wrgb $action -FC "Cyan" -newline
             }
         }
     }
 
     # Внутренние исключения
     if ($global:ErrorViewConfig.ShowInnerExceptions -and $InputObject.Exception.InnerException) {
-        Write-RGB "`n    🔍 Внутренняя ошибка: " -FC "DarkYellow"
+        wrgb "`n    🔍 Внутренняя ошибка: " -FC "DarkYellow"
         $innerMessage = Translate-ErrorMessage -Message $InputObject.Exception.InnerException.Message `
                                              -ExceptionType $InputObject.Exception.InnerException.GetType().Name
-        Write-RGB $innerMessage -FC "Yellow" -newline
+        wrgb $innerMessage -FC "Yellow" -newline
     }
 
     # Временная метка
     if ($global:ErrorViewConfig.ShowTimestamp) {
-        Write-RGB "`n    🕐 " -FC "DarkGray"
-        Write-RGB (Get-Date -Format "yyyy-MM-dd HH:mm:ss") -FC "Gray" -newline
+        wrgb "`n    🕐 " -FC "DarkGray"
+        wrgb (Get-Date -Format "yyyy-MM-dd HH:mm:ss") -FC "Gray" -newline
     }
 
     # Нижняя граница
@@ -1456,7 +1456,7 @@ function Show-GradientError {
                                      -StartColor $colorScheme.Start `
                                      -EndColor $colorScheme.End `
                                      -GradientType "Sine"
-            Write-RGB $chars[$i] -FC $color
+            wrgb $chars[$i] -FC $color
         }
         Write-Host ""
     }
@@ -1465,11 +1465,11 @@ function Show-GradientError {
 function Show-MinimalError {
     param($InputObject, $template, $details, $colorScheme)
 
-    Write-RGB "$($colorScheme.Icon) " -FC $colorScheme.Start
-    Write-RGB $details.Message -FC "White" -Style Bold
+    wrgb "$($colorScheme.Icon) " -FC $colorScheme.Start
+    wrgb $details.Message -FC "White" -Style Bold
 
     if ($details.Command) {
-        Write-RGB " [$($details.Command)]" -FC "DarkGray"
+        wrgb " [$($details.Command)]" -FC "DarkGray"
     }
 
     Write-Host ""
@@ -1492,7 +1492,7 @@ function Show-SingleLineError {
 
     $parts += "[$(Get-Date -Format 'HH:mm:ss')]"
 
-    Write-RGB ($parts -join " ") -FC $colorScheme.Start -newline
+    wrgb ($parts -join " ") -FC $colorScheme.Start -newline
 }
 #endregion
 
@@ -1576,9 +1576,9 @@ function Clear-Errors
 
     if (-not $Force)
     {
-        Write-RGB "Очистить " -FC "Yellow"
-        Write-RGB $Error.Count -FC "Red" -Style Bold
-        Write-RGB " ошибок? (Y/N): " -FC "Yellow"
+        wrgb "Очистить " -FC "Yellow"
+        wrgb $Error.Count -FC "Red" -Style Bold
+        wrgb " ошибок? (Y/N): " -FC "Yellow"
 
         if ((Read-Host).ToUpper() -ne 'Y')
         {
@@ -1622,7 +1622,7 @@ function Show-ErrorViewConfig
     Write-GradientHeader -Title "КОНФИГУРАЦИЯ ERROR HANDLER" `
                         -StartColor "#FF6B6B" -EndColor "#C92A2A"
 
-    Write-RGB "`n📋 Основные настройки:" -FC "Cyan" -Style Bold -newline
+    wrgb "`n📋 Основные настройки:" -FC "Cyan" -Style Bold -newline
 
     $config = $global:ErrorViewConfig
     $i = 0
@@ -1632,9 +1632,9 @@ function Show-ErrorViewConfig
         $gradientColor = Get-GradientColor -Index $i -TotalItems 10 `
                                           -StartColor "#00BFFF" -EndColor "#8B00FF"
 
-        Write-RGB "   " -FC "White"
-        Write-RGB $_.Key.PadRight(20) -FC $gradientColor -Style Bold
-        Write-RGB " : " -FC "DarkGray"
+        wrgb "   " -FC "White"
+        wrgb $_.Key.PadRight(20) -FC $gradientColor -Style Bold
+        wrgb " : " -FC "DarkGray"
 
         $value = switch ($_.Value)
         {
@@ -1653,15 +1653,15 @@ function Show-ErrorViewConfig
             }
         }
 
-        Write-RGB $value -FC "White" -newline
+        wrgb $value -FC "White" -newline
         $i++
     }
 
-    Write-RGB "`n🎨 Цветовые схемы:" -FC "Cyan" -Style Bold -newline
+    wrgb "`n🎨 Цветовые схемы:" -FC "Cyan" -Style Bold -newline
 
     foreach ($scheme in $config.ColorSchemes.GetEnumerator())
     {
-        Write-RGB "   $( $scheme.Key ): " -FC "White"
+        wrgb "   $( $scheme.Key ): " -FC "White"
         Write-GradientLine -Length 20 -StartColor $scheme.Value.Start `
                           -EndColor $scheme.Value.End -Char "█"
     }
@@ -1693,9 +1693,9 @@ function Test-ErrorStyles
 
         foreach ($style in $styles)
         {
-            Write-RGB "`n=== Стиль: $style ===" -FC "Cyan" -Style Bold -newline
+            wrgb "`n=== Стиль: $style ===" -FC "Cyan" -Style Bold -newline
             ConvertTo-Unified ErrorView -InputObject $testError -Style
-            Write-RGB "`nНажмите Enter для следующего стиля..." -FC "DarkGray"
+            wrgb "`nНажмите Enter для следующего стиля..." -FC "DarkGray"
             Read-Host
         }
     }
@@ -1729,7 +1729,7 @@ function Show-RecentErrors
     $i = 0
     foreach ($err in $errorsToShow)
     {
-        Write-RGB "`n[$( $i + 1 )]" -FC "DarkCyan" -Style Bold
+        wrgb "`n[$( $i + 1 )]" -FC "DarkCyan" -Style Bold
         ConvertTo-UnifiedErrorView -InputObject $err -Style $Style -NoAnimation
         $i++
     }
@@ -1765,7 +1765,7 @@ function Write-FormattedError
                         $params.Style = $part.Style
                     }
 
-                    Write-RGB @params
+                    wrgb @params
                 }
             }
             Write-Host ""  # Новая строка
@@ -1792,7 +1792,7 @@ function Write-FormattedError
                     $params.Style = $line.Style
                 }
 
-                Write-RGB @params
+                wrgb @params
             }
         }
         else
@@ -1833,8 +1833,8 @@ function Enable-SmartErrorHandler
     }
 
     Write-Status -Success "Умный обработчик ошибок включен!"
-    Write-RGB "Текущий стиль: " -FC "Gray"
-    Write-RGB $global:ErrorViewConfig.ErrorStyle -FC "Cyan" -Style Bold -newline
+    wrgb "Текущий стиль: " -FC "Gray"
+    wrgb $global:ErrorViewConfig.ErrorStyle -FC "Cyan" -Style Bold -newline
 }
 
 function Disable-SmartErrorHandler
@@ -1846,44 +1846,44 @@ function Disable-SmartErrorHandler
 
 Enable-SmartErrorHandler
 
-Write-RGB "`n✨ " -FC "GoldRGB"
+wrgb "`n✨ " -FC "GoldRGB"
 Write-GradientText -Text "Advanced Error Handler v2.0" `
                    -StartColor "#FF6B6B" -EndColor "#4ECDC4" `
                    -NoNewline
-Write-RGB " загружен!" -FC "GoldRGB" -newline
+wrgb " загружен!" -FC "GoldRGB" -newline
 
-Write-RGB "Используйте " -FC "Gray"
-Write-RGB "Show-ErrorViewConfig" -FC "Cyan" -Style Bold
-Write-RGB " для просмотра настроек" -FC "Gray" -newline
+wrgb "Используйте " -FC "Gray"
+wrgb "Show-ErrorViewConfig" -FC "Cyan" -Style Bold
+wrgb " для просмотра настроек" -FC "Gray" -newline
 
-Write-RGB "Или " -FC "Gray"
-Write-RGB "Test-ErrorStyles" -FC "Cyan" -Style Bold
-Write-RGB " для демонстрации стилей" -FC "Gray" -newline
+wrgb "Или " -FC "Gray"
+wrgb "Test-ErrorStyles" -FC "Cyan" -Style Bold
+wrgb " для демонстрации стилей" -FC "Gray" -newline
 
-Write-RGB "`n📚 Новые команды:" -FC "Cyan" -Style Bold -newline
-Write-RGB "  • " -FC "DarkGray"
-Write-RGB "Get-ErrorStatistics" -FC "Yellow"
-Write-RGB " (errs)" -FC "DarkGray"
-Write-RGB " - статистика ошибок" -FC "Gray" -newline
+wrgb "`n📚 Новые команды:" -FC "Cyan" -Style Bold -newline
+wrgb "  • " -FC "DarkGray"
+wrgb "Get-ErrorStatistics" -FC "Yellow"
+wrgb " (errs)" -FC "DarkGray"
+wrgb " - статистика ошибок" -FC "Gray" -newline
 
-Write-RGB "  • " -FC "DarkGray"
-Write-RGB "Show-ErrorBrowser" -FC "Yellow"
-Write-RGB " (errb)" -FC "DarkGray"
-Write-RGB " - интерактивный браузер" -FC "Gray" -newline
+wrgb "  • " -FC "DarkGray"
+wrgb "Show-ErrorBrowser" -FC "Yellow"
+wrgb " (errb)" -FC "DarkGray"
+wrgb " - интерактивный браузер" -FC "Gray" -newline
 
-Write-RGB "  • " -FC "DarkGray"
-Write-RGB "Find-ErrorPattern" -FC "Yellow"
-Write-RGB " (errf)" -FC "DarkGray"
-Write-RGB " - поиск ошибок" -FC "Gray" -newline
+wrgb "  • " -FC "DarkGray"
+wrgb "Find-ErrorPattern" -FC "Yellow"
+wrgb " (errf)" -FC "DarkGray"
+wrgb " - поиск ошибок" -FC "Gray" -newline
 
-Write-RGB "  • " -FC "DarkGray"
-Write-RGB "Export-Errors" -FC "Yellow"
-Write-RGB " (erre)" -FC "DarkGray"
-Write-RGB " - экспорт ошибок" -FC "Gray" -newline
+wrgb "  • " -FC "DarkGray"
+wrgb "Export-Errors" -FC "Yellow"
+wrgb " (erre)" -FC "DarkGray"
+wrgb " - экспорт ошибок" -FC "Gray" -newline
 
-Write-RGB "  • " -FC "DarkGray"
-Write-RGB "Clear-Errors" -FC "Yellow"
-Write-RGB " - очистка с подтверждением" -FC "Gray" -newline
+wrgb "  • " -FC "DarkGray"
+wrgb "Clear-Errors" -FC "Yellow"
+wrgb " - очистка с подтверждением" -FC "Gray" -newline
 
 
 #. (Join-Path $PSScriptRoot 'ErrorTest.ps1')

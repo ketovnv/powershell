@@ -26,8 +26,8 @@ function Run-Application {
         Show-MainMenu
     } else {
         try {
-            Write-RGB "`n🚀 Запускаю " -FC White
-            Write-RGB $selected.Text -FC NeonMaterial_LightGreen -newline
+            wrgb "`n🚀 Запускаю " -FC White
+            wrgb $selected.Text -FC NeonMaterial_LightGreen -newline
             Start-Process $selected.Data.Path -ErrorAction Stop
             Show-Notification -Title "Приложение запущено" -Message $selected.Text -Type "Success"
         } catch {
@@ -73,8 +73,8 @@ function Run-Browser {
         Run-Application
     } else {
         try {
-            Write-RGB "`n🌐 Запускаю " -FC White
-            Write-RGB $selected.Text -FC Ocean1RGB -newline
+            wrgb "`n🌐 Запускаю " -FC White
+            wrgb $selected.Text -FC Ocean1RGB -newline
 
             if ($selected.Args) {
                 Start-Process $selected.Data -ArgumentList $selected.Args -ErrorAction Stop

@@ -149,7 +149,7 @@ function Invoke-BrowserTranslate {
                     # Вводим текст частями для больших объемов
                     if ($Text.Length -gt 5000) {
                         if ($ShowProgress) {
-                            Write-RGB "📝 Вводим текст частями..." -FC "Cyan" -newline
+                            wrgb "📝 Вводим текст частями..." -FC "Cyan" -newline
                         }
 
                         $chunks = [System.Text.RegularExpressions.Regex]::Matches($Text, '[\s\S]{1,5000}')
@@ -555,18 +555,18 @@ function Translate-Text {
                 'Browser'  # Для огромных - браузер с разбивкой
             }
 
-            Write-RGB "📊 Размер текста: " -FC "Cyan"
-            Write-RGB "$textLength символов" -FC "Yellow"
-            Write-RGB ", выбран метод: " -FC "Cyan"
-            Write-RGB $Method -FC "Green" -Style Bold -newline
+            wrgb "📊 Размер текста: " -FC "Cyan"
+            wrgb "$textLength символов" -FC "Yellow"
+            wrgb ", выбран метод: " -FC "Cyan"
+            wrgb $Method -FC "Green" -Style Bold -newline
         }
     }
 
     process {
-        Write-RGB "🌐 Начинаем перевод " -FC "Cyan"
-        Write-RGB "($From → $To)" -FC "White" -Style Bold
-        Write-RGB " через " -FC "Cyan"
-        Write-RGB $Service -FC "Yellow" -newline
+        wrgb "🌐 Начинаем перевод " -FC "Cyan"
+        wrgb "($From → $To)" -FC "White" -Style Bold
+        wrgb " через " -FC "Cyan"
+        wrgb $Service -FC "Yellow" -newline
 
         if ($ShowProgress) {
             Show-AnimatedProgress -Activity "Инициализация переводчика" -TotalSteps 10
@@ -601,13 +601,13 @@ function Translate-Text {
         $wordsCount = ($Text -split '\s+').Count
         $translatedWordsCount = ($translatedText -split '\s+').Count
 
-        Write-RGB "`n✅ Перевод завершен!" -FC "LimeGreen" -Style Bold -newline
-        Write-RGB "⏱️  Время: " -FC "Gray"
-        Write-RGB $duration.ToString("mm\:ss") -FC "Yellow" -newline
-        Write-RGB "📝 Слов оригинал: " -FC "Gray"
-        Write-RGB $wordsCount -FC "Cyan"
-        Write-RGB " → перевод: " -FC "Gray"
-        Write-RGB $translatedWordsCount -FC "Cyan" -newline
+        wrgb "`n✅ Перевод завершен!" -FC "LimeGreen" -Style Bold -newline
+        wrgb "⏱️  Время: " -FC "Gray"
+        wrgb $duration.ToString("mm\:ss") -FC "Yellow" -newline
+        wrgb "📝 Слов оригинал: " -FC "Gray"
+        wrgb $wordsCount -FC "Cyan"
+        wrgb " → перевод: " -FC "Gray"
+        wrgb $translatedWordsCount -FC "Cyan" -newline
 
         # Сохранение в файл
         if ($SaveToFile) {
@@ -616,8 +616,8 @@ function Translate-Text {
             }
 
             $translatedText | Out-File -FilePath $OutputPath -Encoding UTF8
-            Write-RGB "💾 Сохранено в: " -FC "Gray"
-            Write-RGB $OutputPath -FC "Green" -newline
+            wrgb "💾 Сохранено в: " -FC "Gray"
+            wrgb $OutputPath -FC "Green" -newline
         }
 
         return $translatedText
@@ -637,49 +637,49 @@ function Start-InteractiveTranslator {
     Clear-Host
     Write-GradientHeader -Title "INTERACTIVE TRANSLATOR" -StartColor "#4285F4" -EndColor "#34A853"
 
-    Write-RGB "🌍 Добро пожаловать в интерактивный переводчик!" -FC "Gold" -Style Bold -newline
-    Write-RGB "Поддерживаются тексты любого размера" -FC "Gray" -newline
+    wrgb "🌍 Добро пожаловать в интерактивный переводчик!" -FC "Gold" -Style Bold -newline
+    wrgb "Поддерживаются тексты любого размера" -FC "Gray" -newline
 
     $running = $true
 
     while ($running) {
-        Write-RGB "`n📝 Введите текст для перевода (или команду):" -FC "Cyan" -newline
-        Write-RGB "Команды: [F]ile, [C]lipboard, [U]RL, [S]ettings, [Q]uit" -FC "DarkGray" -newline
-        Write-RGB "> " -FC "Yellow"
+        wrgb "`n📝 Введите текст для перевода (или команду):" -FC "Cyan" -newline
+        wrgb "Команды: [F]ile, [C]lipboard, [U]RL, [S]ettings, [Q]uit" -FC "DarkGray" -newline
+        wrgb "> " -FC "Yellow"
 
         $input = Read-Host
 
         switch -Regex ($input) {
             '^[Ff]$' {
-                Write-RGB "Путь к файлу: " -FC "Cyan"
+                wrgb "Путь к файлу: " -FC "Cyan"
                 $path = Read-Host
 
                 if (Test-Path $path) {
                     $content = Get-Content $path -Raw
-                    Write-RGB "📄 Файл загружен: " -FC "Green"
-                    Write-RGB "$((Get-Item $path).Length / 1KB) KB" -FC "Yellow" -newline
+                    wrgb "📄 Файл загружен: " -FC "Green"
+                    wrgb "$((Get-Item $path).Length / 1KB) KB" -FC "Yellow" -newline
 
                     $translated = Translate-Text -Text $content -ShowProgress
 
                     # Показываем preview
-                    Write-RGB "`n--- Начало перевода ---" -FC "DarkGray" -newline
-                    Write-RGB ($translated.Substring(0, [Math]::Min(500, $translated.Length)) + "...") -FC "White" -newline
-                    Write-RGB "--- Конец preview ---" -FC "DarkGray" -newline
+                    wrgb "`n--- Начало перевода ---" -FC "DarkGray" -newline
+                    wrgb ($translated.Substring(0, [Math]::Min(500, $translated.Length)) + "...") -FC "White" -newline
+                    wrgb "--- Конец preview ---" -FC "DarkGray" -newline
                 }
             }
 
             '^[Cc]$' {
                 $clipText = Get-Clipboard
                 if ($clipText) {
-                    Write-RGB "📋 Текст из буфера обмена получен" -FC "Green" -newline
+                    wrgb "📋 Текст из буфера обмена получен" -FC "Green" -newline
                     $translated = Translate-Text -Text $clipText
                     Set-Clipboard $translated
-                    Write-RGB "✅ Перевод скопирован в буфер обмена" -FC "LimeGreen" -newline
+                    wrgb "✅ Перевод скопирован в буфер обмена" -FC "LimeGreen" -newline
                 }
             }
 
             '^[Uu]$' {
-                Write-RGB "URL страницы: " -FC "Cyan"
+                wrgb "URL страницы: " -FC "Cyan"
                 $url = Read-Host
 
                 # Получаем контент страницы
@@ -696,8 +696,8 @@ function Start-InteractiveTranslator {
             default {
                 if ($input.Length -gt 0) {
                     $translated = Translate-Text -Text $input
-                    Write-RGB "`n🔄 Перевод:" -FC "Green" -Style Bold -newline
-                    Write-RGB $translated -FC "White" -newline
+                    wrgb "`n🔄 Перевод:" -FC "Green" -Style Bold -newline
+                    wrgb $translated -FC "White" -newline
                 }
             }
         }
@@ -732,8 +732,8 @@ function Translate-Files {
     $files = Get-ChildItem -Path $Path -Filter $Filter -Recurse
 
     Write-GradientHeader -Title "BATCH FILE TRANSLATOR"
-    Write-RGB "📁 Найдено файлов: " -FC "Cyan"
-    Write-RGB $files.Count -FC "Yellow" -Style Bold -newline
+    wrgb "📁 Найдено файлов: " -FC "Cyan"
+    wrgb $files.Count -FC "Yellow" -Style Bold -newline
 
     # Создаем выходную папку
     $outputPath = Join-Path (Split-Path $Path) $OutputFolder
@@ -745,9 +745,9 @@ function Translate-Files {
         $processed++
         $percent = ($processed / $files.Count) * 100
 
-        Write-RGB "`n[$processed/$($files.Count)] " -FC "DarkCyan"
-        Write-RGB "Перевод: " -FC "White"
-        Write-RGB $file.Name -FC "Yellow" -newline
+        wrgb "`n[$processed/$($files.Count)] " -FC "DarkCyan"
+        wrgb "Перевод: " -FC "White"
+        wrgb $file.Name -FC "Yellow" -newline
 
         try {
             $content = Get-Content $file.FullName -Raw
@@ -791,9 +791,9 @@ function Translate-Files {
                         -ShowPercentage
     }
 
-    Write-RGB "`n✅ Перевод завершен!" -FC "LimeGreen" -Style Bold -newline
-    Write-RGB "📁 Результаты в: " -FC "Gray"
-    Write-RGB $outputPath -FC "Cyan" -newline
+    wrgb "`n✅ Перевод завершен!" -FC "LimeGreen" -Style Bold -newline
+    wrgb "📁 Результаты в: " -FC "Gray"
+    wrgb $outputPath -FC "Cyan" -newline
 }
 
 #endregion
@@ -805,44 +805,44 @@ function Show-BrowserTranslatorDemo {
 
     Write-GradientHeader -Title "BROWSER TRANSLATOR DEMO" -StartColor "#4285F4" -EndColor "#34A853"
 
-    Write-RGB "🌐 Возможности браузерного переводчика:" -FC "Gold" -Style Bold -newline
+    wrgb "🌐 Возможности браузерного переводчика:" -FC "Gold" -Style Bold -newline
 
-    Write-RGB "`n1️⃣ " -FC "Cyan"
-    Write-RGB "Перевод больших текстов" -FC "Yellow" -Style Bold -newline
-    Write-RGB "   Get-Content 'book.txt' -Raw | Translate-Text -ShowProgress" -FC "Dracula_Comment" -newline
+    wrgb "`n1️⃣ " -FC "Cyan"
+    wrgb "Перевод больших текстов" -FC "Yellow" -Style Bold -newline
+    wrgb "   Get-Content 'book.txt' -Raw | Translate-Text -ShowProgress" -FC "Material_Comment" -newline
 
-    Write-RGB "`n2️⃣ " -FC "Cyan"
-    Write-RGB "Интерактивный режим" -FC "Yellow" -Style Bold -newline
-    Write-RGB "   Start-InteractiveTranslator" -FC "Dracula_Comment" -newline
+    wrgb "`n2️⃣ " -FC "Cyan"
+    wrgb "Интерактивный режим" -FC "Yellow" -Style Bold -newline
+    wrgb "   Start-InteractiveTranslator" -FC "Material_Comment" -newline
 
-    Write-RGB "`n3️⃣ " -FC "Cyan"
-    Write-RGB "Пакетный перевод файлов" -FC "Yellow" -Style Bold -newline
-    Write-RGB "   Translate-Files -Path './docs' -Filter '*.txt'" -FC "Dracula_Comment" -newline
+    wrgb "`n3️⃣ " -FC "Cyan"
+    wrgb "Пакетный перевод файлов" -FC "Yellow" -Style Bold -newline
+    wrgb "   Translate-Files -Path './docs' -Filter '*.txt'" -FC "Material_Comment" -newline
 
-    Write-RGB "`n4️⃣ " -FC "Cyan"
-    Write-RGB "Перевод из буфера обмена" -FC "Yellow" -Style Bold -newline
-    Write-RGB "   Get-Clipboard | Translate-Text | Set-Clipboard" -FC "Dracula_Comment" -newline
+    wrgb "`n4️⃣ " -FC "Cyan"
+    wrgb "Перевод из буфера обмена" -FC "Yellow" -Style Bold -newline
+    wrgb "   Get-Clipboard | Translate-Text | Set-Clipboard" -FC "Material_Comment" -newline
 
-    Write-RGB "`n🚀 Преимущества:" -FC "Dracula_Orange" -Style Bold -newline
-    Write-RGB "   ✓ Нет ограничений на размер текста" -FC "LimeGreen" -newline
-    Write-RGB "   ✓ Использует качественные браузерные переводчики" -FC "LimeGreen" -newline
-    Write-RGB "   ✓ Работает с любыми языками" -FC "LimeGreen" -newline
-    Write-RGB "   ✓ Сохраняет форматирование" -FC "LimeGreen" -newline
+    wrgb "`n🚀 Преимущества:" -FC "Material_Orange" -Style Bold -newline
+    wrgb "   ✓ Нет ограничений на размер текста" -FC "LimeGreen" -newline
+    wrgb "   ✓ Использует качественные браузерные переводчики" -FC "LimeGreen" -newline
+    wrgb "   ✓ Работает с любыми языками" -FC "LimeGreen" -newline
+    wrgb "   ✓ Сохраняет форматирование" -FC "LimeGreen" -newline
 
-    Write-RGB "`n💡 Попробуйте: " -FC "White"
-    Write-RGB "'Hello World' | Translate-Text" -FC "Dracula_Pink" -Style Bold -newline
+    wrgb "`n💡 Попробуйте: " -FC "White"
+    wrgb "'Hello World' | Translate-Text" -FC "Material_Pink" -Style Bold -newline
 }
 
 #endregion
 
 # Инициализация
-Write-RGB "`n🌐 " -FC "Gold"
+wrgb "`n🌐 " -FC "Gold"
 Write-GradientText "Browser Translator Integration" -StartColor "#4285F4" -EndColor "#34A853" -NoNewline
-Write-RGB " загружен!" -FC "Gold" -newline
+wrgb " загружен!" -FC "Gold" -newline
 
-Write-RGB "Используйте: " -FC "Gray"
-Write-RGB "Show-BrowserTranslatorDemo" -FC "Dracula_Pink" -Style Bold
-Write-RGB " для демонстрации" -FC "Gray" -newline
+wrgb "Используйте: " -FC "Gray"
+wrgb "Show-BrowserTranslatorDemo" -FC "Material_Pink" -Style Bold
+wrgb " для демонстрации" -FC "Gray" -newline
 
 # Экспорт
 if ($MyInvocation.MyCommand.Path -match '\.psm1$') {

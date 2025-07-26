@@ -94,7 +94,7 @@ function Out-SmartLog {
 
         # Показываем базовую статистику
         if ($ShowStatistics -or $AnalyzePatterns) {
-            Write-RGB "`n📊 СТАТИСТИКА ЛОГОВ:" -FC "Cyan" -Style Bold -newline
+            wrgb "`n📊 СТАТИСТИКА ЛОГОВ:" -FC "Cyan" -Style Bold -newline
 
             $stats = @{
                 "Всего записей" = $parsedLogs.Count
@@ -104,18 +104,18 @@ function Out-SmartLog {
             }
 
             foreach ($stat in $stats.GetEnumerator()) {
-                Write-RGB "  $($stat.Key): " -FC "Gray"
+                wrgb "  $($stat.Key): " -FC "Gray"
                 $color = switch ($stat.Key) {
                     "Ошибок" { if ($stat.Value -gt 10) { "Red" } else { "Yellow" } }
-                    "Предупреждений" { "Dracula_Orange" }
+                    "Предупреждений" { "Material_Orange" }
                     default { "White" }
                 }
-                Write-RGB $stat.Value -FC $color -Style Bold -newline
+                wrgb $stat.Value -FC $color -Style Bold -newline
             }
 
             # График распределения
             if ($parsedLogs.Count -gt 0) {
-                Write-RGB "`n📈 Распределение по типам:" -FC "Cyan" -newline
+                wrgb "`n📈 Распределение по типам:" -FC "Cyan" -newline
 
                 $maxCount = ($stats.Values | Measure-Object -Maximum).Maximum
                 foreach ($type in @("Ошибок", "Предупреждений", "Информационных")) {
@@ -123,33 +123,33 @@ function Out-SmartLog {
                     $percentage = if ($parsedLogs.Count -gt 0) { [math]::Round(($count / $parsedLogs.Count) * 100) } else { 0 }
                     $barLength = if ($maxCount -gt 0) { [math]::Round(($count / $maxCount) * 30) } else { 0 }
 
-                    Write-RGB ("  " + $type.PadRight(15)) -FC "Gray"
+                    wrgb ("  " + $type.PadRight(15)) -FC "Gray"
 
                     # Прогресс-бар
                     for ($i = 0; $i -lt $barLength; $i++) {
                         $color = Get-ProgressGradientColor -Percent $percentage
-                        Write-RGB "█" -FC $color
+                        wrgb "█" -FC $color
                     }
 
-                    Write-RGB " $percentage%" -FC "White" -newline
+                    wrgb " $percentage%" -FC "White" -newline
                 }
             }
         }
 
         # Анализ паттернов
         if ($AnalyzePatterns) {
-            Write-RGB "`n🔍 АНАЛИЗ ПАТТЕРНОВ:" -FC "Cyan" -Style Bold -newline
+            wrgb "`n🔍 АНАЛИЗ ПАТТЕРНОВ:" -FC "Cyan" -Style Bold -newline
 
             # Находим повторяющиеся ошибки
             $errorGroups = $patterns.Errors | Group-Object Message | Where-Object Count -gt 1 | Sort-Object Count -Descending
 
             if ($errorGroups) {
-                Write-RGB "`n  Повторяющиеся ошибки:" -FC "Yellow" -newline
+                wrgb "`n  Повторяющиеся ошибки:" -FC "Yellow" -newline
                 foreach ($group in $errorGroups | Select-Object -First 5) {
-                    Write-RGB "    • " -FC "DarkGray"
-                    Write-RGB "$($group.Count)x" -FC "Red" -Style Bold
-                    Write-RGB " - " -FC "DarkGray"
-                    Write-RGB ($group.Name.Substring(0, [Math]::Min(60, $group.Name.Length)) + "...") -FC "White" -newline
+                    wrgb "    • " -FC "DarkGray"
+                    wrgb "$($group.Count)x" -FC "Red" -Style Bold
+                    wrgb " - " -FC "DarkGray"
+                    wrgb ($group.Name.Substring(0, [Math]::Min(60, $group.Name.Length)) + "...") -FC "White" -newline
                 }
             }
 
@@ -157,23 +157,23 @@ function Out-SmartLog {
             if ($GroupByTime) {
                 $timeGroups = $parsedLogs | Where-Object Timestamp | Group-Object { $_.Timestamp.Hour } | Sort-Object Name
 
-                Write-RGB "`n  📅 Распределение по времени (по часам):" -FC "Yellow" -newline
+                wrgb "`n  📅 Распределение по времени (по часам):" -FC "Yellow" -newline
                 foreach ($hour in $timeGroups) {
-                    Write-RGB ("    " + $hour.Name.PadLeft(2, '0') + ":00 ") -FC "Gray"
+                    wrgb ("    " + $hour.Name.PadLeft(2, '0') + ":00 ") -FC "Gray"
 
                     # Мини график
                     $barCount = [Math]::Min(20, $hour.Count)
                     for ($i = 0; $i -lt $barCount; $i++) {
-                        Write-RGB "▪" -FC "Dracula_Cyan"
+                        wrgb "▪" -FC "Material_Cyan"
                     }
-                    Write-RGB " $($hour.Count)" -FC "White" -newline
+                    wrgb " $($hour.Count)" -FC "White" -newline
                 }
             }
         }
 
         # Обнаружение аномалий
         if ($DetectAnomalies) {
-            Write-RGB "`n⚡ ОБНАРУЖЕНИЕ АНОМАЛИЙ:" -FC "Cyan" -Style Bold -newline
+            wrgb "`n⚡ ОБНАРУЖЕНИЕ АНОМАЛИЙ:" -FC "Cyan" -Style Bold -newline
 
             $anomalies = @()
 
@@ -209,16 +209,16 @@ function Out-SmartLog {
 
             if ($anomalies) {
                 foreach ($anomaly in $anomalies) {
-                    Write-RGB "  $anomaly" -FC "Dracula_Red" -newline
+                    wrgb "  $anomaly" -FC "Material_Red" -newline
                 }
             } else {
-                Write-RGB "  ✅ Аномалий не обнаружено" -FC "LimeGreen" -newline
+                wrgb "  ✅ Аномалий не обнаружено" -FC "LimeGreen" -newline
             }
         }
 
         # Рекомендации
         if ($ShowRecommendations) {
-            Write-RGB "`n💡 РЕКОМЕНДАЦИИ:" -FC "Cyan" -Style Bold -newline
+            wrgb "`n💡 РЕКОМЕНДАЦИИ:" -FC "Cyan" -Style Bold -newline
 
             $suggestedActions = @()
 
@@ -244,23 +244,23 @@ function Out-SmartLog {
 
             if ($suggestedActions) {
                 foreach ($action in $suggestedActions | Select-Object -Unique) {
-                    Write-RGB "  • " -FC "DarkGray"
-                    Write-RGB $action -FC "Dracula_Green" -newline
+                    wrgb "  • " -FC "DarkGray"
+                    wrgb $action -FC "Material_Green" -newline
                 }
             } else {
-                Write-RGB "  ✅ Система работает в пределах нормы" -FC "LimeGreen" -newline
+                wrgb "  ✅ Система работает в пределах нормы" -FC "LimeGreen" -newline
             }
         }
 
         # Экспорт отчета
         if ($ExportReport) {
             Export-LogAnalysisReport -ParsedLogs $parsedLogs -Patterns $patterns -Path $ReportPath
-            Write-RGB "`n📄 Отчет экспортирован: " -FC "Gray"
-            Write-RGB $ReportPath -FC "Cyan" -newline
+            wrgb "`n📄 Отчет экспортирован: " -FC "Gray"
+            wrgb $ReportPath -FC "Cyan" -newline
         }
 
         # Показываем сами логи с подсветкой
-        Write-RGB "`n📋 ЛОГИ С ПОДСВЕТКОЙ:" -FC "Cyan" -Style Bold -newline
+        wrgb "`n📋 ЛОГИ С ПОДСВЕТКОЙ:" -FC "Cyan" -Style Bold -newline
         $allLogs | Out-ParsedText -ShowLineNumbers
     }
 }
@@ -513,15 +513,15 @@ function Out-CodeHighlight {
         # Темы подсветки
         $themes = @{
             Dracula = @{
-                Keyword = "Dracula_Pink"
-                String = "Dracula_Yellow"
-                Comment = "Dracula_Comment"
-                Function = "Dracula_Green"
-                Variable = "Dracula_Purple"
-                Number = "Dracula_Orange"
-                Operator = "Dracula_Cyan"
-                Type = "Dracula_Purple"
-                Default = "Dracula_Foreground"
+                Keyword = "Material_Pink"
+                String = "Material_Yellow"
+                Comment = "Material_Comment"
+                Function = "Material_Green"
+                Variable = "Material_Purple"
+                Number = "Material_Orange"
+                Operator = "Material_Cyan"
+                Type = "Material_Purple"
+                Default = "Material_Foreground"
             }
             OneDark = @{
                 Keyword = "OneDark_Purple"
@@ -551,8 +551,8 @@ function Out-CodeHighlight {
         }
 
         if ($ShowLanguage) {
-            Write-RGB "Language: " -FC "Gray"
-            Write-RGB $Language -FC "Cyan" -Style Bold -newline
+            wrgb "Language: " -FC "Gray"
+            wrgb $Language -FC "Cyan" -Style Bold -newline
             Write-GradientLine -Length 50
         }
 
@@ -566,22 +566,22 @@ function Out-CodeHighlight {
 
             if ($ShowLineNumbers) {
                 $numColor = if ($lineNum -eq $CurrentLine -and $HighlightCurrentLine) { "Yellow" } else { "DarkGray" }
-                Write-RGB ("{0,4} " -f $lineNum) -FC $numColor
-                Write-RGB "│ " -FC "DarkGray"
+                wrgb ("{0,4} " -f $lineNum) -FC $numColor
+                wrgb "│ " -FC "DarkGray"
             }
 
             # Подсветка текущей строки
             if ($lineNum -eq $CurrentLine -and $HighlightCurrentLine) {
-                Write-RGB "→ " -FC "Yellow" -Style Bold
+                wrgb "→ " -FC "Yellow" -Style Bold
             } elseif ($ShowLineNumbers) {
-                Write-RGB "  "
+                wrgb "  "
             }
 
             # Применяем правила подсветки
             $segments = Apply-SyntaxHighlighting -Line $line -Rules $rules
 
             foreach ($segment in $segments) {
-                Write-RGB $segment.Text -FC $segment.Color -Style $segment.Style
+                wrgb $segment.Text -FC $segment.Color -Style $segment.Style
             }
 
             Write-Host ""
@@ -768,42 +768,42 @@ function Out-GitDiff {
 
     if ($ShowStats) {
         $stats = & git diff --stat
-        Write-RGB "`n📊 Статистика изменений:" -FC "Cyan" -Style Bold -newline
+        wrgb "`n📊 Статистика изменений:" -FC "Cyan" -Style Bold -newline
         $stats | ForEach-Object {
             if ($_ -match '(\d+) files? changed') {
-                Write-RGB $_ -FC "Yellow" -newline
+                wrgb $_ -FC "Yellow" -newline
             } else {
-                Write-RGB $_ -FC "Gray" -newline
+                wrgb $_ -FC "Gray" -newline
             }
         }
-        Write-RGB "" -newline
+        wrgb "" -newline
     }
 
     foreach ($line in $diff) {
         switch -Regex ($line) {
             '^diff --git' {
-                Write-RGB "`n$line" -FC "Dracula_Purple" -Style Bold -newline
+                wrgb "`n$line" -FC "Material_Purple" -Style Bold -newline
             }
             '^index' {
-                Write-RGB $line -FC "DarkCyan" -newline
+                wrgb $line -FC "DarkCyan" -newline
             }
             '^---' {
-                Write-RGB $line -FC "Red" -Style Bold -newline
+                wrgb $line -FC "Red" -Style Bold -newline
             }
             '^\+\+\+' {
-                Write-RGB $line -FC "Green" -Style Bold -newline
+                wrgb $line -FC "Green" -Style Bold -newline
             }
             '^@@' {
-                Write-RGB $line -FC "Cyan" -newline
+                wrgb $line -FC "Cyan" -newline
             }
             '^\+(?!\+\+)' {
-                Write-RGB $line -FC "LimeGreen" -BC "#0D2818" -newline
+                wrgb $line -FC "LimeGreen" -BC "#0D2818" -newline
             }
             '^-(?!--)' {
-                Write-RGB $line -FC "Red" -BC "#2D0D0D" -newline
+                wrgb $line -FC "Red" -BC "#2D0D0D" -newline
             }
             default {
-                Write-RGB $line -FC "Gray" -newline
+                wrgb $line -FC "Gray" -newline
             }
         }
     }
@@ -818,7 +818,7 @@ function Show-UltimateParserShowcase {
     $title = "🚀 ULTIMATE PARSER SHOWCASE 🚀"
     Write-Rainbow -Text $title -Mode Gradient -Style Neon -Animated -Speed 30
 
-    Write-RGB "`nДобро пожаловать в финальную демонстрацию всех возможностей парсера!" -FC "GoldRGB" -Style Bold -newline
+    wrgb "`nДобро пожаловать в финальную демонстрацию всех возможностей парсера!" -FC "GoldRGB" -Style Bold -newline
 
     # Меню с градиентом
     $showcases = @(
@@ -833,19 +833,19 @@ function Show-UltimateParserShowcase {
     )
 
     do {
-        Write-RGB "`n📋 Выберите демонстрацию:" -FC "Cyan" -Style Bold -newline
+        wrgb "`n📋 Выберите демонстрацию:" -FC "Cyan" -Style Bold -newline
 
         for ($i = 0; $i -lt $showcases.Count; $i++) {
             $color = Get-MenuGradientColor -Index $i -Total $showcases.Count -Style Ocean
-            Write-RGB ("  [{0}] " -f ($i + 1)) -FC "White"
-            Write-RGB $showcases[$i].Name -FC $color -Style Bold
-            Write-RGB " - " -FC "DarkGray"
-            Write-RGB $showcases[$i].Desc -FC "Gray" -newline
+            wrgb ("  [{0}] " -f ($i + 1)) -FC "White"
+            wrgb $showcases[$i].Name -FC $color -Style Bold
+            wrgb " - " -FC "DarkGray"
+            wrgb $showcases[$i].Desc -FC "Gray" -newline
         }
 
-        Write-RGB "  [Q] Выход" -FC "Red" -newline
+        wrgb "  [Q] Выход" -FC "Red" -newline
 
-        Write-RGB "`nВаш выбор: " -FC "Yellow"
+        wrgb "`nВаш выбор: " -FC "Yellow"
         $choice = Read-Host
 
         switch ($choice) {
@@ -869,7 +869,7 @@ function Show-UltimateParserShowcase {
 
                 $demoLog -split "`n" | Out-SmartLog -AnalyzePatterns -ShowRecommendations -DetectAnomalies -ShowStatistics
 
-                Write-RGB "`nНажмите Enter..." -FC "DarkGray"
+                wrgb "`nНажмите Enter..." -FC "DarkGray"
                 Read-Host
             }
 
@@ -928,7 +928,7 @@ $data | ConvertTo-Json
 
                 $demoCode -split "`n" | Out-CodeHighlight -Language PowerShell -ShowLineNumbers -ShowLanguage
 
-                Write-RGB "`nНажмите Enter..." -FC "DarkGray"
+                wrgb "`nНажмите Enter..." -FC "DarkGray"
                 Read-Host
             }
 
@@ -936,7 +936,7 @@ $data | ConvertTo-Json
                 # Progress Bars
                 Clear-Host
                 Show-ProgressDemo
-                Write-RGB "`nНажмите Enter..." -FC "DarkGray"
+                wrgb "`nНажмите Enter..." -FC "DarkGray"
                 Read-Host
             }
 
@@ -956,17 +956,17 @@ $data | ConvertTo-Json
                 $styles = @("Rainbow", "Fire", "Ocean", "Neon", "Pastel")
 
                 for ($i = 0; $i -lt $texts.Count; $i++) {
-                    Write-RGB "`n$($styles[$i]):" -FC "Cyan" -newline
+                    wrgb "`n$($styles[$i]):" -FC "Cyan" -newline
                     $texts[$i] | Write-Rainbow -Style $styles[$i] -Bold
                 }
 
-                Write-RGB "`n`nАнимированные эффекты:" -FC "Cyan" -Style Bold -newline
+                wrgb "`n`nАнимированные эффекты:" -FC "Cyan" -Style Bold -newline
                 "✨ Animated Magic ✨" | Write-Rainbow -Animated -Loop -LoopCount 2 -Speed 50
 
-                Write-RGB "`nВолновой эффект:" -FC "Cyan" -newline
+                wrgb "`nВолновой эффект:" -FC "Cyan" -newline
                 "~~~~~~~~~~~~ Wave Effect ~~~~~~~~~~~~" | Write-Rainbow -Mode Wave -Style Ocean
 
-                Write-RGB "`nНажмите Enter..." -FC "DarkGray"
+                wrgb "`nНажмите Enter..." -FC "DarkGray"
                 Read-Host
             }
 
@@ -978,11 +978,11 @@ $data | ConvertTo-Json
                 "🎪 MEGA COMBO DEMONSTRATION 🎪" | Write-Rainbow -Mode Gradient -Animated -Style Rainbow
 
                 # Прогресс инициализации
-                Write-RGB "`n⚡ Инициализация системы..." -FC "Cyan" -newline
+                wrgb "`n⚡ Инициализация системы..." -FC "Cyan" -newline
                 Show-AnimatedProgress -Activity "Загрузка модулей" -TotalSteps 20
 
                 # Парсинг кода с подсветкой
-                Write-RGB "`n💻 Анализ кода:" -FC "Yellow" -Style Bold -newline
+                wrgb "`n💻 Анализ кода:" -FC "Yellow" -Style Bold -newline
                 @'
 function Start-MegaDemo {
     Write-Host "🚀 Starting MEGA demonstration!" -ForegroundColor Cyan
@@ -1007,10 +1007,10 @@ function Start-MegaDemo {
 "@ -split "`n" | Out-ParsedText
 
                 # Финальное сообщение
-                Write-RGB "`n" -newline
+                wrgb "`n" -newline
                 "🎉 MEGA COMBO COMPLETE! 🎉" | Write-Rainbow -Mode Gradient -Style Neon -Bold
 
-                Write-RGB "`nНажмите Enter..." -FC "DarkGray"
+                wrgb "`nНажмите Enter..." -FC "DarkGray"
                 Read-Host
             }
         }
@@ -1020,15 +1020,15 @@ function Start-MegaDemo {
     # Прощание
     Clear-Host
     "Thank you for exploring the ULTIMATE PARSER!" | Write-Rainbow -Mode Gradient -Animated -Style Rainbow
-    Write-RGB "`n👋 До новых встреч в мире красивого парсинга!" -FC "GoldRGB" -Style Bold -newline
+    wrgb "`n👋 До новых встреч в мире красивого парсинга!" -FC "GoldRGB" -Style Bold -newline
 }
 #endregion
 
 # Финальная инициализация и информация
-Write-RGB "`n" -newline
+wrgb "`n" -newline
 Write-GradientHeader -Title "🎯 PARSER SYSTEM FULLY LOADED 🎯" -StartColor "#00FF00" -EndColor "#00FFFF"
 
-Write-RGB "`n📚 Новые супер-команды:" -FC "Cyan" -Style Bold -newline
+wrgb "`n📚 Новые супер-команды:" -FC "Cyan" -Style Bold -newline
 
 $newCommands = @(
     @{ Cmd = "Out-SmartLog"; Desc = "AI-подобный анализ логов с рекомендациями" }
@@ -1038,16 +1038,16 @@ $newCommands = @(
 )
 
 foreach ($cmd in $newCommands) {
-    Write-RGB "  • " -FC "DarkGray"
-    Write-RGB $cmd.Cmd -FC "Dracula_Yellow" -Style Bold
-    Write-RGB " - " -FC "DarkGray"
-    Write-RGB $cmd.Desc -FC "White" -newline
+    wrgb "  • " -FC "DarkGray"
+    wrgb $cmd.Cmd -FC "Material_Yellow" -Style Bold
+    wrgb " - " -FC "DarkGray"
+    wrgb $cmd.Desc -FC "White" -newline
 }
 
-Write-RGB "`n🚀 Система готова к любым задачам парсинга!" -FC "LimeGreen" -Style Bold -newline
-Write-RGB "Попробуйте: " -FC "Gray"
-Write-RGB "Show-UltimateParserShowcase" -FC "Dracula_Pink" -Style @('Bold', 'Underline')
-Write-RGB " для полного погружения!" -FC "Gray" -newline
+wrgb "`n🚀 Система готова к любым задачам парсинга!" -FC "LimeGreen" -Style Bold -newline
+wrgb "Попробуйте: " -FC "Gray"
+wrgb "Show-UltimateParserShowcase" -FC "Material_Pink" -Style @('Bold', 'Underline')
+wrgb " для полного погружения!" -FC "Gray" -newline
 
 # Экспорт всех функций
 if ($MyInvocation.MyCommand.Path -match '\.psm1$') {

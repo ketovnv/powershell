@@ -1,3 +1,5 @@
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
+
 #region Инициализация
 $global:RGB = @{ }
 
@@ -145,6 +147,9 @@ $additionalColors = @{
 # RGB версии цветов (оптимизированы)
 $colorsRGB = @{
 # Основные цвета (исправлены для лучшего отображения)
+    "BlackRGB" = @{
+        R = 0; G = 0; B = 0
+    }
     "WhiteRGB" = @{
         R = 255; G = 255; B = 255
     }
@@ -212,8 +217,6 @@ $colorsRGB = @{
     "Ocean4RGB" = @{
         R = 0; G = 205; B = 230
     }
-
-    # Украинские цвета (исправленные)
     "UkraineBlueRGB" = @{
         R = 0; G = 87; B = 183
     }
@@ -241,7 +244,7 @@ $RAINBOWGRADIENT = @(
 "#BF00FF",
 "#FF00FF")
 
-$RAINBOWV2GRADIENT = @(
+$RAINBOWGRADIENT2 = @(
 '#FF0000',
 '#FF5500',
 '#FFAA00',
@@ -261,3 +264,81 @@ $RAINBOWV2GRADIENT = @(
 )
 
 
+# Подгрузка PSD1 файла
+$fileColors = Import-PowerShellDataFile "$global:profilePath/Utils/resourses/filecolors.psd1"
+# Функция для получения цвета файла
+function Get-FileColor($fileName) {
+    $extension = [System.IO.Path]::GetExtension($fileName).ToLower()
+    
+    # Прямое обращение к хеш-таблице (быстрее)
+    $color = $fileColors.Types.Files[$extension]
+    if ($color) { return $color }
+    
+    # Если не найден точный match, проверяем WellKnown файлы
+    $wellKnownColor = $fileColors.Types.Files.WellKnown[$fileName]
+    if ($wellKnownColor) { return $wellKnownColor }
+    
+    # Возвращаем цвет по умолчанию
+    return $fileColors.Types.Files['']
+}
+# Использование
+# $color = Get-FileColor "script.ps1"  # '#00BFFF'
+# $color = Get-FileColor "README.md"   # '#00FFFF'     # '#e4eee4'
+
+# Функция для получения цвета директории
+function Get-DirectoryColor($dirName) {
+    $dirNameLower = $dirName.ToLower()
+    
+    # Проверяем WellKnown папки
+    $wellKnownColor = $fileColors.Types.Directories.WellKnown[$dirNameLower]
+    if ($wellKnownColor) { 
+        return $wellKnownColor 
+    }
+    
+    # Проверяем специальные типы
+    if (Test-Path $dirName -PathType Container) {
+        $item = Get-Item $dirName
+        if ($item.LinkType -eq 'SymbolicLink') {
+            return $fileColors.Types.Directories.symlink
+        }
+        if ($item.LinkType -eq 'Junction') {
+            return $fileColors.Types.Directories.junction
+        }
+    }
+    
+    # Цвет по умолчанию для обычных папок
+    return $fileColors.Types.Directories['']
+}
+# Примеры использования
+# $color1 = Get-DirectoryColor "Documents"    # '#00BFFF'
+# $color2 = Get-DirectoryColor ".git"         # '#FF4500'
+# $color3 = Get-DirectoryColor "MyFolder"     # '#e4eee4' (default)
+
+#цвета для eza
+$Env:LS_COLORS = @(
+    "di=1;36", # директории — ярко-бирюзовый
+    "ln=1;35", # символические ссылки — фиолетовый
+    "so=1;33", # сокеты — жёлтый
+    "pi=1;33", # пайпы — жёлтый
+    "ex=1;32", # исполняемые — зелёный
+    "bd=1;44", # блочные устройства — синий
+    "cd=1;44", # символьные устройства — синий
+    "or=1;31", # битые ссылки — красный
+    "*.ps1=1;36", # PowerShell скрипты — бирюзовый
+    "*.sh=1;32", # shell — зелёный
+    "*.md=1;35", # markdown — фиолетовый
+    "*.json=1;33", # JSON — жёлтый
+    "*.pdf=1;31", # PDF — красный
+    "*.png=1;35", # изображения — фиолетовый
+    "*.jpg=1;35",
+    "*.jpeg=1;35",
+    "*.zip=1;34", # архивы — синий
+    "*.7z=1;34",
+    "*.rar=1;34",
+    "*.exe=1;31", # .exe — красный
+    "*.dll=0;36", # .dll — бирюзовый
+    "*.log=0;90"        # логи — тёмно-серый
+) -join ":"
+
+
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')

@@ -1,0 +1,95 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json
+
+blocks:
+    - type: prompt
+      alignment: left
+      newline: true
+      segments:
+        - foreground:  "#FBD951"
+          style: powerline
+          template: "\ue0c5"
+          type: session
+        - properties:
+            always_enabled: true
+          foreground: "#0057b7"
+          background: "#FBD951"
+          type: os
+          style: powerline
+        - properties:
+            user_icon: ' '
+          background: "#0057b7"
+          foreground: "#FBD951"
+          type: session
+          style: powerline
+        - properties:
+            precision: 2
+          foreground: '#3387D7'
+          template: "  <#FBD951>{{ round .PhysicalPercentUsed .Precision }}% "
+          type: sysinfo
+          style: powerline
+        - properties:
+            always_enabled: true
+          foreground: "#0057b7"
+          background: "#ffd700"
+          style: diamond
+          template: "{{  .OS  }}"
+          trailing_diamond: "\ue0b4"
+          type: text
+        - properties:
+            always_enabled: true
+          background: "#0057b7"
+          foreground: "#ffd700"
+          style: diamond
+          template: " {{  .FormattedMs}}"
+          trailing_diamond: "\ue0b4"
+          type: executiontime
+        - properties:
+            always_enabled: true
+          background: "#0057b7"
+          foreground: "#ffd700"
+          style: diamond
+          template: " {{ if gt .Code 0 }}✘ {{ reason .Code }}{{ else }}✔{{ end }}"
+          trailing_diamond: "\ue0b4"
+          type: executiontime
+    - type: prompt
+      alignment: right
+      segments:
+        - properties:
+            http_timeout: 1000
+          cache:
+            duration: 2m0s
+            strategy: folder
+          template: '🌍 {{ .IP }}  🕒'
+          foreground: '#00AAFF'
+          type: ipify
+          style: plain
+        - properties:
+            time_format: "15:04"
+          foreground: '#FF0'
+          type: time
+          style: plain
+    - type: prompt
+      alignment: left
+      segments:
+       - properties:
+          cache_duration: none
+         template: '{{ .Full }}⚛️'
+         foreground: '#1177CC'
+         type: react
+         style: powerline
+       - properties:
+              folder_icon:  
+              home_icon: "\U0001F3E0 "
+              style: full
+              foreground: '#FFD700'
+              type: path
+       - type: text
+         style: plain
+         foreground: "#E0FF75"
+         template: ❯
+
+
+tooltips_action: extend
+tooltips: [ ]
+version: 3
+final_space: true

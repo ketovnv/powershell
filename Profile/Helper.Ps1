@@ -1,3 +1,4 @@
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
 function Get-Help
 {
     [CmdletBinding(DefaultParameterSetName = 'AllUsersView')]
@@ -82,7 +83,7 @@ function Format-ColorizedHelp
             Sections = @{
                 Pattern = '(?m)^(NAME|PowerShell|ИМЯ|SYNOPSIS|КРАТКОЕ ОПИСАНИЕ|SYNTAX|СИНТАКСИС|DESCRIPTION|ОПИСАНИЕ|PARAMETERS|ПАРАМЕТРЫ|EXAMPLES?|ПРИМЕРЫ?|INPUTS|ВХОДНЫЕ ДАННЫЕ|OUTPUTS|ВЫХОДНЫЕ ДАННЫЕ|NOTES|ПРИМЕЧАНИЯ|RELATED LINKS|СВЯЗАННЫЕ ССЫЛКИ)(.*)$'
                 Style = @{
-                    FC = "Dracula_Pink"
+                    FC = "Material_Pink"
                     Effects = @('Bold', 'Underline')
                 }
             }
@@ -90,29 +91,29 @@ function Format-ColorizedHelp
             CommandName = @{
                 Pattern = "(?<![a-zA-Z-])($([regex]::Escape($HelpObject.Name) ))(?![a-zA-Z-])"
                 Style = @{
-                    FC = "Dracula_Yellow"
+                    FC = "Material_Yellow"
                     Effects = @('Bold')
                 }
             }
             # Параметры
             Parameters = @{
                 Pattern = '\B-[a-zA-Z]\w*\b'
-                Style = @{ FC = "Dracula_Cyan" }
+                Style = @{ FC = "Material_Cyan" }
             }
             # Типы данных
             Types = @{
                 Pattern = '\[([\w\[\]\.]+)\]'
-                Style = @{ FC = "Dracula_Purple"; Effects = @('Italic') }
+                Style = @{ FC = "Material_Purple"; Effects = @('Italic') }
             }
             # Required, Position и т.д.
             Attributes = @{
                 Pattern = '\b(Required|Mandatory|Position|ValueFromPipeline|ValueFromPipelineByPropertyName)\b'
-                Style = @{ FC = "Dracula_Orange" }
+                Style = @{ FC = "Material_Orange" }
             }
             # Значения по умолчанию
             DefaultValues = @{
                 Pattern = 'Default value:?\s*(.+)$'
-                Style = @{ FC = "Dracula_Green" }
+                Style = @{ FC = "Material_Green" }
             }
             # URL и пути
             Links = @{
@@ -122,7 +123,7 @@ function Format-ColorizedHelp
             # Примеры кода
             CodeExamples = @{
                 Pattern = '^\s{4,}.+$'  # Строки с отступом (обычно примеры)
-                Style = @{ FC = "Dracula_Comment"; BC = "#1E1E1E" }
+                Style = @{ FC = "Material_Comment"; BC = "#1E1E1E" }
             }
         }
 
@@ -147,10 +148,10 @@ function Format-ColorizedHelp
                     if ($patternName -eq 'Sections')
                     {
                         Write-Host ""  # Пустая строка перед секцией
-                        Write-RGB $matches[1] -FC $pattern.Style.FC -Style $pattern.Style.Effects
+                        wrgb $matches[1] -FC $pattern.Style.FC -Style $pattern.Style.Effects
                         if ($matches[2])
                         {
-                            Write-RGB $matches[2] -FC "White" -newline
+                            wrgb $matches[2] -FC "White" -newline
                         }
                         else
                         {
@@ -203,7 +204,7 @@ function Format-ColorizedHelp
                 # Проверяем, не является ли это примером кода
                 if ($line -match '^\s{4,}.+$')
                 {
-                    Write-RGB $line -FC "Dracula_Comment" -BC "#1E1E1E" -newline
+                    wrgb $line -FC "Material_Comment" -BC "#1E1E1E" -newline
                 }
                 else
                 {
@@ -225,7 +226,7 @@ function Show-RelatedCommands
     param([string]$CommandName)
 
     Write-Host ""
-    Write-RGB "СВЯЗАННЫЕ КОМАНДЫ" -FC "Dracula_Pink" -Style @('Bold', 'Underline') -newline
+    wrgb "СВЯЗАННЫЕ КОМАНДЫ" -FC "Material_Pink" -Style @('Bold', 'Underline') -newline
 
     # Ищем команды с похожим именем или из того же модуля
     $command = Get-Command $CommandName -ErrorAction SilentlyContinue
@@ -239,19 +240,19 @@ function Show-RelatedCommands
 
         foreach ($related in $relatedCommands)
         {
-            Write-RGB "  • " -FC "DarkGray"
-            Write-RGB $related.Name -FC "Dracula_Cyan"
-            Write-RGB " - " -FC "DarkGray"
+            wrgb "  • " -FC "DarkGray"
+            wrgb $related.Name -FC "Material_Cyan"
+            wrgb " - " -FC "DarkGray"
 
             # Получаем краткое описание
             $synopsis = (Microsoft.PowerShell.Core\Get-Help $related.Name).Synopsis
             if ($synopsis)
             {
-                Write-RGB ($synopsis -split "`n")[0] -FC "Gray" -newline
+                wrgb ($synopsis -split "`n")[0] -FC "Gray" -newline
             }
             else
             {
-                Write-RGB "Нет описания" -FC "DarkGray" -newline
+                wrgb "Нет описания" -FC "DarkGray" -newline
             }
         }
     }
@@ -325,12 +326,12 @@ function Format-ProcessColored
 
     begin {
         $totalMemory = (Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory
-        Write-RGB "PID".PadRight(8) -FC "Cyan"
-        Write-RGB "Name".PadRight(25) -FC "Cyan"
-        Write-RGB "CPU(s)".PadRight(10) -FC "Cyan"
-        Write-RGB "Memory(MB)".PadRight(12) -FC "Cyan"
-        Write-RGB "Status" -FC "Cyan" -newline
-        Write-RGB ("-" * 65) -FC "DarkGray" -newline
+        wrgb "PID".PadRight(8) -FC "Cyan"
+        wrgb "Name".PadRight(25) -FC "Cyan"
+        wrgb "CPU(s)".PadRight(10) -FC "Cyan"
+        wrgb "Memory(MB)".PadRight(12) -FC "Cyan"
+        wrgb "Status" -FC "Cyan" -newline
+        wrgb ("-" * 65) -FC "DarkGray" -newline
     }
 
     process {
@@ -352,11 +353,11 @@ function Format-ProcessColored
             "Green"
         }
 
-        Write-RGB $Process.Id.ToString().PadRight(8) -FC "White"
-        Write-RGB $Process.ProcessName.PadRight(25) -FC "Dracula_Purple"
-        Write-RGB $Process.CPU.ToString("F2").PadRight(10) -FC $cpuColor
-        Write-RGB $memoryMB.ToString().PadRight(12) -FC $memColor
-        Write-RGB $( if ($Process.Responding)
+        wrgb $Process.Id.ToString().PadRight(8) -FC "White"
+        wrgb $Process.ProcessName.PadRight(25) -FC "Material_Purple"
+        wrgb $Process.CPU.ToString("F2").PadRight(10) -FC $cpuColor
+        wrgb $memoryMB.ToString().PadRight(12) -FC $memColor
+        wrgb $( if ($Process.Responding)
         {
             "✓ Running"
         }
@@ -450,14 +451,14 @@ function Format-ItemsColored
         if ($Item.PSIsContainer)
         {
             $icon = "📁"
-            $color = "Dracula_Yellow"
+            $color = "Material_Yellow"
         }
         else
         {
             switch -Wildcard ( $Item.Extension.ToLower())
             {
                 ".ps1" {
-                    $icon = "⚡"; $color = "Dracula_Blue"
+                    $icon = "⚡"; $color = "Material_Blue"
                 }
                 ".txt" {
                     $icon = "📄"; $color = "White"
@@ -467,22 +468,22 @@ function Format-ItemsColored
     "Gray"
                 }
                 ".json" {
-                    $icon = "🔧"; $color = "Dracula_Green"
+                    $icon = "🔧"; $color = "Material_Green"
                 }
                 ".xml" {
-                    $icon = "📐"; $color = "Dracula_Orange"
+                    $icon = "📐"; $color = "Material_Orange"
                 }
                 ".exe" {
-                    $icon = "🚀"; $color = "Dracula_Red"
+                    $icon = "🚀"; $color = "Material_Red"
                 }
                 ".dll" {
-                    $icon = "📦"; $color = "Dracula_Purple"
+                    $icon = "📦"; $color = "Material_Purple"
                 }
                 ".zip" {
-                    $icon = "🗜️"; $color = "Dracula_Cyan"
+                    $icon = "🗜️"; $color = "Material_Cyan"
                 }
                 ".jpg" {
-                    $icon = "🖼️"; $color = "Dracula_Pink"
+                    $icon = "🖼️"; $color = "Material_Pink"
                 }
                 ".mp3" {
                     $icon = "🎵"; $color = "Material_Purple"
@@ -496,8 +497,8 @@ function Format-ItemsColored
             }
         }
 
-        Write-RGB "$icon " -FC $color
-        Write-RGB $Item.Name -FC $color
+        wrgb "$icon " -FC $color
+        wrgb $Item.Name -FC $color
 
         if (-not $Item.PSIsContainer)
         {
@@ -522,7 +523,7 @@ function Format-ItemsColored
                     " ($_ bytes)"
                 }
             }
-            Write-RGB $size -FC "DarkGray"
+            wrgb $size -FC "DarkGray"
         }
 
         Write-Host ""
@@ -631,28 +632,28 @@ function Explore-Command
     $command = Get-Command $Name -ErrorAction Stop
     $help = Microsoft.PowerShell.Core\Get-Help $Name -Full
 
-    Write-RGB "`n📋 Основная информация:" -FC "Cyan" -Style Bold -newline
-    Write-RGB "  Тип: " -FC "Gray"
-    Write-RGB $command.CommandType -FC "Yellow" -newline
-    Write-RGB "  Модуль: " -FC "Gray"
-    Write-RGB $command.ModuleName -FC "Dracula_Purple" -newline
-    Write-RGB "  Версия: " -FC "Gray"
-    Write-RGB $command.Version -FC "Dracula_Green" -newline
+    wrgb "`n📋 Основная информация:" -FC "Cyan" -Style Bold -newline
+    wrgb "  Тип: " -FC "Gray"
+    wrgb $command.CommandType -FC "Yellow" -newline
+    wrgb "  Модуль: " -FC "Gray"
+    wrgb $command.ModuleName -FC "Material_Purple" -newline
+    wrgb "  Версия: " -FC "Gray"
+    wrgb $command.Version -FC "Material_Green" -newline
 
     # Полный путь к команде
-    Write-RGB "  Полное имя: " -FC "Gray"
-    Write-RGB "$( $command.ModuleName )\$( $command.Name )" -FC "Dracula_Orange" -newline
+    wrgb "  Полное имя: " -FC "Gray"
+    wrgb "$( $command.ModuleName )\$( $command.Name )" -FC "Material_Orange" -newline
 
     # Параметры
-    Write-RGB "`n📊 Параметры:" -FC "Cyan" -Style Bold -newline
+    wrgb "`n📊 Параметры:" -FC "Cyan" -Style Bold -newline
     $command.Parameters.Values | ForEach-Object {
-        Write-RGB "  • " -FC "DarkGray"
-        Write-RGB "-$( $_.Name )" -FC "Dracula_Cyan"
-        Write-RGB " [$( $_.ParameterType.Name )]" -FC "Dracula_Purple"
+        wrgb "  • " -FC "DarkGray"
+        wrgb "-$( $_.Name )" -FC "Material_Cyan"
+        wrgb " [$( $_.ParameterType.Name )]" -FC "Material_Purple"
 
         if ($_.IsMandatory)
         {
-            Write-RGB " (Обязательный)" -FC "Red"
+            wrgb " (Обязательный)" -FC "Red"
         }
 
         Write-Host ""
@@ -661,50 +662,50 @@ function Explore-Command
     # Наборы параметров
     if ($command.ParameterSets.Count -gt 1)
     {
-        Write-RGB "`n🔀 Наборы параметров:" -FC "Cyan" -Style Bold -newline
+        wrgb "`n🔀 Наборы параметров:" -FC "Cyan" -Style Bold -newline
         $command.ParameterSets | ForEach-Object {
-            Write-RGB "  • " -FC "DarkGray"
-            Write-RGB $_.Name -FC "Dracula_Yellow"
+            wrgb "  • " -FC "DarkGray"
+            wrgb $_.Name -FC "Material_Yellow"
             if ($_.IsDefault)
             {
-                Write-RGB " (По умолчанию)" -FC "Green"
+                wrgb " (По умолчанию)" -FC "Green"
             }
             Write-Host ""
         }
     }
 
     # Примеры вызовов
-    Write-RGB "`n💡 Способы вызова:" -FC "Cyan" -Style Bold -newline
+    wrgb "`n💡 Способы вызова:" -FC "Cyan" -Style Bold -newline
 
     # Прямой вызов
-    Write-RGB "  1. Обычный: " -FC "Gray"
-    Write-RGB $Name -FC "White" -newline
+    wrgb "  1. Обычный: " -FC "Gray"
+    wrgb $Name -FC "White" -newline
 
     # Через модуль
     if ($command.ModuleName)
     {
-        Write-RGB "  2. Через модуль: " -FC "Gray"
-        Write-RGB "$( $command.ModuleName )\$Name" -FC "White" -newline
+        wrgb "  2. Через модуль: " -FC "Gray"
+        wrgb "$( $command.ModuleName )\$Name" -FC "White" -newline
     }
 
     # Полный путь
-    Write-RGB "  3. Полный путь: " -FC "Gray"
-    Write-RGB "Microsoft.PowerShell.$( $command.ModuleName )\$Name" -FC "White" -newline
+    wrgb "  3. Полный путь: " -FC "Gray"
+    wrgb "Microsoft.PowerShell.$( $command.ModuleName )\$Name" -FC "White" -newline
 
     # Создание proxy
-    Write-RGB "`n🔧 Действия:" -FC "Cyan" -Style Bold -newline
-    Write-RGB "  [P] Создать Proxy-функцию" -FC "Yellow" -newline
-    Write-RGB "  [T] Протестировать вызовы" -FC "Yellow" -newline
-    Write-RGB "  [E] Экспортировать информацию" -FC "Yellow" -newline
-    Write-RGB "  [Q] Выход" -FC "Red" -newline
+    wrgb "`n🔧 Действия:" -FC "Cyan" -Style Bold -newline
+    wrgb "  [P] Создать Proxy-функцию" -FC "Yellow" -newline
+    wrgb "  [T] Протестировать вызовы" -FC "Yellow" -newline
+    wrgb "  [E] Экспортировать информацию" -FC "Yellow" -newline
+    wrgb "  [Q] Выход" -FC "Red" -newline
 
-    Write-RGB "`nВыбор: " -FC "White"
+    wrgb "`nВыбор: " -FC "White"
     $choice = Read-Host
 
     switch ( $choice.ToUpper())
     {
         'P' {
-            Write-RGB "`nИмя для proxy-функции: " -FC "Cyan"
+            wrgb "`nИмя для proxy-функции: " -FC "Cyan"
             $proxyName = Read-Host
 
             if ($proxyName)
@@ -741,10 +742,10 @@ function Test-CommandCalls
 {
     param([string]$CommandName)
 
-    Write-RGB "`n🧪 Тестирование различных способов вызова:" -FC "Cyan" -Style Bold -newline
+    wrgb "`n🧪 Тестирование различных способов вызова:" -FC "Cyan" -Style Bold -newline
 
     # Тест 1: Обычный вызов
-    Write-RGB "`n1. Обычный вызов:" -FC "Yellow" -newline
+    wrgb "`n1. Обычный вызов:" -FC "Yellow" -newline
     try
     {
         $result1 = & $CommandName -ErrorAction Stop
@@ -759,7 +760,7 @@ function Test-CommandCalls
     $cmd = Get-Command $CommandName
     if ($cmd.ModuleName)
     {
-        Write-RGB "`n2. Через модуль:" -FC "Yellow" -newline
+        wrgb "`n2. Через модуль:" -FC "Yellow" -newline
         try
         {
             $result2 = & "$( $cmd.ModuleName )\$CommandName" -ErrorAction Stop
@@ -772,7 +773,7 @@ function Test-CommandCalls
     }
 
     # Тест 3: Полный путь
-    Write-RGB "`n3. Полный путь:" -FC "Yellow" -newline
+    wrgb "`n3. Полный путь:" -FC "Yellow" -newline
     try
     {
         $fullPath = "Microsoft.PowerShell.$( $cmd.ModuleName )\$CommandName"
@@ -794,38 +795,38 @@ function Show-ProxyTechniquesDemo
     Clear-Host
     Write-GradientHeader -Title "PROXY TECHNIQUES DEMONSTRATION"
 
-    Write-RGB "🔮 Демонстрация мощи техники Microsoft.PowerShell.Core\Command" -FC "GoldRGB" -Style Bold -newline
+    wrgb "🔮 Демонстрация мощи техники Microsoft.PowerShell.Core\Command" -FC "GoldRGB" -Style Bold -newline
 
     # Демо 1: Улучшенный Get-Help
-    Write-RGB "`n1️⃣ Улучшенный Get-Help с цветами:" -FC "Cyan" -newline
-    Write-RGB "Попробуйте: " -FC "Gray"
-    Write-RGB "Get-Help Get-Process" -FC "Yellow" -Style Bold -newline
+    wrgb "`n1️⃣ Улучшенный Get-Help с цветами:" -FC "Cyan" -newline
+    wrgb "Попробуйте: " -FC "Gray"
+    wrgb "Get-Help Get-Process" -FC "Yellow" -Style Bold -newline
 
     # Демо 2: Цветной Get-Process
-    Write-RGB "`n2️⃣ Get-Process с цветовой индикацией:" -FC "Cyan" -newline
-    Write-RGB "Попробуйте: " -FC "Gray"
-    Write-RGB "Get-Process -ColorByUsage" -FC "Yellow" -Style Bold -newline
+    wrgb "`n2️⃣ Get-Process с цветовой индикацией:" -FC "Cyan" -newline
+    wrgb "Попробуйте: " -FC "Gray"
+    wrgb "Get-Process -ColorByUsage" -FC "Yellow" -Style Bold -newline
 
     # Демо 3: Get-ChildItem с иконками
-    Write-RGB "`n3️⃣ Get-ChildItem с иконками файлов:" -FC "Cyan" -newline
-    Write-RGB "Попробуйте: " -FC "Gray"
-    Write-RGB "Get-ChildItem -ColorByType" -FC "Yellow" -Style Bold -newline
+    wrgb "`n3️⃣ Get-ChildItem с иконками файлов:" -FC "Cyan" -newline
+    wrgb "Попробуйте: " -FC "Gray"
+    wrgb "Get-ChildItem -ColorByType" -FC "Yellow" -Style Bold -newline
 
     # Демо 4: Исследование команд
-    Write-RGB "`n4️⃣ Исследователь команд:" -FC "Cyan" -newline
-    Write-RGB "Попробуйте: " -FC "Gray"
-    Write-RGB "Explore-Command Get-Service" -FC "Yellow" -Style Bold -newline
+    wrgb "`n4️⃣ Исследователь команд:" -FC "Cyan" -newline
+    wrgb "Попробуйте: " -FC "Gray"
+    wrgb "Explore-Command Get-Service" -FC "Yellow" -Style Bold -newline
 
-    Write-RGB "`n💡 Эта техника позволяет:" -FC "Dracula_Orange" -Style Bold -newline
-    Write-RGB "  • Перехватывать любые команды" -FC "White" -newline
-    Write-RGB "  • Добавлять новый функционал" -FC "White" -newline
-    Write-RGB "  • Сохранять полную совместимость" -FC "White" -newline
-    Write-RGB "  • Создавать умные обертки" -FC "White" -newline
+    wrgb "`n💡 Эта техника позволяет:" -FC "Material_Orange" -Style Bold -newline
+    wrgb "  • Перехватывать любые команды" -FC "White" -newline
+    wrgb "  • Добавлять новый функционал" -FC "White" -newline
+    wrgb "  • Сохранять полную совместимость" -FC "White" -newline
+    wrgb "  • Создавать умные обертки" -FC "White" -newline
 
-    Write-RGB "`n🎯 Ключевая строка:" -FC "Red" -Style Bold -newline
-    Write-RGB "  Microsoft.PowerShell.Core\Get-Help @PSBoundParameters" -FC "Dracula_Yellow" -BC "#1E1E1E" -newline
+    wrgb "`n🎯 Ключевая строка:" -FC "Red" -Style Bold -newline
+    wrgb "  Microsoft.PowerShell.Core\Get-Help @PSBoundParameters" -FC "Material_Yellow" -BC "#1E1E1E" -newline
 
-    Write-RGB "`nЭто как 'системный вызов' - прямой доступ к оригинальной команде!" -FC "Gray" -newline
+    wrgb "`nЭто как 'системный вызов' - прямой доступ к оригинальной команде!" -FC "Gray" -newline
 }
 
 #endregion
@@ -837,13 +838,13 @@ if ($MyInvocation.MyCommand.Path -match '\.psm1$')
 }
 
 # Информация при загрузке
-Write-RGB "`n🔮 " -FC "GoldRGB"
+wrgb "`n🔮 " -FC "GoldRGB"
 Write-GradientText "Advanced Proxy Techniques" -StartColor "#FF00FF" -EndColor "#00FFFF" -NoNewline
-Write-RGB " загружены!" -FC "GoldRGB" -newline
+wrgb " загружены!" -FC "GoldRGB" -newline
 
-Write-RGB "Попробуйте: " -FC "Gray"
-Write-RGB "Show-ProxyTechniquesDemo" -FC "Dracula_Pink" -Style Bold
-Write-RGB " для демонстрации" -FC "Gray" -newline
+wrgb "Попробуйте: " -FC "Gray"
+wrgb "Show-ProxyTechniquesDemo" -FC "Material_Pink" -Style Bold
+wrgb " для демонстрации" -FC "Gray" -newline
 
 
 # ╔═══════════════════════════════════════════════════════════════════════════╗
@@ -1014,14 +1015,14 @@ function Show-InterceptedCalls
     Write-GradientHeader -Title "INTERCEPTED CALLS LOG"
 
     $script:InterceptorConfig.CallLog | ForEach-Object {
-    Write-RGB "[$($_.Time.ToString('HH:mm:ss'))] " -FC "DarkGray"
-    Write-RGB $_.Command -FC "Dracula_Yellow" -Style Bold
+    wrgb "[$($_.Time.ToString('HH:mm:ss'))] " -FC "DarkGray"
+    wrgb $_.Command -FC "Material_Yellow" -Style Bold
 
     if ($_.Parameters.Count -gt 0) {
-    Write-RGB " -" -FC "Dracula_Cyan"
+    wrgb " -" -FC "Material_Cyan"
     $_.Parameters.GetEnumerator() | ForEach-Object {
-    Write-RGB "$($_.Key):" -FC "Dracula_Purple"
-    Write-RGB "$($_.Value) " -FC "White"
+    wrgb "$($_.Key):" -FC "Material_Purple"
+    wrgb "$($_.Value) " -FC "White"
     }
     }
     Write-Host ""
@@ -1067,13 +1068,13 @@ function Get-SmartHelp
         $similar = Get-Command -Name "*$Name*" -ErrorAction SilentlyContinue | Select-Object -First 5
         if ($similar)
         {
-            Write-RGB "`nВозможно, вы искали:" -FC "Cyan" -newline
+            wrgb "`nВозможно, вы искали:" -FC "Cyan" -newline
             $similar | ForEach-Object {
-                Write-RGB "  • " -FC "DarkGray"
-                Write-RGB $_.Name -FC "Dracula_Yellow"
-                Write-RGB " - " -FC "DarkGray"
+                wrgb "  • " -FC "DarkGray"
+                wrgb $_.Name -FC "Material_Yellow"
+                wrgb " - " -FC "DarkGray"
                 $synopsis = (Microsoft.PowerShell.Core\Get-Help $_.Name).Synopsis
-                Write-RGB ($synopsis -split "`n")[0] -FC "Gray" -newline
+                wrgb ($synopsis -split "`n")[0] -FC "Gray" -newline
             }
         }
         return
@@ -1086,34 +1087,34 @@ function Get-SmartHelp
     # Синопсис с эмодзи
     if ($help.Synopsis)
     {
-        Write-RGB "📋 " -FC "Cyan"
-        Write-RGB "КРАТКОЕ ОПИСАНИЕ" -FC "Dracula_Pink" -Style Bold -newline
-        Write-RGB "   $( $help.Synopsis )" -FC "White" -newline
+        wrgb "📋 " -FC "Cyan"
+        wrgb "КРАТКОЕ ОПИСАНИЕ" -FC "Material_Pink" -Style Bold -newline
+        wrgb "   $( $help.Synopsis )" -FC "White" -newline
     }
 
     # Синтаксис с подсветкой
     if ($help.Syntax)
     {
-        Write-RGB "`n⚡ " -FC "Yellow"
-        Write-RGB "СИНТАКСИС" -FC "Dracula_Pink" -Style Bold -newline
+        wrgb "`n⚡ " -FC "Yellow"
+        wrgb "СИНТАКСИС" -FC "Material_Pink" -Style Bold -newline
 
         $help.Syntax.syntaxItem | ForEach-Object {
-            Write-RGB "   " -FC "White"
-            Write-RGB $_.name -FC "Dracula_Yellow" -Style Bold
+            wrgb "   " -FC "White"
+            wrgb $_.name -FC "Material_Yellow" -Style Bold
 
             $_.parameter | ForEach-Object {
                 if ($_.required -eq "true")
                 {
-                    Write-RGB " -$( $_.name )" -FC "Dracula_Red" -Style Bold
+                    wrgb " -$( $_.name )" -FC "Material_Red" -Style Bold
                 }
                 else
                 {
-                    Write-RGB " [-$( $_.name )]" -FC "Dracula_Cyan"
+                    wrgb " [-$( $_.name )]" -FC "Material_Cyan"
                 }
 
                 if ($_.parameterValue)
                 {
-                    Write-RGB " <$( $_.parameterValue )>" -FC "Dracula_Purple"
+                    wrgb " <$( $_.parameterValue )>" -FC "Material_Purple"
                 }
             }
             Write-Host ""
@@ -1123,24 +1124,24 @@ function Get-SmartHelp
     # Умные примеры
     if ($GenerateExamples -or $help.examples)
     {
-        Write-RGB "`n💡 " -FC "Green"
-        Write-RGB "ПРИМЕРЫ" -FC "Dracula_Pink" -Style Bold -newline
+        wrgb "`n💡 " -FC "Green"
+        wrgb "ПРИМЕРЫ" -FC "Material_Pink" -Style Bold -newline
 
         if ($help.examples)
         {
             $exampleCount = 1
             $help.examples.example | ForEach-Object {
-                Write-RGB "`n   Пример $exampleCount`: " -FC "Dracula_Orange" -Style Bold
-                Write-RGB $_.title -FC "Gray" -newline
+                wrgb "`n   Пример $exampleCount`: " -FC "Material_Orange" -Style Bold
+                wrgb $_.title -FC "Gray" -newline
 
                 # Код примера с подсветкой
-                Write-RGB "   PS> " -FC "DarkCyan"
+                wrgb "   PS> " -FC "DarkCyan"
                 $_.code | Out-ParsedPowerShell
 
                 if ($_.remarks)
                 {
-                    Write-RGB "   " -FC "White"
-                    Write-RGB ($_.remarks | Out-String).Trim() -FC "Gray" -newline
+                    wrgb "   " -FC "White"
+                    wrgb ($_.remarks | Out-String).Trim() -FC "Gray" -newline
                 }
 
                 $exampleCount++
@@ -1150,7 +1151,7 @@ function Get-SmartHelp
         # Генерируем дополнительные умные примеры
         if ($GenerateExamples)
         {
-            Write-RGB "`n   🤖 Сгенерированные примеры:" -FC "Dracula_Green" -newline
+            wrgb "`n   🤖 Сгенерированные примеры:" -FC "Material_Green" -newline
             Generate-SmartExamples -CommandName $help.Name
         }
     }
@@ -1158,14 +1159,14 @@ function Get-SmartHelp
     # Похожие команды
     if ($ShowSimilar)
     {
-        Write-RGB "`n🔗 " -FC "Blue"
-        Write-RGB "ПОХОЖИЕ КОМАНДЫ" -FC "Dracula_Pink" -Style Bold -newline
+        wrgb "`n🔗 " -FC "Blue"
+        wrgb "ПОХОЖИЕ КОМАНДЫ" -FC "Material_Pink" -Style Bold -newline
 
         Find-SimilarCommands -CommandName $help.Name | ForEach-Object {
-            Write-RGB "   • " -FC "DarkGray"
-            Write-RGB $_.Name -FC "Dracula_Cyan"
-            Write-RGB " - " -FC "DarkGray"
-            Write-RGB $_.Synopsis -FC "Gray" -newline
+            wrgb "   • " -FC "DarkGray"
+            wrgb $_.Name -FC "Material_Cyan"
+            wrgb " - " -FC "DarkGray"
+            wrgb $_.Synopsis -FC "Gray" -newline
         }
     }
 
@@ -1225,7 +1226,7 @@ function Generate-SmartExamples
                 }
             }
         }
-        Write-RGB "   $example" -FC "Yellow" -newline
+        wrgb "   $example" -FC "Yellow" -newline
     }
 
     # Пример с pipeline
@@ -1233,7 +1234,7 @@ function Generate-SmartExamples
         $_.ValueFromPipeline
     })
     {
-        Write-RGB "   Get-Something | $CommandName" -FC "Yellow" -newline
+        wrgb "   Get-Something | $CommandName" -FC "Yellow" -newline
     }
 }
 
@@ -1283,14 +1284,14 @@ function Show-InteractiveHelp
     $running = $true
     while ($running)
     {
-        Write-RGB "`n📚 Интерактивная справка" -FC "Cyan" -Style Bold -newline
-        Write-RGB "[P] Параметры подробно" -FC "Yellow" -newline
-        Write-RGB "[E] Больше примеров" -FC "Yellow" -newline
-        Write-RGB "[S] Похожие команды" -FC "Yellow" -newline
-        Write-RGB "[T] Попробовать команду" -FC "Yellow" -newline
-        Write-RGB "[Q] Выход" -FC "Red" -newline
+        wrgb "`n📚 Интерактивная справка" -FC "Cyan" -Style Bold -newline
+        wrgb "[P] Параметры подробно" -FC "Yellow" -newline
+        wrgb "[E] Больше примеров" -FC "Yellow" -newline
+        wrgb "[S] Похожие команды" -FC "Yellow" -newline
+        wrgb "[T] Попробовать команду" -FC "Yellow" -newline
+        wrgb "[Q] Выход" -FC "Red" -newline
 
-        Write-RGB "`nВыбор: " -FC "White"
+        wrgb "`nВыбор: " -FC "White"
         $choice = Read-Host
 
         switch ( $choice.ToUpper())
@@ -1347,21 +1348,21 @@ function Get-ModuleInternals
     Write-GradientHeader -Title "MODULE INTERNALS: $ModuleName"
 
     # Основная информация
-    Write-RGB "📦 Модуль: " -FC "Cyan"
-    Write-RGB $module.Name -FC "White" -Style Bold
-    Write-RGB " v$( $module.Version )" -FC "Gray" -newline
+    wrgb "📦 Модуль: " -FC "Cyan"
+    wrgb $module.Name -FC "White" -Style Bold
+    wrgb " v$( $module.Version )" -FC "Gray" -newline
 
     # Все экспортированные команды
-    Write-RGB "`n📤 Экспортированные команды:" -FC "Cyan" -Style Bold -newline
+    wrgb "`n📤 Экспортированные команды:" -FC "Cyan" -Style Bold -newline
     $module.ExportedCommands.Values | Group-Object CommandType | ForEach-Object {
-        Write-RGB "  $( $_.Name ): " -FC "Dracula_Purple"
-        Write-RGB $_.Count -FC "Yellow" -Style Bold -newline
+        wrgb "  $( $_.Name ): " -FC "Material_Purple"
+        wrgb $_.Count -FC "Yellow" -Style Bold -newline
     }
 
     # Скрытые/приватные функции
     if ($ShowHidden -or $ShowPrivate)
     {
-        Write-RGB "`n🔒 Скрытые элементы:" -FC "Cyan" -Style Bold -newline
+        wrgb "`n🔒 Скрытые элементы:" -FC "Cyan" -Style Bold -newline
 
         # Получаем все функции из пространства имен модуля
         $moduleScope = & $module {
@@ -1377,12 +1378,12 @@ function Get-ModuleInternals
 
         if ($privateFunctions)
         {
-            Write-RGB "  Найдено приватных функций: " -FC "Gray"
-            Write-RGB $privateFunctions.Count -FC "Red" -Style Bold -newline
+            wrgb "  Найдено приватных функций: " -FC "Gray"
+            wrgb $privateFunctions.Count -FC "Red" -Style Bold -newline
 
             $privateFunctions | Select-Object -First 10 | ForEach-Object {
-                Write-RGB "  • " -FC "DarkGray"
-                Write-RGB $_.Name -FC "Dracula_Red"
+                wrgb "  • " -FC "DarkGray"
+                wrgb $_.Name -FC "Material_Red"
 
                 # Пытаемся получить описание
                 $ast = $_.ScriptBlock.Ast
@@ -1391,8 +1392,8 @@ function Get-ModuleInternals
                     $comment = $ast.GetHelpContent()
                     if ($comment.Synopsis)
                     {
-                        Write-RGB " - " -FC "DarkGray"
-                        Write-RGB $comment.Synopsis -FC "Gray"
+                        wrgb " - " -FC "DarkGray"
+                        wrgb $comment.Synopsis -FC "Gray"
                     }
                 }
                 Write-Host ""
@@ -1401,15 +1402,15 @@ function Get-ModuleInternals
     }
 
     # Переменные модуля
-    Write-RGB "`n📊 Переменные модуля:" -FC "Cyan" -Style Bold -newline
+    wrgb "`n📊 Переменные модуля:" -FC "Cyan" -Style Bold -newline
     $moduleVariables = & $module {
         Get-Variable -Scope Script
     }
 
     $moduleVariables | Select-Object -First 10 | ForEach-Object {
-        Write-RGB "  • " -FC "DarkGray"
-        Write-RGB "`$$( $_.Name )" -FC "Dracula_Green"
-        Write-RGB " = " -FC "Gray"
+        wrgb "  • " -FC "DarkGray"
+        wrgb "`$$( $_.Name )" -FC "Material_Green"
+        wrgb " = " -FC "Gray"
 
         $value = if ($_.Value -is [string] -and $_.Value.Length -gt 50)
         {
@@ -1420,7 +1421,7 @@ function Get-ModuleInternals
             $_.Value
         }
 
-        Write-RGB $value -FC "White" -newline
+        wrgb $value -FC "White" -newline
     }
 
     # Создаем диаграмму зависимостей
@@ -1552,7 +1553,7 @@ function Show-CommandStatistics
     $stats = $stats | Select-Object -First 10
     }
 
-    Write-RGB "📊 Топ используемых команд:" -FC "Cyan" -Style Bold -newline
+    wrgb "📊 Топ используемых команд:" -FC "Cyan" -Style Bold -newline
 
     $maxCount = ($stats | Measure-Object {
     $_.Value.Count
@@ -1562,18 +1563,18 @@ function Show-CommandStatistics
     $percentage = ($stat.Value.Count / $maxCount) * 100
     $barLength = [Math]::Round($percentage / 5)
 
-    Write-RGB ("  " + $stat.Key.PadRight(30)) -FC "Dracula_Yellow"
+    wrgb ("  " + $stat.Key.PadRight(30)) -FC "Material_Yellow"
 
     # График
     for ($i = 0; $i -lt $barLength; $i++) {
-    Write-RGB "█" -FC (Get-ProgressGradientColor -Percent $percentage)
+    wrgb "█" -FC (Get-ProgressGradientColor -Percent $percentage)
     }
 
-    Write-RGB " $($stat.Value.Count)" -FC "White" -Style Bold -newline
+    wrgb " $($stat.Value.Count)" -FC "White" -Style Bold -newline
     }
 
     if ($GroupByVerb) {
-    Write-RGB "`n📈 По глаголам:" -FC "Cyan" -Style Bold -newline
+    wrgb "`n📈 По глаголам:" -FC "Cyan" -Style Bold -newline
 
     $verbStats = $stats | ForEach-Object {
     $verb = ($_.Key -split '-')[0]
@@ -1588,8 +1589,8 @@ function Show-CommandStatistics
     } | Sort-Object Total -Descending
 
     $verbStats | ForEach-Object {
-    Write-RGB "  $($_.Verb): " -FC "Dracula_Purple"
-    Write-RGB $_.Total -FC "Yellow" -Style Bold -newline
+    wrgb "  $($_.Verb): " -FC "Material_Purple"
+    wrgb $_.Total -FC "Yellow" -Style Bold -newline
     }
     }
 }
@@ -1604,7 +1605,7 @@ function Show-UltimateProxyDemo
 
     "🧙‍♂️ ULTIMATE PROXY MAGIC DEMO 🧙‍♂️" | Write-Rainbow -Mode Gradient -Style Neon -Animated
 
-    Write-RGB "`nДобро пожаловать в мир глубокой магии PowerShell!" -FC "GoldRGB" -Style Bold -newline
+    wrgb "`nДобро пожаловать в мир глубокой магии PowerShell!" -FC "GoldRGB" -Style Bold -newline
 
     $demos = @(
         @{
@@ -1629,42 +1630,42 @@ function Show-UltimateProxyDemo
         }
     )
 
-    Write-RGB "`n🎪 Выберите демонстрацию:" -FC "Cyan" -Style Bold -newline
+    wrgb "`n🎪 Выберите демонстрацию:" -FC "Cyan" -Style Bold -newline
 
     for ($i = 0; $i -lt $demos.Count; $i++) {
         $color = Get-MenuGradientColor -Index $i -Total $demos.Count -Style Ocean
-        Write-RGB "  [$( $i + 1 )] " -FC "White"
-        Write-RGB $demos[$i].Name -FC $color -Style Bold
-        Write-RGB " - " -FC "DarkGray"ку
-        Write-RGB $demos[$i].Desc -FC "Gray" -newline
-        Write-RGB "      Команда: " -FC "DarkGray"
-        Write-RGB $demos[$i].Command -FC "Dracula_Comment" -newline
+        wrgb "  [$( $i + 1 )] " -FC "White"
+        wrgb $demos[$i].Name -FC $color -Style Bold
+        wrgb " - " -FC "DarkGray"ку
+        wrgb $demos[$i].Desc -FC "Gray" -newline
+        wrgb "      Команда: " -FC "DarkGray"
+        wrgb $demos[$i].Command -FC "Material_Comment" -newline
     }
 
-    Write-RGB "`n🔑 Ключевая техника:" -FC "Red" -Style Bold -newline
-    Write-RGB "  Microsoft.PowerShell.Core\Command" -FC "Dracula_Yellow" -BC "#1E1E1E" -Style Bold -newline
-    Write-RGB "  Позволяет вызывать оригинальные команды напрямую!" -FC "Gray" -newline
+    wrgb "`n🔑 Ключевая техника:" -FC "Red" -Style Bold -newline
+    wrgb "  Microsoft.PowerShell.Core\Command" -FC "Material_Yellow" -BC "#1E1E1E" -Style Bold -newline
+    wrgb "  Позволяет вызывать оригинальные команды напрямую!" -FC "Gray" -newline
 
-    Write-RGB "`n💡 Это открывает возможности:" -FC "Dracula_Orange" -Style Bold -newline
-    Write-RGB "  • Перехват и модификация ЛЮБЫХ команд" -FC "White" -newline
-    Write-RGB "  • Доступ к скрытым функциям модулей" -FC "White" -newline
-    Write-RGB "  • Создание умных оберток с сохранением совместимости" -FC "White" -newline
-    Write-RGB "  • Мониторинг и анализ использования" -FC "White" -newline
-    Write-RGB "  • Добавление AI-подобных возможностей" -FC "White" -newline
+    wrgb "`n💡 Это открывает возможности:" -FC "Material_Orange" -Style Bold -newline
+    wrgb "  • Перехват и модификация ЛЮБЫХ команд" -FC "White" -newline
+    wrgb "  • Доступ к скрытым функциям модулей" -FC "White" -newline
+    wrgb "  • Создание умных оберток с сохранением совместимости" -FC "White" -newline
+    wrgb "  • Мониторинг и анализ использования" -FC "White" -newline
+    wrgb "  • Добавление AI-подобных возможностей" -FC "White" -newline
 
-    Write-RGB "`nПопробуйте любую команду из списка!" -FC "LimeGreen" -Style Bold -newline
+    wrgb "`nПопробуйте любую команду из списка!" -FC "LimeGreen" -Style Bold -newline
 }
 
 #endregion
 
 # Инициализация
-Write-RGB "`n🧙‍♂️ " -FC "GoldRGB"
+wrgb "`n🧙‍♂️ " -FC "GoldRGB"
 Write-GradientText "Ultimate Proxy Magic" -StartColor "#9400D3" -EndColor "#FF1493" -NoNewline
-Write-RGB " загружена!" -FC "Material_LightGreen" -newline
+wrgb " загружена!" -FC "Material_LightGreen" -newline
 
-Write-RGB "Запустите: " -FC "Gray"
-Write-RGB "Show-UltimateProxyDemo" -FC "Dracula_Pink" -Style Bold
-Write-RGB " для полной демонстрации магии!" -FC "Gray" -newline
+wrgb "Запустите: " -FC "Gray"
+wrgb "Show-UltimateProxyDemo" -FC "Material_Pink" -Style Bold
+wrgb " для полной демонстрации магии!" -FC "Gray" -newline
 
 # Экспорт
 if ($MyInvocation.MyCommand.Path -match '\.psm1$')
@@ -1773,7 +1774,7 @@ function Remove-Item
         if (-not $skipSafety -and $items)
         {
             # Показываем что будет удалено
-            Write-RGB "`n⚠️  ВНИМАНИЕ: Будут удалены следующие элементы:" -FC "Yellow" -Style Bold -newline
+            wrgb "`n⚠️  ВНИМАНИЕ: Будут удалены следующие элементы:" -FC "Yellow" -Style Bold -newline
 
             foreach ($item in $items)
             {
@@ -1795,14 +1796,14 @@ function Remove-Item
                     " ($count элементов)"
                 }
 
-                Write-RGB "  $icon " -FC "Red"
-                Write-RGB $item.Name -FC "White" -Style Bold
-                Write-RGB $size -FC "DarkGray"
-                Write-RGB " - " -FC "DarkGray"
-                Write-RGB $item.FullName -FC "Gray" -newline
+                wrgb "  $icon " -FC "Red"
+                wrgb $item.Name -FC "White" -Style Bold
+                wrgb $size -FC "DarkGray"
+                wrgb " - " -FC "DarkGray"
+                wrgb $item.FullName -FC "Gray" -newline
             }
 
-            Write-RGB "`n" -newline
+            wrgb "`n" -newline
             $useTrashText = if ($useTrash)
             {
                 "(в корзину)"
@@ -1811,10 +1812,10 @@ function Remove-Item
             {
                 "(БЕЗВОЗВРАТНО)"
             }
-            Write-RGB "Удалить " -FC "White"
-            Write-RGB $items.Count -FC "Red" -Style Bold
-            Write-RGB " элемент(ов) " -FC "White"
-            Write-RGB $useTrashText -FC $( if ($useTrash)
+            wrgb "Удалить " -FC "White"
+            wrgb $items.Count -FC "Red" -Style Bold
+            wrgb " элемент(ов) " -FC "White"
+            wrgb $useTrashText -FC $( if ($useTrash)
             {
                 "Yellow"
             }
@@ -1822,7 +1823,7 @@ function Remove-Item
             {
                 "Red"
             } ) -Style Bold
-            Write-RGB "? [Y/N]: " -FC "White"
+            wrgb "? [Y/N]: " -FC "White"
 
             $confirmation = Read-Host
             if ($confirmation -ne 'Y')
@@ -1864,18 +1865,18 @@ function Remove-Item
                     # Перемещаем
                     Move-Item -Path $item.FullName -Destination $trashItemPath -Force
 
-                    Write-RGB "  ♻️ " -FC "Green"
-                    Write-RGB "Перемещено в корзину: " -FC "Green"
-                    Write-RGB $item.Name -FC "White" -newline
+                    wrgb "  ♻️ " -FC "Green"
+                    wrgb "Перемещено в корзину: " -FC "Green"
+                    wrgb $item.Name -FC "White" -newline
                 }
                 else
                 {
                     # Обычное удаление через оригинальную команду
                     Microsoft.PowerShell.Management\Remove-Item -Path $item.FullName @PSBoundParameters
 
-                    Write-RGB "  ❌ " -FC "Red"
-                    Write-RGB "Удалено: " -FC "Red"
-                    Write-RGB $item.Name -FC "White" -newline
+                    wrgb "  ❌ " -FC "Red"
+                    wrgb "Удалено: " -FC "Red"
+                    wrgb $item.Name -FC "White" -newline
                 }
 
                 # Логируем
@@ -1940,7 +1941,7 @@ function Restore-Item
         if ($trashItems)
         {
             $trashItems | ForEach-Object {
-                Write-RGB "📄 " -FC $( if ($_.Exists)
+                wrgb "📄 " -FC $( if ($_.Exists)
                 {
                     "Green"
                 }
@@ -1948,12 +1949,12 @@ function Restore-Item
                 {
                     "Red"
                 } )
-                Write-RGB $_.Name -FC "White" -Style Bold
-                Write-RGB " (удалено: " -FC "DarkGray"
-                Write-RGB $_.DeletedDate.ToString("yyyy-MM-dd HH:mm") -FC "Yellow"
-                Write-RGB ")" -FC "DarkGray" -newline
-                Write-RGB "   Оригинальный путь: " -FC "Gray"
-                Write-RGB $_.OriginalPath -FC "Cyan" -newline
+                wrgb $_.Name -FC "White" -Style Bold
+                wrgb " (удалено: " -FC "DarkGray"
+                wrgb $_.DeletedDate.ToString("yyyy-MM-dd HH:mm") -FC "Yellow"
+                wrgb ")" -FC "DarkGray" -newline
+                wrgb "   Оригинальный путь: " -FC "Gray"
+                wrgb $_.OriginalPath -FC "Cyan" -newline
             }
         }
         else
@@ -2033,10 +2034,10 @@ function Invoke-WebRequest
             {
                 if ($attempt -gt 0)
                 {
-                    Write-RGB "🔄 Попытка " -FC "Yellow"
-                    Write-RGB "$attempt/$retryCount" -FC "White" -Style Bold
-                    Write-RGB " для " -FC "Yellow"
-                    Write-RGB $uri -FC "Cyan" -newline
+                    wrgb "🔄 Попытка " -FC "Yellow"
+                    wrgb "$attempt/$retryCount" -FC "White" -Style Bold
+                    wrgb " для " -FC "Yellow"
+                    wrgb $uri -FC "Cyan" -newline
                 }
 
                 if ($showProgress -and $PSBoundParameters.ContainsKey('OutFile'))
@@ -2051,8 +2052,8 @@ function Invoke-WebRequest
                     if ($response.Headers['Content-Length'])
                     {
                         $totalSize = [int64]$response.Headers['Content-Length'][0]
-                        Write-RGB "📥 Загрузка: " -FC "Cyan"
-                        Write-RGB ($totalSize / 1MB).ToString("F2") + " MB" -FC "Yellow" -newline
+                        wrgb "📥 Загрузка: " -FC "Cyan"
+                        wrgb ($totalSize / 1MB).ToString("F2") + " MB" -FC "Yellow" -newline
                     }
 
                     $global:ProgressPreference = $progressPreference
@@ -2133,49 +2134,49 @@ function git
                     switch -Wildcard ($status)
                     {
                         '*M*' {
-                            Write-RGB "  📝 " -FC "Yellow"
-                            Write-RGB "изменен:   " -FC "Yellow"
-                            Write-RGB $file -FC "White" -newline
+                            wrgb "  📝 " -FC "Yellow"
+                            wrgb "изменен:   " -FC "Yellow"
+                            wrgb $file -FC "White" -newline
                             $stats.Modified++
                         }
                         '*A*' {
-                            Write-RGB "  ✅ " -FC "Green"
-                            Write-RGB "добавлен:  " -FC "Green"
-                            Write-RGB $file -FC "White" -newline
+                            wrgb "  ✅ " -FC "Green"
+                            wrgb "добавлен:  " -FC "Green"
+                            wrgb $file -FC "White" -newline
                             $stats.Added++
                         }
                         '*D*' {
-                            Write-RGB "  ❌ " -FC "Red"
-                            Write-RGB "удален:    " -FC "Red"
-                            Write-RGB $file -FC "White" -newline
+                            wrgb "  ❌ " -FC "Red"
+                            wrgb "удален:    " -FC "Red"
+                            wrgb $file -FC "White" -newline
                             $stats.Deleted++
                         }
                         '??' {
-                            Write-RGB "  ❓ " -FC "Magenta"
-                            Write-RGB "не отслеж: " -FC "Magenta"
-                            Write-RGB $file -FC "White" -newline
+                            wrgb "  ❓ " -FC "Magenta"
+                            wrgb "не отслеж: " -FC "Magenta"
+                            wrgb $file -FC "White" -newline
                             $stats.Untracked++
                         }
                     }
                 }
 
                 # Сводка
-                Write-RGB "`n📊 Сводка: " -FC "Cyan"
+                wrgb "`n📊 Сводка: " -FC "Cyan"
                 if ($stats.Modified -gt 0)
                 {
-                    Write-RGB "изменено: $( $stats.Modified ) " -FC "Yellow"
+                    wrgb "изменено: $( $stats.Modified ) " -FC "Yellow"
                 }
                 if ($stats.Added -gt 0)
                 {
-                    Write-RGB "добавлено: $( $stats.Added ) " -FC "Green"
+                    wrgb "добавлено: $( $stats.Added ) " -FC "Green"
                 }
                 if ($stats.Deleted -gt 0)
                 {
-                    Write-RGB "удалено: $( $stats.Deleted ) " -FC "Red"
+                    wrgb "удалено: $( $stats.Deleted ) " -FC "Red"
                 }
                 if ($stats.Untracked -gt 0)
                 {
-                    Write-RGB "не отслеживается: $( $stats.Untracked ) " -FC "Magenta"
+                    wrgb "не отслеживается: $( $stats.Untracked ) " -FC "Magenta"
                 }
                 Write-Host ""
             }
@@ -2195,18 +2196,18 @@ function git
             {
                 if ($branch -match '^\*')
                 {
-                    Write-RGB "  ➜ " -FC "Green" -Style Bold
-                    Write-RGB $branch.Substring(2) -FC "Green" -Style Bold -newline
+                    wrgb "  ➜ " -FC "Green" -Style Bold
+                    wrgb $branch.Substring(2) -FC "Green" -Style Bold -newline
                 }
                 elseif ($branch -match 'remotes/')
                 {
-                    Write-RGB "  ☁️  " -FC "Blue"
-                    Write-RGB $branch.Trim() -FC "Blue" -newline
+                    wrgb "  ☁️  " -FC "Blue"
+                    wrgb $branch.Trim() -FC "Blue" -newline
                 }
                 else
                 {
-                    Write-RGB "  📌 " -FC "White"
-                    Write-RGB $branch.Trim() -FC "White" -newline
+                    wrgb "  📌 " -FC "White"
+                    wrgb $branch.Trim() -FC "White" -newline
                 }
             }
         }
@@ -2308,55 +2309,55 @@ function Show-PracticalProxyExamples
 
     Write-GradientHeader -Title "PRACTICAL PROXY EXAMPLES" -StartColor "#00C851" -EndColor "#00FF00"
 
-    Write-RGB "💼 Практические применения proxy техники" -FC "GoldRGB" -Style Bold -newline
+    wrgb "💼 Практические применения proxy техники" -FC "GoldRGB" -Style Bold -newline
 
-    Write-RGB "`n1️⃣ " -FC "Cyan"
-    Write-RGB "Безопасный Remove-Item" -FC "Yellow" -Style Bold
-    Write-RGB " с корзиной:" -FC "White" -newline
-    Write-RGB "   Remove-Item test.txt -UseTrash" -FC "Dracula_Comment" -newline
-    Write-RGB "   • Перемещает в корзину вместо удаления" -FC "Gray" -newline
-    Write-RGB "   • Визуальное подтверждение" -FC "Gray" -newline
-    Write-RGB "   • Возможность восстановления" -FC "Gray" -newline
+    wrgb "`n1️⃣ " -FC "Cyan"
+    wrgb "Безопасный Remove-Item" -FC "Yellow" -Style Bold
+    wrgb " с корзиной:" -FC "White" -newline
+    wrgb "   Remove-Item test.txt -UseTrash" -FC "Material_Comment" -newline
+    wrgb "   • Перемещает в корзину вместо удаления" -FC "Gray" -newline
+    wrgb "   • Визуальное подтверждение" -FC "Gray" -newline
+    wrgb "   • Возможность восстановления" -FC "Gray" -newline
 
-    Write-RGB "`n2️⃣ " -FC "Cyan"
-    Write-RGB "Умный Invoke-WebRequest" -FC "Yellow" -Style Bold
-    Write-RGB " с retry:" -FC "White" -newline
-    Write-RGB "   Invoke-WebRequest https://example.com -RetryCount 3 -ShowProgress" -FC "Dracula_Comment" -newline
-    Write-RGB "   • Автоматические повторные попытки" -FC "Gray" -newline
-    Write-RGB "   • Красивый прогресс загрузки" -FC "Gray" -newline
+    wrgb "`n2️⃣ " -FC "Cyan"
+    wrgb "Умный Invoke-WebRequest" -FC "Yellow" -Style Bold
+    wrgb " с retry:" -FC "White" -newline
+    wrgb "   Invoke-WebRequest https://example.com -RetryCount 3 -ShowProgress" -FC "Material_Comment" -newline
+    wrgb "   • Автоматические повторные попытки" -FC "Gray" -newline
+    wrgb "   • Красивый прогресс загрузки" -FC "Gray" -newline
 
-    Write-RGB "`n3️⃣ " -FC "Cyan"
-    Write-RGB "Git с визуализацией" -FC "Yellow" -Style Bold
-    Write-RGB ":" -FC "White" -newline
-    Write-RGB "   git status" -FC "Dracula_Comment" -newline
-    Write-RGB "   • Цветной вывод с иконками" -FC "Gray" -newline
-    Write-RGB "   • Статистика изменений" -FC "Gray" -newline
+    wrgb "`n3️⃣ " -FC "Cyan"
+    wrgb "Git с визуализацией" -FC "Yellow" -Style Bold
+    wrgb ":" -FC "White" -newline
+    wrgb "   git status" -FC "Material_Comment" -newline
+    wrgb "   • Цветной вывод с иконками" -FC "Gray" -newline
+    wrgb "   • Статистика изменений" -FC "Gray" -newline
 
-    Write-RGB "`n4️⃣ " -FC "Cyan"
-    Write-RGB "Set-Alias с автодополнением" -FC "Yellow" -Style Bold
-    Write-RGB ":" -FC "White" -newline
-    Write-RGB "   Set-Alias gs Get-Service -EnableAutoComplete" -FC "Dracula_Comment" -newline
-    Write-RGB "   • Автодополнение параметров для алиасов" -FC "Gray" -newline
+    wrgb "`n4️⃣ " -FC "Cyan"
+    wrgb "Set-Alias с автодополнением" -FC "Yellow" -Style Bold
+    wrgb ":" -FC "White" -newline
+    wrgb "   Set-Alias gs Get-Service -EnableAutoComplete" -FC "Material_Comment" -newline
+    wrgb "   • Автодополнение параметров для алиасов" -FC "Gray" -newline
 
-    Write-RGB "`n🔑 Ключевые преимущества:" -FC "Dracula_Orange" -Style Bold -newline
-    Write-RGB "   ✓ Полная обратная совместимость" -FC "LimeGreen" -newline
-    Write-RGB "   ✓ Расширение функциональности" -FC "LimeGreen" -newline
-    Write-RGB "   ✓ Сохранение оригинального поведения" -FC "LimeGreen" -newline
-    Write-RGB "   ✓ Добавление безопасности" -FC "LimeGreen" -newline
+    wrgb "`n🔑 Ключевые преимущества:" -FC "Material_Orange" -Style Bold -newline
+    wrgb "   ✓ Полная обратная совместимость" -FC "LimeGreen" -newline
+    wrgb "   ✓ Расширение функциональности" -FC "LimeGreen" -newline
+    wrgb "   ✓ Сохранение оригинального поведения" -FC "LimeGreen" -newline
+    wrgb "   ✓ Добавление безопасности" -FC "LimeGreen" -newline
 
-    Write-RGB "`n💡 Попробуйте сами эти команды!" -FC "GoldRGB" -Style Bold -newline
+    wrgb "`n💡 Попробуйте сами эти команды!" -FC "GoldRGB" -Style Bold -newline
 }
 
 #endregion
 
 # Инициализация
-Write-RGB "`n💼 " -FC "GoldRGB"
+wrgb "`n💼 " -FC "GoldRGB"
 Write-GradientText "Practical Proxy Examples" -StartColor "#00C851" -EndColor "#00FF00" -NoNewline
-Write-RGB " загружены!" -FC "Material_LightGreen" -newline
+wrgb " загружены!" -FC "Material_LightGreen" -newline
 
-Write-RGB "Запустите: " -FC "Gray"
-Write-RGB "Show-PracticalProxyExamples" -FC "Dracula_Pink" -Style Bold
-Write-RGB " для демонстрации" -FC "Gray" -newline
+wrgb "Запустите: " -FC "Gray"
+wrgb "Show-PracticalProxyExamples" -FC "Material_Pink" -Style Bold
+wrgb " для демонстрации" -FC "Gray" -newline
 
 # Экспорт
 if ($MyInvocation.MyCommand.Path -match '\.psm1$')
@@ -2364,4 +2365,5 @@ if ($MyInvocation.MyCommand.Path -match '\.psm1$')
     Export-ModuleMember -Function * -Alias * -Variable *
 }
 
-Show-PracticalProxyExamples
+#Show-PracticalProxyExamples
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')

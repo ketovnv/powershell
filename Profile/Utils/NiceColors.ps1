@@ -1,4 +1,4 @@
-. "${global:profilePath}Utils\Colors.ps1"
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
 
 #region Утилитарные функции
 function Test-ColorSupport
@@ -167,6 +167,7 @@ foreach ($color in $allRgbColors.GetEnumerator())
 $global:RainbowGradient = $RAINBOWGRADIENT
 $global:RainbowGradientVariant = $RAINBOWGRADIENT2
 #region Основная функция Write-RGB (улучшенная)
+
 function Write-RGB
 {
     <#
@@ -196,7 +197,7 @@ function Write-RGB
         Write-RGB "Hello World" -FC "#FF6B6B" -Style Bold
 
     .EXAMPLE
-        Write-RGB "Warning!" -FC "ElectricLime" -BC "#2C0000" -Style Blink
+        Write-RGB "Warning!"  -BC "#2C0000"  -FC "ElectricLime" -Style Blink
     #>
 
     [CmdletBinding()]
@@ -429,21 +430,71 @@ function Get-GradientColor
     # Функция для конвертации hex в RGB
     function ConvertFrom-HexToRGB
     {
-        param([string]$HexColor)
+        param(
+            [Parameter(Mandatory = $true)]
+            [string]$HexColor
+        )
 
-        $HexColor = $HexColor.TrimStart('#')
-        if ($HexColor.Length -eq 3)
+        # Проверка на null и пустую строку
+        if ( [string]::IsNullOrWhiteSpace($HexColor))
         {
-            $HexColor = $HexColor[0] + $HexColor[0] + $HexColor[1] + $HexColor[1] + $HexColor[2] + $HexColor[2]
+            Write-Error "Hex color string cannot be empty or null"
+            return $null
         }
 
-        $R = [Convert]::ToInt32($HexColor.Substring(0, 2), 16)
-        $G = [Convert]::ToInt32($HexColor.Substring(2, 2), 16)
-        $B = [Convert]::ToInt32($HexColor.Substring(4, 2), 16)
+        # Нормализация: удаление решетки и пробелов, перевод в верхний регистр
+        $cleanHex = $HexColor.Trim().ToUpper() -replace '^#', ''
 
-        return @{
-            R = $R; G = $G; B = $B
+        # Валидация формата с помощью регулярного выражения
+        if (-not ($cleanHex -match '^([A-F0-9]{3}|[A-F0-9]{6})$'))
+        {
+
+            $stringRepresentation = ""
+            foreach ($key in $HexColor.Keys)
+            {
+                $value = $HexColor[$key]
+                $stringRepresentation += "$key=$value;"
+            }
+
+            # Remove the trailing semicolon if present
+            if ( $stringRepresentation.EndsWith(";"))
+            {
+                $stringRepresentation = $stringRepresentation.TrimEnd(";")
+            }
+
+            Write-RGB $stringRepresentation  -FC "#1177CC"
+
+
+            #            Write-Error "Invalid hex color format. Valid formats: #RGB, #RRGGBB"
+            return $null
         }
+
+        # Расширение сокращенной формы (3 символа -> 6)
+        if ($cleanHex.Length -eq 3)
+        {
+            $cleanHex = $cleanHex -replace '(.)(.)(.)', '$1$1$2$2$3$3'
+        }
+
+        # Извлечение компонентов с помощью регулярного выражения
+        if ($cleanHex -match '^([A-F0-9]{2})([A-F0-9]{2})([A-F0-9]{2})$')
+        {
+            try
+            {
+                return [PSCustomObject]@{
+                    R = [Convert]::ToInt32($Matches[1], 16)
+                    G = [Convert]::ToInt32($Matches[2], 16)
+                    B = [Convert]::ToInt32($Matches[3], 16)
+                }
+            }
+            catch
+            {
+                Write-Error "Conversion error: $_"
+                return $null
+            }
+        }
+
+        Write-Error "Unexpected error during hex parsing"
+        return $null
     }
 
     # Функция для конвертации RGB в hex
@@ -685,7 +736,7 @@ function New-GradientPalette
 }
 
 
-function Write-RGBLine
+function Write-RBGLine
 {
     <#
     .SYNOPSIS
@@ -702,7 +753,7 @@ function Write-RGBLine
     Write-RGB @PSBoundParameters -newline
 }
 
-function Write-RGBNoNewLine
+function Write-RBGNoNewLine
 {
     <#
     .SYNOPSIS
@@ -1243,22 +1294,26 @@ function Show-Header
     }
 }
 
-function NumberToHexPair{
+function NumberToHexPair
+{
     param (
         [Parameter(Mandatory = $true)]
         [int]$Number,
         [int]$minimum = 0
     )
 
-    $Number= [Math]::Abs($Number)
+    $Number = [Math]::Abs($Number)
     # Берём остаток от деления на 256 (0..255)
     # Берём остаток от деления на 510 (0..509)
     $remainder = $Number % 510
 
     # Если в первой половине (0..255) — растёт, иначе — падает
-    $adjustedValue = if ($remainder -le 255) {
+    $adjustedValue = if ($remainder -le 255)
+    {
         $remainder
-    } else {
+    }
+    else
+    {
         510 - $remainder  # 510 - 256 = 254, 510 - 257 = 253, ..., 510 - 510 = 0
     }
 
@@ -1268,7 +1323,7 @@ function NumberToHexPair{
     # Форматируем в HEX с ведущим нулём, если нужно
     if ($adjustedValue -lt 16)
     {
-            "0{0:X}" -f $adjustedValue
+        "0{0:X}" -f $adjustedValue
     }
     else
     {
@@ -1277,48 +1332,96 @@ function NumberToHexPair{
 }
 
 
-# Короткие алиасы для быстрого использования
-
-function cwrite
+function Get-GradientList
 {
-    <#
-    .SYNOPSIS
-        Colored Write - быстрый цветной вывод (всегда с новой строкой)
-
-    .EXAMPLE
-        cwrite "Успех!" Green
-        cwrite "Ошибка!" Red
-        cwrite "Внимание!" Yellow -Style Bold
-    #>
     param(
-        [Parameter(Position = 0, Mandatory)]
-        [string]$Text,
-
-        [Parameter(Position = 1)]
-        [string]$Color = "White",
-
-        [Parameter(Position = 2)]
-        [string[]]$Style = @()
+        $list = (Get-Command)
     )
+    $i = 0
+    $list | ForEach-Object {
+        $cmd = $_.Name
+        $hex1 = NumberToHexPair $i
+        $hex2 = NumberToHexPair (256 - $i)
+        $hex3 = NumberToHexPair ($i - 256/2 + $i)
+        Write-GradientText $cmd  -StartColor "#${hex3}${hex1}${hex2}" -EndColor "#${hex2}${hex2}${hex1}"
+        $i++
+    }
 
-    Write-RGB $Text -FC $Color -Style $Style -newline
+
+    Write-Host""
 }
 
-#$i=0
-#Get-Command | ForEach-Object {
-#    $cmd = $_.Name
-#    $hex1=nthp $i
-#    $hex2=nthp (256-$i)
-#    $hex3=nthp ($i-256/2+$i)
-#    wgt $cmd  -StartColor "#${hex3}${hex1}${hex2}" -EndColor "#${hex2}${hex2}${hex1}"
-#    $i++
-#}
-
-Write-Host""
-Write-Host""
 
 
-Write-GradientHeader  "Super Header for Super Project" -StartColor "#CCFF77"   -EndColor "#FFFF99"
+function Write-GradientFull
+{
+    param (
+        [string]$Text,
+        [int]$R1, [int]$G1, [int]$B1, # Цвет текста от
+        [int]$R2, [int]$G2, [int]$B2, # Цвет текста до
+        [int]$BR1, [int]$BG1, [int]$BB1, # Цвет фона от
+        [int]$BR2, [int]$BG2, [int]$BB2    # Цвет фона до
+    )
+
+    $len = $Text.Length
+    for ($i = 0; $i -lt $len; $i++) {
+        $r = [int]($R1 + ($R2 - $R1) * $i / ($len - 1))
+        $g = [int]($G1 + ($G2 - $G1) * $i / ($len - 1))
+        $b = [int]($B1 + ($B2 - $B1) * $i / ($len - 1))
+
+        $br = [int]($BR1 + ($BR2 - $BR1) * $i / ($len - 1))
+        $bg = [int]($BG1 + ($BG2 - $BG1) * $i / ($len - 1))
+        $bb = [int]($BB1 + ($BB2 - $BB1) * $i / ($len - 1))
+
+        $ansi = "`e[38;2;${r};${g};${b}m`e[48;2;${br};${bg};${bb}m"
+        Write-Host "$ansi$( $Text[$i] )" -NoNewline
+    }
+    Write-Host "`e[0m"  # Сброс стиля
+}
+
+
+function Write-Status
+{
+    param(
+        [string]$Message,
+        [switch]$Success,
+        [switch]$Warning,
+        [switch]$Problem,
+        [switch]$Critical,
+        [switch]$Info
+    )
+
+    $icon = "📌"
+    $color = "White"
+
+    if ($Success)
+    {
+        $icon = Get-StatusIcon('success'); $color = "Material_Green"
+    }
+    elseif ($Warning)
+    {
+        $icon = Get-StatusIcon('warning'); $color = "Material_Amber"
+    }
+    elseif ($Problem)
+    {
+        $icon = Get-StatusIcon('problem'); $color = "Material_Red"
+    }
+    elseif ($Critical)
+    {
+        $icon = Get-StatusIcon('critical'); $color = "#FF0000"
+    }
+    elseif ($Info)
+    {
+        $icon = "ℹ️"; $color = "Cyan"
+    }
+
+    Write-RGB $icon  -FC $color
+    Write-RGB $Message -FC $color
+}
+
+#Get-GradientList
+#Write-Host""
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')
 
 
 

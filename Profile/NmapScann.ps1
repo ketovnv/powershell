@@ -2,7 +2,7 @@
 # Автор: PowerShell Ninja 🥷
 
 #region Helper Functions
-function Write-RGB {
+function wrgb {
     param(
         [string]$Text,
         [string]$FC = "White",      # ForegroundColor
@@ -28,26 +28,6 @@ function Write-RGB {
     Write-Host @params
 }
 
-function Write-Status {
-    param(
-        [string]$Message,
-        [switch]$Success,
-        [switch]$Warning,
-        [switch]$Error,
-        [switch]$Info
-    )
-
-    $icon = "📌"
-    $color = "White"
-
-    if ($Success) { $icon = "✅"; $color = "Green" }
-    elseif ($Warning) { $icon = "⚠️"; $color = "Yellow" }
-    elseif ($Error) { $icon = "❌"; $color = "Red" }
-    elseif ($Info) { $icon = "ℹ️"; $color = "Cyan" }
-
-    Write-RGB "$icon " -FC $color -NoNewline
-    Write-RGB $Message -FC $color
-}
 
 # Наш модифицированный Out-Default для красивого вывода
 function Out-Default {
@@ -112,8 +92,8 @@ function Invoke-NmapScan {
         return
     }
 
-    Write-RGB "`n🎯 NMAP ADVANCED SCANNER 3000 🎯`n" -FC "Cyan" -Style Bold
-    Write-RGB ("═" * 60) -FC "DarkCyan"
+    wrgb "`n🎯 NMAP ADVANCED SCANNER 3000 🎯`n" -FC "Cyan" -Style Bold
+    wrgb ("═" * 60) -FC "DarkCyan"
 
     # Формируем команду
     $nmapArgs = @()
@@ -140,11 +120,11 @@ function Invoke-NmapScan {
     )
 
     Write-Status -Info "Запускаем сканирование: nmap $($nmapArgs -join ' ')"
-    Write-RGB "`nTarget: " -FC "Yellow" -NoNewline
-    Write-RGB $Target -FC "Cyan" -Style Bold
-    Write-RGB "Ports: " -FC "Yellow" -NoNewline
-    Write-RGB $Ports -FC "Green"
-    Write-RGB ("─" * 60) -FC "DarkGray"
+    wrgb "`nTarget: " -FC "Yellow" -NoNewline
+    wrgb $Target -FC "Cyan" -Style Bold
+    wrgb "Ports: " -FC "Yellow" -NoNewline
+    wrgb $Ports -FC "Green"
+    wrgb ("─" * 60) -FC "DarkGray"
 
     # Глобальные счетчики
     $script:ScanStats = @{
@@ -223,10 +203,10 @@ function Process-NmapLine {
         $remaining = 50 - $completed
 
         Write-Host "`r" -NoNewline
-        Write-RGB "Progress: [" -FC "Gray" -NoNewline
-        Write-RGB ("█" * $completed) -FC "Green" -NoNewline
-        Write-RGB ("░" * $remaining) -FC "DarkGray" -NoNewline
-        Write-RGB "] $percent%" -FC "Yellow" -NoNewline
+        wrgb "Progress: [" -FC "Gray" -NoNewline
+        wrgb ("█" * $completed) -FC "Green" -NoNewline
+        wrgb ("░" * $remaining) -FC "DarkGray" -NoNewline
+        wrgb "] $percent%" -FC "Yellow" -NoNewline
     }
 
     # Обнаружение ОС
@@ -276,22 +256,22 @@ function Test-HttpServer {
 
     $uri = "http://${Target}:${Port}"
 
-    Write-RGB "`n  🌐 " -FC "Blue" -NoNewline
-    Write-RGB "Проверяем HTTP сервер на порту $Port..." -FC "Cyan"
+    wrgb "`n  🌐 " -FC "Blue" -NoNewline
+    wrgb "Проверяем HTTP сервер на порту $Port..." -FC "Cyan"
 
     try {
         # Используем наш улучшенный Invoke-WebRequest
         $response = Invoke-AdvancedWebRequest -Uri $uri -TimeoutSec 5 -Method HEAD -ErrorAction Stop
 
-        Write-RGB "    ✓ " -FC "Green" -NoNewline
-        Write-RGB "Server: " -FC "Gray" -NoNewline
-        Write-RGB ($response.Headers.Server ?? "Unknown") -FC "Yellow"
+        wrgb "    ✓ " -FC "Green" -NoNewline
+        wrgb "Server: " -FC "Gray" -NoNewline
+        wrgb ($response.Headers.Server ?? "Unknown") -FC "Yellow"
 
         # Проверяем технологии
         if ($response.Headers.'X-Powered-By') {
-            Write-RGB "    ✓ " -FC "Green" -NoNewline
-            Write-RGB "Powered by: " -FC "Gray" -NoNewline
-            Write-RGB $response.Headers.'X-Powered-By' -FC "Magenta"
+            wrgb "    ✓ " -FC "Green" -NoNewline
+            wrgb "Powered by: " -FC "Gray" -NoNewline
+            wrgb $response.Headers.'X-Powered-By' -FC "Magenta"
         }
 
         # Проверяем безопасность заголовков
@@ -304,9 +284,9 @@ function Test-HttpServer {
 
         $missingHeaders = $securityHeaders | Where-Object { -not $response.Headers.$_ }
         if ($missingHeaders) {
-            Write-RGB "    ⚠️  " -FC "Yellow" -NoNewline
-            Write-RGB "Missing security headers: " -FC "Yellow" -NoNewline
-            Write-RGB ($missingHeaders -join ", ") -FC "Red"
+            wrgb "    ⚠️  " -FC "Yellow" -NoNewline
+            wrgb "Missing security headers: " -FC "Yellow" -NoNewline
+            wrgb ($missingHeaders -join ", ") -FC "Red"
 
             $script:ScanStats.Vulnerabilities += @{
                 Type = "Missing Security Headers"
@@ -325,8 +305,8 @@ function Test-HttpServer {
             '/.well-known/security.txt'
         )
 
-        Write-RGB "    🔍 " -FC "Blue" -NoNewline
-        Write-RGB "Checking paths..." -FC "Gray"
+        wrgb "    🔍 " -FC "Blue" -NoNewline
+        wrgb "Checking paths..." -FC "Gray"
 
         foreach ($path in $interestingPaths) {
             try {
@@ -334,25 +314,25 @@ function Test-HttpServer {
                 $pathResponse = Invoke-AdvancedWebRequest -Uri $checkUrl -TimeoutSec 2 -Method HEAD -ErrorAction SilentlyContinue
 
                 if ($pathResponse.StatusCode -lt 400) {
-                    Write-RGB "      💎 " -FC "Yellow" -NoNewline
-                    Write-RGB "Found: " -FC "Green" -NoNewline
-                    Write-RGB $path -FC "Cyan" -NoNewline
-                    Write-RGB " [$($pathResponse.StatusCode)]" -FC "Gray"
+                    wrgb "      💎 " -FC "Yellow" -NoNewline
+                    wrgb "Found: " -FC "Green" -NoNewline
+                    wrgb $path -FC "Cyan" -NoNewline
+                    wrgb " [$($pathResponse.StatusCode)]" -FC "Gray"
                 }
             } catch {}
         }
 
     } catch {
-        Write-RGB "    ❌ " -FC "Red" -NoNewline
-        Write-RGB "HTTP check failed: $($_.Exception.Message)" -FC "DarkRed"
+        wrgb "    ❌ " -FC "Red" -NoNewline
+        wrgb "HTTP check failed: $($_.Exception.Message)" -FC "DarkRed"
     }
 }
 
 function Test-HttpsServer {
     param($Target, $Port)
 
-    Write-RGB "`n  🔒 " -FC "Green" -NoNewline
-    Write-RGB "Проверяем HTTPS/SSL на порту $Port..." -FC "Cyan"
+    wrgb "`n  🔒 " -FC "Green" -NoNewline
+    wrgb "Проверяем HTTPS/SSL на порту $Port..." -FC "Cyan"
 
     try {
         # Проверяем сертификат
@@ -365,30 +345,30 @@ function Test-HttpsServer {
         $cert = $sslStream.RemoteCertificate
         $cert2 = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($cert)
 
-        Write-RGB "    ✓ " -FC "Green" -NoNewline
-        Write-RGB "Issuer: " -FC "Gray" -NoNewline
-        Write-RGB $cert2.Issuer -FC "Yellow"
+        wrgb "    ✓ " -FC "Green" -NoNewline
+        wrgb "Issuer: " -FC "Gray" -NoNewline
+        wrgb $cert2.Issuer -FC "Yellow"
 
-        Write-RGB "    ✓ " -FC "Green" -NoNewline
-        Write-RGB "Valid until: " -FC "Gray" -NoNewline
+        wrgb "    ✓ " -FC "Green" -NoNewline
+        wrgb "Valid until: " -FC "Gray" -NoNewline
 
         $daysLeft = ($cert2.NotAfter - (Get-Date)).Days
         $dateColor = if ($daysLeft -lt 30) { "Red" } elseif ($daysLeft -lt 90) { "Yellow" } else { "Green" }
-        Write-RGB "$($cert2.NotAfter.ToString('yyyy-MM-dd')) ($daysLeft days)" -FC $dateColor
+        wrgb "$($cert2.NotAfter.ToString('yyyy-MM-dd')) ($daysLeft days)" -FC $dateColor
 
-        Write-RGB "    ✓ " -FC "Green" -NoNewline
-        Write-RGB "Protocol: " -FC "Gray" -NoNewline
-        Write-RGB $sslStream.SslProtocol -FC "Cyan"
+        wrgb "    ✓ " -FC "Green" -NoNewline
+        wrgb "Protocol: " -FC "Gray" -NoNewline
+        wrgb $sslStream.SslProtocol -FC "Cyan"
 
-        Write-RGB "    ✓ " -FC "Green" -NoNewline
-        Write-RGB "Cipher: " -FC "Gray" -NoNewline
-        Write-RGB "$($sslStream.CipherAlgorithm) ($($sslStream.CipherStrength) bits)" -FC "Magenta"
+        wrgb "    ✓ " -FC "Green" -NoNewline
+        wrgb "Cipher: " -FC "Gray" -NoNewline
+        wrgb "$($sslStream.CipherAlgorithm) ($($sslStream.CipherStrength) bits)" -FC "Magenta"
 
         $tcpClient.Close()
 
     } catch {
-        Write-RGB "    ❌ " -FC "Red" -NoNewline
-        Write-RGB "SSL check failed: $($_.Exception.Message)" -FC "DarkRed"
+        wrgb "    ❌ " -FC "Red" -NoNewline
+        wrgb "SSL check failed: $($_.Exception.Message)" -FC "DarkRed"
     }
 }
 
@@ -403,13 +383,13 @@ function Test-DatabaseServer {
         default { "Unknown" }
     }
 
-    Write-RGB "`n  🗄️  " -FC "Blue" -NoNewline
-    Write-RGB "Обнаружена база данных: " -FC "Cyan" -NoNewline
-    Write-RGB $dbType -FC "Yellow" -Style Bold
+    wrgb "`n  🗄️  " -FC "Blue" -NoNewline
+    wrgb "Обнаружена база данных: " -FC "Cyan" -NoNewline
+    wrgb $dbType -FC "Yellow" -Style Bold
 
     # Проверяем анонимный доступ
-    Write-RGB "    🔐 " -FC "Red" -NoNewline
-    Write-RGB "Checking anonymous access..." -FC "Gray"
+    wrgb "    🔐 " -FC "Red" -NoNewline
+    wrgb "Checking anonymous access..." -FC "Gray"
 
     # Здесь можно добавить специфичные проверки для каждой БД
     switch ($PortInfo.Port) {
@@ -427,8 +407,8 @@ function Test-DatabaseServer {
                 if ($read -gt 0) {
                     $greeting = [System.Text.Encoding]::ASCII.GetString($buffer, 0, $read)
                     if ($greeting -match 'mysql|mariadb') {
-                        Write-RGB "      ℹ️  " -FC "Blue" -NoNewline
-                        Write-RGB "MySQL version detected in banner" -FC "Cyan"
+                        wrgb "      ℹ️  " -FC "Blue" -NoNewline
+                        wrgb "MySQL version detected in banner" -FC "Cyan"
                     }
                 }
 
@@ -460,97 +440,97 @@ function Format-NmapPort {
         default { '📡' }
     }
 
-    Write-RGB "  $serviceIcon " -FC $stateColor -NoNewline
-    Write-RGB ("{0,5}/{1}" -f $Port.Port, $Port.Protocol) -FC "Cyan" -NoNewline
-    Write-RGB " │ " -FC "DarkGray" -NoNewline
-    Write-RGB ("{0,-10}" -f $Port.State) -FC $stateColor -Style Bold -NoNewline
-    Write-RGB " │ " -FC "DarkGray" -NoNewline
-    Write-RGB ("{0,-15}" -f $Port.Service) -FC "Yellow" -NoNewline
+    wrgb "  $serviceIcon " -FC $stateColor -NoNewline
+    wrgb ("{0,5}/{1}" -f $Port.Port, $Port.Protocol) -FC "Cyan" -NoNewline
+    wrgb " │ " -FC "DarkGray" -NoNewline
+    wrgb ("{0,-10}" -f $Port.State) -FC $stateColor -Style Bold -NoNewline
+    wrgb " │ " -FC "DarkGray" -NoNewline
+    wrgb ("{0,-15}" -f $Port.Service) -FC "Yellow" -NoNewline
 
     if ($Port.Version) {
-        Write-RGB " │ " -FC "DarkGray" -NoNewline
-        Write-RGB $Port.Version -FC "Magenta"
+        wrgb " │ " -FC "DarkGray" -NoNewline
+        wrgb $Port.Version -FC "Magenta"
     } else {
         Write-Host
     }
 }
 
 function Show-ScanSummary {
-    Write-RGB "`n`n🏁 SCAN COMPLETE! 🏁" -FC "Cyan" -Style Bold
-    Write-RGB ("═" * 60) -FC "DarkCyan"
+    wrgb "`n`n🏁 SCAN COMPLETE! 🏁" -FC "Cyan" -Style Bold
+    wrgb ("═" * 60) -FC "DarkCyan"
 
     $duration = (Get-Date) - $script:ScanStats.StartTime
 
     # Основная статистика
-    Write-RGB "`n📊 STATISTICS:" -FC "Yellow" -Style Bold
-    Write-RGB "  ⏱️  Scan duration: " -FC "Gray" -NoNewline
-    Write-RGB $duration.ToString() -FC "Cyan"
+    wrgb "`n📊 STATISTICS:" -FC "Yellow" -Style Bold
+    wrgb "  ⏱️  Scan duration: " -FC "Gray" -NoNewline
+    wrgb $duration.ToString() -FC "Cyan"
 
-    Write-RGB "  ✅ Open ports: " -FC "Gray" -NoNewline
-    Write-RGB $script:ScanStats.OpenPorts -FC "Green" -Style Bold
+    wrgb "  ✅ Open ports: " -FC "Gray" -NoNewline
+    wrgb $script:ScanStats.OpenPorts -FC "Green" -Style Bold
 
     # Топ сервисов
     if ($script:ScanStats.Services.Count -gt 0) {
-        Write-RGB "`n🔝 TOP SERVICES:" -FC "Yellow" -Style Bold
+        wrgb "`n🔝 TOP SERVICES:" -FC "Yellow" -Style Bold
         $script:ScanStats.Services.GetEnumerator() |
                 Sort-Object Value -Descending |
                 Select-Object -First 5 |
                 ForEach-Object {
                     $bar = "█" * $_.Value
-                    Write-RGB ("  {0,-15} {1} ({2})" -f $_.Key, $bar, $_.Value) -FC "Cyan"
+                    wrgb ("  {0,-15} {1} ({2})" -f $_.Key, $bar, $_.Value) -FC "Cyan"
                 }
     }
 
     # HTTP серверы
     if ($script:ScanStats.HttpServers.Count -gt 0) {
-        Write-RGB "`n🌐 WEB SERVERS:" -FC "Blue" -Style Bold
+        wrgb "`n🌐 WEB SERVERS:" -FC "Blue" -Style Bold
         $script:ScanStats.HttpServers | ForEach-Object {
-            Write-RGB "  • Port " -FC "Gray" -NoNewline
-            Write-RGB $_.Port -FC "Cyan" -NoNewline
-            Write-RGB " - " -FC "Gray" -NoNewline
-            Write-RGB $_.Service -FC "Yellow"
+            wrgb "  • Port " -FC "Gray" -NoNewline
+            wrgb $_.Port -FC "Cyan" -NoNewline
+            wrgb " - " -FC "Gray" -NoNewline
+            wrgb $_.Service -FC "Yellow"
         }
     }
 
     # Базы данных
     if ($script:ScanStats.Databases.Count -gt 0) {
-        Write-RGB "`n🗄️  DATABASES:" -FC "Magenta" -Style Bold
+        wrgb "`n🗄️  DATABASES:" -FC "Magenta" -Style Bold
         $script:ScanStats.Databases | ForEach-Object {
-            Write-RGB "  • Port " -FC "Gray" -NoNewline
-            Write-RGB $_.Port -FC "Cyan" -NoNewline
-            Write-RGB " - " -FC "Gray" -NoNewline
-            Write-RGB $_.Service -FC "Yellow"
+            wrgb "  • Port " -FC "Gray" -NoNewline
+            wrgb $_.Port -FC "Cyan" -NoNewline
+            wrgb " - " -FC "Gray" -NoNewline
+            wrgb $_.Service -FC "Yellow"
         }
     }
 
     # Уязвимости
     if ($script:ScanStats.Vulnerabilities.Count -gt 0) {
-        Write-RGB "`n⚠️  POTENTIAL ISSUES:" -FC "Red" -Style Bold
+        wrgb "`n⚠️  POTENTIAL ISSUES:" -FC "Red" -Style Bold
         $script:ScanStats.Vulnerabilities | ForEach-Object {
-            Write-RGB "  • " -FC "Red" -NoNewline
-            Write-RGB $_.Type -FC "Yellow" -NoNewline
-            Write-RGB " on " -FC "Gray" -NoNewline
-            Write-RGB $_.Target -FC "Cyan"
+            wrgb "  • " -FC "Red" -NoNewline
+            wrgb $_.Type -FC "Yellow" -NoNewline
+            wrgb " on " -FC "Gray" -NoNewline
+            wrgb $_.Target -FC "Cyan"
         }
     }
 
     # Рекомендации
-    Write-RGB "`n🤖 RECOMMENDATIONS:" -FC "Magenta" -Style Bold
+    wrgb "`n🤖 RECOMMENDATIONS:" -FC "Magenta" -Style Bold
 
     if ($script:ScanStats.OpenPorts -gt 50) {
-        Write-RGB "  ⚠️  Many open ports detected. Consider firewall hardening." -FC "Yellow"
+        wrgb "  ⚠️  Many open ports detected. Consider firewall hardening." -FC "Yellow"
     }
 
     if ($script:ScanStats.Databases.Count -gt 0) {
-        Write-RGB "  🔒 Database services exposed. Ensure strong authentication." -FC "Yellow"
+        wrgb "  🔒 Database services exposed. Ensure strong authentication." -FC "Yellow"
     }
 
     if ($script:ScanStats.HttpServers.Count -gt 0) {
-        Write-RGB "  🌐 Web services found. Run web vulnerability scanner." -FC "Cyan"
+        wrgb "  🌐 Web services found. Run web vulnerability scanner." -FC "Cyan"
     }
 
-    Write-RGB "`n" -FC "White"
-    Write-RGB ("═" * 60) -FC "DarkCyan"
+    wrgb "`n" -FC "White"
+    wrgb ("═" * 60) -FC "DarkCyan"
 }
 
 # Улучшенный Invoke-WebRequest с retry и прогрессом
@@ -609,12 +589,12 @@ function Invoke-AdvancedWebRequest {
 # Экспорт функций
 Export-ModuleMember -Function @(
     'Invoke-NmapScan',
-    'Write-RGB',
+    'wrgb',
     'Write-Status'
 )
 
 # Примеры использования:
-Write-RGB @"
+wrgb @"
 
 ПРИМЕРЫ ИСПОЛЬЗОВАНИЯ:
 ━━━━━━━━━━━━━━━━━━━━━

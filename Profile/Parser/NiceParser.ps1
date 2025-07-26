@@ -67,7 +67,7 @@ $script:ParserRules = @{
             @{ Regex = '(-eq|-ne|-gt|-lt|-ge|-le|-like|-match|-contains|-in|-notin|-and|-or|-not)'; Priority = 60 }
         )
         Style = @{
-            FC = "Dracula_Purple"
+            FC = "Material_Purple"
             Effects = @('Italic')
         }
     }
@@ -80,7 +80,7 @@ $script:ParserRules = @{
             @{ Regex = '\b\d+[KMG]B?\b'; Priority = 55 }  # Размеры
         )
         Style = @{
-            FC = "Dracula_Pink"
+            FC = "Material_Pink"
         }
     }
 
@@ -92,7 +92,7 @@ $script:ParserRules = @{
             @{ Regex = "@'[\s\S]*?'@"; Priority = 65 }
         )
         Style = @{
-            FC = "Dracula_Green"
+            FC = "Material_Green"
         }
     }
 
@@ -160,7 +160,7 @@ $script:ParserRules = @{
             @{ Regex = '\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b'; Priority = 70 }
         )
         Style = @{
-            FC = "Dracula_Orange"
+            FC = "Material_Orange"
             Effects = @('Bold')
         }
     }
@@ -176,7 +176,7 @@ $script:ParserRules = @{
             @{ Regex = '^[-=_*]{3,}\s*$'; Priority = 80 }
         )
         Style = @{
-            FC = "Dracula_Cyan"
+            FC = "Material_Cyan"
             Effects = @('Bold', 'Underline')
         }
     }
@@ -307,8 +307,8 @@ function Out-ParsedText {
             # Показываем номер строки если нужно
             if ($ShowLineNumbers) {
                 $lineNum = $lineCount.ToString().PadLeft($LineNumberWidth)
-                Write-RGB "$lineNum " -FC $LineNumberColor
-                Write-RGB "│ " -FC $LineNumberColor
+                wrgb "$lineNum " -FC $LineNumberColor
+                wrgb "│ " -FC $LineNumberColor
             }
 
             # Анализируем строку
@@ -334,10 +334,10 @@ function Out-ParsedText {
 
                     # Добавляем иконку если есть и не отключено
                     if (-not $NoIcon -and $segment.Style.Icon -and $segment.IsStart) {
-                        Write-RGB "$($segment.Style.Icon) " -FC $segment.Style.FC
+                        wrgb "$($segment.Style.Icon) " -FC $segment.Style.FC
                     }
 
-                    Write-RGB @outputParams
+                    wrgb @outputParams
                 }
                 Write-Host ""
             }
@@ -439,11 +439,11 @@ function Out-ParsedHelp {
 
     begin {
         $style = @{
-            SECTION = @{ FC = "Dracula_Pink"; Effects = @('Bold', 'Underline') }
-            COMMAND = @{ FC = "Dracula_Yellow"; Effects = @('Bold') }
-            PARAM = @{ FC = "Dracula_Cyan" }
-            TYPE = @{ FC = "Dracula_Purple"; Effects = @('Italic') }
-            REQUIRED = @{ FC = "Dracula_Red"; Effects = @('Bold') }
+            SECTION = @{ FC = "Material_Pink"; Effects = @('Bold', 'Underline') }
+            COMMAND = @{ FC = "Material_Yellow"; Effects = @('Bold') }
+            PARAM = @{ FC = "Material_Cyan" }
+            TYPE = @{ FC = "Material_Purple"; Effects = @('Italic') }
+            REQUIRED = @{ FC = "Material_Red"; Effects = @('Bold') }
         }
 
         $buffer = @()
@@ -607,30 +607,30 @@ function Test-ParserRule {
             return
         }
 
-        Write-RGB "Тестирование правила " -FC "White"
-        Write-RGB $RuleName -FC "Cyan" -Style Bold -newline
-        Write-RGB "Паттерны:" -FC "Yellow" -newline
+        wrgb "Тестирование правила " -FC "White"
+        wrgb $RuleName -FC "Cyan" -Style Bold -newline
+        wrgb "Паттерны:" -FC "Yellow" -newline
 
         foreach ($pattern in $rule.Patterns) {
-            Write-RGB "  • " -FC "DarkGray"
-            Write-RGB $pattern.Regex -FC "Dracula_Green" -newline
+            wrgb "  • " -FC "DarkGray"
+            wrgb $pattern.Regex -FC "Material_Green" -newline
 
             $matches = [regex]::Matches($Text, $pattern.Regex)
             if ($matches.Count -gt 0) {
-                Write-RGB "    Найдено совпадений: " -FC "Gray"
-                Write-RGB $matches.Count -FC "LimeGreen" -Style Bold -newline
+                wrgb "    Найдено совпадений: " -FC "Gray"
+                wrgb $matches.Count -FC "LimeGreen" -Style Bold -newline
 
                 foreach ($match in $matches) {
-                    Write-RGB "    → " -FC "DarkGray"
-                    Write-RGB $match.Value -FC $rule.Style.FC -newline
+                    wrgb "    → " -FC "DarkGray"
+                    wrgb $match.Value -FC $rule.Style.FC -newline
                 }
             } else {
-                Write-RGB "    Совпадений не найдено" -FC "Red" -newline
+                wrgb "    Совпадений не найдено" -FC "Red" -newline
             }
         }
     } else {
         # Тестируем все правила
-        Write-RGB "Применение всех правил к тексту:" -FC "Cyan" -Style Bold -newline
+        wrgb "Применение всех правил к тексту:" -FC "Cyan" -Style Bold -newline
         $Text | Out-ParsedText
     }
 }
@@ -643,7 +643,7 @@ function Show-ParserDemo {
     Write-GradientHeader -Title "ADVANCED PARSER DEMO" -StartColor "#FF00FF" -EndColor "#00FFFF"
 
     # Пример 1: Логи
-    Write-RGB "`n📋 Парсинг логов:" -FC "Cyan" -Style Bold -newline
+    wrgb "`n📋 Парсинг логов:" -FC "Cyan" -Style Bold -newline
 
     $sampleLog = @"
 2024-01-15 10:30:15 [INFO] Application started successfully ✅
@@ -657,11 +657,11 @@ function Show-ParserDemo {
 
     $sampleLog -split "`n" | Out-ParsedText -ShowLineNumbers
 
-    Write-RGB "`nНажмите Enter для продолжения..." -FC "DarkGray"
+    wrgb "`nНажмите Enter для продолжения..." -FC "DarkGray"
     Read-Host
 
     # Пример 2: PowerShell код
-    Write-RGB "`n💻 Парсинг PowerShell кода:" -FC "Cyan" -Style Bold -newline
+    wrgb "`n💻 Парсинг PowerShell кода:" -FC "Cyan" -Style Bold -newline
 
     $sampleCode = @'
 # TODO: Optimize this function
@@ -695,11 +695,11 @@ Write-Output "Memory: $($info.Memory) GB"
 
     $sampleCode -split "`n" | Out-ParsedText
 
-    Write-RGB "`nНажмите Enter для продолжения..." -FC "DarkGray"
+    wrgb "`nНажмите Enter для продолжения..." -FC "DarkGray"
     Read-Host
 
     # Пример 3: JSON
-    Write-RGB "`n📄 Парсинг JSON:" -FC "Cyan" -Style Bold -newline
+    wrgb "`n📄 Парсинг JSON:" -FC "Cyan" -Style Bold -newline
 
 
 
@@ -723,7 +723,7 @@ Write-Output "Memory: $($info.Memory) GB"
 
     $sampleJSON -split "`n" | Out-ParsedText
 
-    Write-RGB "`n✨ Демонстрация завершена!" -FC "LimeGreen" -Style Bold -newline
+    wrgb "`n✨ Демонстрация завершена!" -FC "LimeGreen" -Style Bold -newline
 }
 #endregion
 
@@ -746,15 +746,21 @@ if ($MyInvocation.MyCommand.Path -match '\.psm1$') {
     )
 }
 
-Write-RGB "`n🚀 " -FC "GoldRGB"
-Write-GradientText -Text "Advanced Parser System v3.0" `
-                   -StartColor "#FF00FF" -EndColor "#00FFFF" `
-                   -NoNewline
-Write-RGB " загружен!" -FC "GoldRGB" -newline
+# Проверяем доступность wrgb функции
+if (Get-Command wrgb -ErrorAction SilentlyContinue) {
+    wrgb "`n🚀 " -FC "GoldRGB"
+    Write-GradientText -Text "Advanced Parser System v3.0" `
+                       -StartColor "#FF00FF" -EndColor "#00FFFF" `
+                       -NoNewline
+    wrgb " загружен!" -FC "GoldRGB" -newline
 
-Write-RGB "Используйте " -FC "Gray"
-Write-RGB "Show-ParserDemo" -FC "Cyan" -Style Bold
-Write-RGB " для демонстрации" -FC "Gray" -newline
+    wrgb "Используйте " -FC "Gray"
+    wrgb "Show-ParserDemo" -FC "Cyan" -Style Bold
+    wrgb " для демонстрации" -FC "Gray" -newline
+} else {
+    Write-Host "`n🚀 Advanced Parser System v3.0 загружен!" -ForegroundColor Green
+    Write-Host "Используйте Show-ParserDemo для демонстрации" -ForegroundColor Cyan
+}
 
 
 
