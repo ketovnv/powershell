@@ -1,3 +1,6 @@
+
+
+importProcess  $MyInvocation.MyCommand.Name.trim(".ps1") -start
 # Advanced ErrorView Handler with Templates and Translation
 # Расширенная система перехвата и обработки ошибок с шаблонами и переводом
 
@@ -435,7 +438,7 @@ function ConvertTo-SmartErrorView
             $output += wrgb  "👻 Неправильно набрана команда, "  -FC "Material_Yellow"
             $output += wrgb  "попробуйте ещё раз 😊"  -FC "#1177CC" -newline
             $output
-            return   $output
+             gh $commandName | d
         }
 
 
@@ -450,7 +453,7 @@ function ConvertTo-SmartErrorView
             $formattedMessage = $formattedMessage -replace "\{$key\}", $details[$key]
         }
         $formattedMessage = $formattedMessage -replace "\{Icon\}", $template.Icon
-
+        $formattedMessage = "🔴"+  "$formattedMessage" +"🔴"
         # Добавляем информацию о расположении ошибки
         if ($InputObject.InvocationInfo -and $InputObject.InvocationInfo.ScriptLineNumber)
         {
@@ -466,7 +469,7 @@ function ConvertTo-SmartErrorView
         # Добавляем предложение по исправлению
         if ($template.Suggestion)
         {
-            $formattedMessage += "`n$( $template.Suggestion )"
+            $formattedMessage += "`n📋$( $template.Suggestion )📋"
         }
 
         # Добавляем информацию о внутренних исключениях
@@ -493,7 +496,7 @@ function ConvertTo-SmartErrorView
             $formattedMessage += "`n🚨 КРИТИЧЕСКАЯ ОШИБКА! Требует немедленного внимания!"
         }
 
-
+        Console-Warn formattedMessage
 
         #            Get-ErrorTranslate($InputObject)
         #
@@ -668,6 +671,7 @@ function Disable-GlobalErrorHandler
 
 
 # Включаем умный обработчик
+Clear-Host
 Enable-GlobalErrorHandler
 
 
@@ -721,3 +725,4 @@ function errorMethodsInfo
 
 #errorMethodsInfo
 #endregion
+importProcess  $MyInvocation.MyCommand.Name.trim(".ps1")

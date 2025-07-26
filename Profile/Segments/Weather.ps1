@@ -1,7 +1,7 @@
 function Get-WeatherSegment {
     param(
         [string]$City = "Kyiv",
-        [string]$ApiKey = $env:WEATHER_API_KEY
+        [string]$ApiKey = $global:openWeatherKey
     )
     
     try {

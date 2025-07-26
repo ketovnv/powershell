@@ -1,3 +1,6 @@
+
+importProcess  $MyInvocation.MyCommand.Name.trim(".ps1") -start
+
 #region Интеллектуальное определение типа контента
 function Get-ContentType {
     <#
@@ -812,3 +815,4 @@ wrgb " - интерактивный режим" -FC "Gray" -newline
 wrgb "  • " -FC "DarkGray"
 wrgb "Show-UltimateParserDemo" -FC "Yellow"
 wrgb " - полная демонстрация" -FC "Gray" -newline
+importProcess  $MyInvocation.MyCommand.Name.trim(".ps1")

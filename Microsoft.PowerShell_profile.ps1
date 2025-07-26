@@ -8,12 +8,18 @@
 #$configPath = "C:\Users\ketov\Documents\PowerShell\ua-gpt.omp.yaml"
 $configPath = "C:\Users\ketov\Documents\PowerShell\ultra.omp.toml"
 
+# ==============================================
+# БЫСТРАЯ ИНИЦИАЛИЗАЦИЯ - ТОЛЬКО КРИТИЧНОЕ
+# ==============================================
 
-
+$global:openWeatherKey = 'bd0d5e697cb1c55014d0f8d84d96700b' #🔑
 $global:profilePath = "${PSScriptRoot}\Profile\"
+
+# Загружаем только самое необходимое для быстрого запуска
 . "${global:profilePath}Utils\Init.ps1"
 
-
+# Переносим тяжелые функции в отложенную загрузку
+# Openwe - будет загружена в фоне
 #$items = @("Файл", "Редактировать", "Просмотр", "Справка")
 #$gradientSettings = @{
 #    StartColor = "#FF0000"
@@ -169,13 +175,55 @@ function Show-MainMenu
 }
 
 
-# Oh My Posh кастомные сегменты
+# ==============================================
+# ФОНОВАЯ ЗАГРУЗКА ТЯЖЕЛЫХ МОДУЛЕЙ
+# ==============================================
+
+# Проверяем наличие ThreadJob модуля
+if (-not (Get-Module -ListAvailable -Name ThreadJob)) {
+    Write-Warning "ThreadJob module not found. Installing..."
+    try {
+        Install-Module -Name ThreadJob -Force -Scope CurrentUser
+    } catch {
+        Write-Warning "Failed to install ThreadJob: $_"
+    }
+}
+
+# Запускаем фоновую инициализацию
+$global:BackgroundInitJob = $null
 try {
-    . "${PSScriptRoot}\Profile\Segments\SegmentUpdater.ps1"
-    . "${PSScriptRoot}\Profile\OmpCommands.ps1"
-    Start-OmpSegmentUpdater -IntervalSeconds 30
+    if (Get-Module -ListAvailable -Name ThreadJob) {
+        $global:BackgroundInitJob = Start-ThreadJob -Name "ProfileBackgroundInit" -ScriptBlock {
+            & "${using:PSScriptRoot}\Profile\Utils\Background-Init.ps1" -Verbose
+        }
+        
+        # Регистрируем обработчик завершения фоновой загрузки
+        Register-EngineEvent -SourceIdentifier "BackgroundInitComplete" -Action {
+            $message = $Event.MessageData
+            if ($message -like "Error:*") {
+                Write-Warning "Background initialization failed: $($message -replace '^Error: ')"
+            } else {
+                Write-Host "✅ Background modules loaded successfully" -ForegroundColor Green
+            }
+        }
+        
+        Write-Host "🚀 Background initialization started..." -ForegroundColor Yellow
+    } else {
+        # Fallback: обычная загрузка если ThreadJob недоступен
+        . "${PSScriptRoot}\Profile\Segments\SegmentUpdater.ps1"
+        . "${PSScriptRoot}\Profile\OmpCommands.ps1"
+        Start-OmpSegmentUpdater -IntervalSeconds 30
+    }
 } catch {
-    Write-Warning "Failed to initialize OMP custom segments: $_"
+    Write-Warning "Failed to start background initialization: $_"
+    # Fallback к синхронной загрузке
+    try {
+        . "${PSScriptRoot}\Profile\Segments\SegmentUpdater.ps1"
+        . "${PSScriptRoot}\Profile\OmpCommands.ps1"
+        Start-OmpSegmentUpdater -IntervalSeconds 30
+    } catch {
+        Write-Warning "Failed to initialize OMP custom segments: $_"
+    }
 }
 
 # Oh My Posh инициализация
@@ -205,6 +253,57 @@ catch
 }
 
 Switch-KeyboardLayout en-Us
+
+# ==============================================
+# ОТЛОЖЕННАЯ ИНИЦИАЛИЗАЦИЯ
+# ==============================================
+
+# Таймер для отложенной загрузки менее критичных модулей
+$delayedInitTimer = New-Object System.Timers.Timer
+$delayedInitTimer.Interval = 3000  # 3 секунды после запуска
+$delayedInitTimer.Add_Elapsed({
+    try {
+        # Отложенная инициализация тяжелых функций
+        if (Test-Path "${PSScriptRoot}\Profile\Utils\Heavy-Functions.ps1") {
+            . "${PSScriptRoot}\Profile\Utils\Heavy-Functions.ps1"
+        }
+        
+        # Проверяем статус фоновой загрузки
+        if ($global:BackgroundInitJob) {
+            $jobState = $global:BackgroundInitJob.State
+            if ($jobState -eq "Completed") {
+                Write-Host "✅ All background processes completed" -ForegroundColor Green
+            } elseif ($jobState -eq "Failed") {
+                Write-Warning "Background initialization failed"
+            }
+        }
+        
+        Write-Host "⏰ Delayed initialization completed" -ForegroundColor Cyan
+    } catch {
+        Write-Warning "Delayed initialization error: $_"
+    } finally {
+        $delayedInitTimer.Stop()
+        $delayedInitTimer.Dispose()
+    }
+})
+$delayedInitTimer.Start()
+
+# Очистка при выходе из PowerShell
+Register-EngineEvent -SourceIdentifier "PowerShell.Exiting" -Action {
+    # Останавливаем фоновые задачи
+    if ($global:BackgroundInitJob) {
+        $global:BackgroundInitJob | Stop-Job -PassThru | Remove-Job -Force
+    }
+    
+    # Очищаем таймеры
+    if ($delayedInitTimer) {
+        $delayedInitTimer.Stop()
+        $delayedInitTimer.Dispose()
+    }
+    
+    # Очищаем события
+    Get-EventSubscriber | Unregister-Event
+}
 
 importProcess -finalInitialiazation
 

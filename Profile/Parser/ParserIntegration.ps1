@@ -1,3 +1,6 @@
+
+importProcess  $MyInvocation.MyCommand.Name.trim(".ps1") -start
+
 # ╔═══════════════════════════════════════════════════════════════════════════╗
 # ║                   🌈 ENHANCED RAINBOW & INTEGRATION                         ║
 # ║                 Объединение всех систем парсинга и эффектов                ║
@@ -584,3 +587,4 @@ wrgb " для полной демонстрации!" -FC "Gray" -newline
 if ($MyInvocation.MyCommand.Path -match '\.psm1$') {
     Export-ModuleMember -Function * -Alias *
 }
+importProcess  $MyInvocation.MyCommand.Name.trim(".ps1")

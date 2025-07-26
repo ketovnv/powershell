@@ -345,7 +345,7 @@ function Get-StatusIcon {
         "success"    { "✅" }
         "info"       { "ℹ️" }
         "debug"      { "🐛" }
-        "critical"   { "🚨🚨🚨" }
+        "critical"   { "🚨 🚨 😱 🚨 🚨" }
         "healthy"    { "💚" }
         "unhealthy"  { "💔" }
         "unknown"    { "❓" }

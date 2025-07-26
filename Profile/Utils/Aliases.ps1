@@ -1,10 +1,13 @@
+
+
+
 #📅 Дата и время
 #$VerbosePreference = "Continue"
 
 importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
 function ez
 {
-       eza  --group-directories-first --hyperlink --icons=always --color=always --color-scale-mode=gradient --git  -x  @args
+    eza  --group-directories-first --hyperlink --icons=always --color=always --color-scale-mode=gradient --git  -x  @args
 }
 
 
@@ -82,22 +85,22 @@ function gh
 
 function ruDate
 {
-    param(
-    [switch] $withTime,
-    [switch] $onlyTime
+    param(        
+        [switch] $withTime,
+        [switch] $onlyTime
     )
 
     $format = $onlyTime ? "HH часов mm минут ss" :
-    ($withTime ? "dd MMMM yyyy HH часов mm минут ss": "dd MMMM yyyy" )
+    ($withTime ? "dd MMMM yyyy HH часов mm минут ss": "dd MMMM yyyy")
 
     (Get-Date).ToString($format,[System.Globalization.CultureInfo]::GetCultureInfo("ru-RU"))
 }
 
 function ruDay
 {
-   param(
-    [switch] $withYear
-   )
+    param(
+        [switch] $withYear
+    )
     $months = @{
         1 = "января"; 2 = "февраля"; 3 = "марта"; 4 = "апреля"; 5 = "мая"; 6 = "июня";
         7 = "июля"; 8 = "августа"; 9 = "сентября"; 10 = "октября"; 11 = "ноября"; 12 = "декабря"
@@ -248,7 +251,7 @@ function reloadProfile
 }
 function gotoKaliRoot
 {
-        goto \\wsl.localhost\kali-linux\
+    goto \\wsl.localhost\kali-linux\
 }
 
 
@@ -492,13 +495,21 @@ function pr_
 {
     param(
         [string]$string,
-        [switch]$reload = $false,
-        [string]$filePath = "$PSScriptRoot/Aliases.ps1"
+        [switch]$reload,
+        [string]$filePath =  "${global:profilePath}Utils\Aliases.ps1",
+        [switch]$toStart
     )
 
     $profileContent = Get-Content -Path $filePath -Raw -ErrorAction SilentlyContinue
 
-    Set-Content -Path $filePath -Value ("`n" + $profileContent + $string + "`n") -Encoding UTF8 -NoNewline
+    if ($toStart)
+    {
+        Set-Content -Path $filePath -Value ("`n" + $string + "`n"+ $profileContent ) -Encoding UTF8 -NoNewline
+    }
+    else
+    {
+        Set-Content -Path $filePath -Value ("`n" + $profileContent + "`n" +$string + "`n") -Encoding UTF8 -NoNewline
+    }
     if ($reload)
     {
         reloadProfile
@@ -510,3 +521,11 @@ function pr_
 # ===== АЛИАС ДЛЯ БЫСТРОГО ДОСТУПА К МЕНЮ =====
 Set-Alias -Name menu -Value Show-MainMenu
 Set-Alias -Name mm -Value Show-MainMenu
+importProcess  $MyInvocation.MyCommand.Name.trim(".ps1")
+
+
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
+
+importProcess  $MyInvocation.MyCommand.Name.trim(".ps1")
+
+у меня есть такой вот метод он фиксирует загрузки всех скриптов, начало(с флагом start) и конец, вроде как неплохо получается, он у меня проставлен во многих фаилах, но не во всех, можешь пожалуйста пробежатьсы по всем фаилам в папке Профиль и подпапках кроме Util/resourses и проставить его в начале и в конце - буду очень признателен

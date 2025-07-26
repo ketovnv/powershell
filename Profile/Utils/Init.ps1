@@ -30,17 +30,25 @@ function importProcess
         # Проверка на успешную инициализацию
         foreach ($scriptInitStart in $global:initStartScripts)
         {
+            $successScripts=@()
+            $problemScripts=@()
             if ($global:initEndScripts -contains $scriptInitStart)
             {
-                Write-Status -Success $scriptInitStart"  "
+#                $successScripts += Write-Status -Success $scriptInitStart -returnRow
             }
             else
             {
-                Write-Status -Problem $scriptInitStart"  "
+                $problemScripts += Write-Status -Problem  $scriptInitStart  -returnRow
             }
+
+
+
+
         }
+        $global:initStartScripts | Format-Wide -
         Write-Host ""
         return
+
     }
 
     if ($start)
@@ -58,10 +66,12 @@ $scriptsBefore = @(
     'Utils\Colors',
     'Utils\NiceColors',
     'Utils\Keyboard'
-#'Utils\ProgressBar',
+    'Utils\ProgressBar',
     'Utils\Aliases'
-#'ErrorMethods'
-#'Menu\Welcome'
+    'ErrorMethods',
+#    'Menu\Welcome',
+    'Menu\LS'
+
 #    'ErrorHandler',
 )
 
@@ -72,12 +82,14 @@ foreach ($script in $scriptsBefore)
 
 
 $scriptsAfter = @(
-#    'Menu/NetworkSystem',
-#    'Menu/MenuItems',
-#    'Menu  /AppsBrowsersMenu',
-#    'Parser/NiceParser'
-#        'Utils/Rainbow'
-    'Helper'
+    'Menu\NetworkSystem',
+    'Menu\MenuItems',
+    'Menu\AppsBrowsersMenu',
+    'Parser\NiceParser',
+    'Utils\Rainbow',
+    'Helper',
+    'BrowserTranslator',
+    'QuickStart'
 )
 
 

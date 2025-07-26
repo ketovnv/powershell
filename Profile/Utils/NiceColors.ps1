@@ -1350,7 +1350,8 @@ function Get-GradientList
     Write-Host""
 }
 
-function GetGradientIcons{
+function GetGradientIcons
+{
 
 
 }
@@ -1392,7 +1393,8 @@ function Write-Status
         [switch]$Warning,
         [switch]$Problem,
         [switch]$Critical,
-        [switch]$Info
+        [switch]$Info,
+        [switch]$returnRow
     )
 
     $icon = "📌"
@@ -1419,8 +1421,16 @@ function Write-Status
         $icon = "ℹ️"; $color = "Cyan"
     }
 
-    Write-RGB $icon  -FC $color
-    Write-RGB $Message -FC $color
+    if ($returnRow)
+    {
+#        return "${Icon} ${Message}"
+        return   $Message
+    }
+    else
+    {
+        Write-RGB $icon
+        Write-RGB $Message -FC $color
+    }
 }
 
 #Get-GradientList

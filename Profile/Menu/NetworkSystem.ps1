@@ -1,3 +1,4 @@
+importProcess  $MyInvocation.MyCommand.Name.trim(".ps1") -start
 function Show-NetworkMenu {
     $menuItems = @(
         @{ Text = "🌐 Показать сетевую информацию"; Data = "info" },
@@ -378,3 +379,4 @@ function Show-SystemMonitor {
         $procIndex++
     }
 }
+importProcess  $MyInvocation.MyCommand.Name.trim(".ps1")

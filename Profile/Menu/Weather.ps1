@@ -1,8 +1,11 @@
-key = 'bd0d5e697cb1c55014d0f8d84d96700b' #🔑
+
+
+importProcess  $MyInvocation.MyCommand.Name.trim(".ps1") -start
+
 
 function Prognoz{
 
-    $apiKey = $key   # <-- встав сюди свій ключ
+    $apiKey = $global:openWeatherKey
     $city = "Lviv,UA"
     $url = "https://api.openweathermap.org/data/2.5/forecast?q=$city&appid=$apiKey&units=metric&lang=ua"
 
@@ -157,3 +160,4 @@ function Get-CryptoInfo {
 }
 
 Get-CryptoInfo
+importProcess  $MyInvocation.MyCommand.Name.trim(".ps1")

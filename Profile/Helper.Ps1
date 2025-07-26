@@ -1,3 +1,4 @@
+
 importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
 function Get-Help
 {
@@ -2366,4 +2367,4 @@ if ($MyInvocation.MyCommand.Path -match '\.psm1$')
 }
 
 Show-PracticalProxyExamples
-importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')importProcess  $MyInvocation.MyCommand.Name.trim(".ps1")

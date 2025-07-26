@@ -6,36 +6,38 @@ version = 3
 [var]
 Hello = "hello"
 UpstreamIcon = "world"
+console_title_template= "{{.Folder}}{{if .Root}} :: root{{end}} :: {{.Shell}}"
 
 
 [palette]
 primary-blue = "#0057B7"
 primary-yellow = "#FBD951"
 darkblue = "#003D7A"
-brightblue = "#2030FF"
+bright-blue = "#2030FF"
 lightblue = "#00AAFF"
 gray = "#808080"
-darkgrey = "#222222"
+dark-grey = "#222222"
 black = "#000000"
 green = "#00FF55"
-lightyellow = "#FFF8CC"
+light-yellow = "#FFF8CC"
 lemon = "#E0FF75"
 red = "#FF0000"
 white = "#FFFFFF"
 orange = "#ff7e03"
 yellow = "#FFD700"
+blue = "#1177DD"
 
 
 
 
 [secondary_prompt]
-template = '❯ '
+template = '❯❯❯❯❯❯ '
 foreground = 'p:lemon'
 background = 'transparent'
 
 [transient_prompt]
-template = '🇺🇦 ❯ '
-foreground = 'p:brightblue'
+template = '🇺🇦 ❯❯❯❯❯❯❯ '
+foreground = 'p:bright-blue'
 background = 'transparent'
 
 [[blocks]]
@@ -71,7 +73,7 @@ user_icon = ' '
 
 [[blocks.segments]]
 type = 'sysinfo'
-template= "   "
+template= "   "
 foreground = "p:lightblue"
 foreground_templates = [
     "{{if gt .PhysicalPercentUsed 88}}p:red{{end}}",
@@ -79,14 +81,12 @@ foreground_templates = [
     "{{if gt .PhysicalPercentUsed 65}}p:yellow{{end}}",
     "{{if gt .PhysicalPercentUsed 55}}p:lemon{{end}}"
 ]
-
-
 [blocks.segments.properties]
 cache_duration = 'none'
 
 
 [[blocks.segments]]
-template = "<p:yellow>{{ round .PhysicalPercentUsed .Precision }}</><#1177DD>%</> "
+template = "<p:yellow>{{round .PhysicalPercentUsed .Precision }}</><#1177DD>%</> "
 type = 'sysinfo'
 style = 'powerline'
 
@@ -148,26 +148,31 @@ overflow = 'hide'
 template = '{{ .Env.OMP_WEATHER }}'
 foreground = 'p:yellow'
 type = 'text'
+style = 'plain'
 
 [[blocks.segments]]
 template = '{{ .Env.OMP_NETWORK }}'
 foreground = 'p:green'
 type = 'text'
+style = 'plain'
 
 [[blocks.segments]]
 template = '{{ .Env.OMP_SYSTEM_HEALTH }}'
 foreground = 'p:lightblue'
 type = 'text'
+style = 'plain'
 
 [[blocks.segments]]
 template = '{{ .Env.OMP_DISK_USAGE }}'
 foreground = 'p:orange'
 type = 'text'
+style = 'plain'
 
 [[blocks.segments]]
 template = ' {{ .CurrentDate | date .Format }}'
 foreground = '#FFFF99'
 type = 'time'
+style = 'plain'
 
 [blocks.segments.properties]
 cache_duration = 'none'
@@ -235,6 +240,7 @@ cache_duration = 'none'
 type = 'prompt'
 alignment = 'left'
 newline = true
+segments=[]
 
 [valid_line]
 background = "transparent"
@@ -248,9 +254,9 @@ template = "<#eb6f92,#286983> </><#286983,transparent></> "
 
 
 
-#[[error.line]]
-#background = 'transparent'
-#foreground = 'p:red'
-#template = "<#eb6f92,#286983> </><#286983,transparent></> "
+[[error.line]]
+background = 'transparent'
+foreground = 'p:red'
+template = "<#eb6f92,#286983> </><#286983,transparent></> "
 
 

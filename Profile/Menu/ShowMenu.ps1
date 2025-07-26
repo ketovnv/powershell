@@ -1,3 +1,6 @@
+
+
+importProcess  $MyInvocation.MyCommand.Name.trim(".ps1") -start
 # ===== УЛУЧШЕННАЯ ФУНКЦИЯ МЕНЮ С ГРАДИЕНТАМИ =====
 function Show-Menu
 {
@@ -194,3 +197,4 @@ if (Get-Module -ListAvailable -Name SecurityWatcher)
     Import-Module SecurityWatcher -ErrorAction SilentlyContinue
     Write-RGB "🛡️  SecurityWatcher loaded" -FC LimeRGB -newline
 }
+importProcess  $MyInvocation.MyCommand.Name.trim(".ps1")

@@ -1,3 +1,6 @@
+
+
+importProcess  $MyInvocation.MyCommand.Name.trim(".ps1") -start
 # ===== УЛУЧШЕННЫЙ LS С RGB И ИКОНКАМИ =====
 function lss
 {
@@ -64,12 +67,21 @@ function lss
                 "TealRGB"
             }
 
+
+ 
+
             Write-RGB "$icon " -FC White
             Write-RGB ("{0,-35}" -f $item.Name) -FC $color
-            Write-RGB (" {0,10:N2} KB" -f ($item.Length / 1KB)) -FC $sizeColor
-            Write-RGB ("  {0}" -f $item.LastWriteTime.ToString("yyyy-MM-dd HH:mm"),,[System.Globalization.CultureInfo]::GetCultureInfo("ru-RU")) -FC TealRGB -newline
+            if ($item.Length -gt 11111) {
+                    Write-RGB ("{0,10:N1} MB" -f ($item.Length / 1MB)) -FC $sizeColor
+            } else {
+                Write-RGB ("{0,10} B " -f (("{0:N0}" -f $item.Length).Replace(',', ' '))) -FC $sizeColor
+            }
+            # Write-RGB ("  {0}" -f $item.LastWriteTime.ToString("yyyy-MM-dd HH:mm"),,[System.Globalization.CultureInfo]::GetCultureInfo("ru-RU")) -FC TealRGB -newline
+            Write-RGB ("  {0}" -f $item.LastWriteTime.ToString("dd MMM"),,[System.Globalization.CultureInfo]::GetCultureInfo("ru-RU")).trim('.') -FC TealRGB -newline
         }
     }
+
 
     # Градиентная линия
     for ($i = 0; $i -lt $lineLength; $i++) {
@@ -82,7 +94,13 @@ function lss
     $dirs = ($items | Where-Object PSIsContainer).Count
     $files = $count - $dirs
 
+
+    $d = Get-Date
+    return $withYear ? "{0:dd} {1} {0:yyyy}" -f $d, $months[$d.Month] : "{0:dd} {1}" -f $d, $months[$d.Month]
     Write-RGB "📊 Total: " -FC GoldRGB
     Write-RGB "$count items " -FC White
     Write-RGB "(📂 $dirs dirs, 📄 $files files)" -FC CyanRGB -newline
 }
+
+Set-Alias -Name ls -Value lss -Force
+importProcess  $MyInvocation.MyCommand.Name.trim(".ps1")

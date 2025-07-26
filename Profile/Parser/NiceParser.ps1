@@ -1,4 +1,6 @@
 
+importProcess  $MyInvocation.MyCommand.Name.trim(".ps1") -start
+
 #region Инициализация
 if (-not $global:RGB) {
     $global:RGB = @{}
@@ -764,3 +766,5 @@ if (Get-Command wrgb -ErrorAction SilentlyContinue) {
 
 
 
+
+importProcess  $MyInvocation.MyCommand.Name.trim(".ps1")

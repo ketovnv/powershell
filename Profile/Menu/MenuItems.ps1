@@ -1,5 +1,8 @@
 
 
+importProcess  $MyInvocation.MyCommand.Name.trim(".ps1") -start
+
+
 function Show-DevToolsMenu {
     $menuItems = @(
         @{ Text = "🦀 Rust: обновить до nightly"; Data = "rust-update" },
@@ -349,3 +352,4 @@ function proj {
         }
     }
 }
+importProcess  $MyInvocation.MyCommand.Name.trim(".ps1")
