@@ -3,7 +3,6 @@
 
 #📅 Дата и время
 #$VerbosePreference = "Continue"
-
 importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
 function ez
 {
@@ -205,7 +204,7 @@ function gotoPowershellModules
 }
 function gotoPowershellProfile
 {
-    goto C:\Users\ketov\Documents\PowerShell\Profile
+    goto C:\projects\PowerShell\Profile
 }
 
 function desktop
@@ -518,14 +517,22 @@ function pr_
     Write-Warning "`nСтрока ${string} добавлена в ${filePath}`n"
 }
 
+function bunRun
+{
+    bun run dev
+}
+
+function oklch {
+    $projectRoot = "C:\projects\colors\oklch"  # укажите свой путь
+    Set-Location $projectRoot
+    chrome "http://localhost:5173/#0.5731,0.1773,254.35,100"
+    bun start
+}
+
 # ===== АЛИАС ДЛЯ БЫСТРОГО ДОСТУПА К МЕНЮ =====
 Set-Alias -Name menu -Value Show-MainMenu
 Set-Alias -Name mm -Value Show-MainMenu
+Set-Alias -Name br -Value bunRun
+Set-Alias -Name es -Value Everything64.exe -Force
 importProcess  $MyInvocation.MyCommand.Name.trim(".ps1")
 
-
-importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
-
-importProcess  $MyInvocation.MyCommand.Name.trim(".ps1")
-
-у меня есть такой вот метод он фиксирует загрузки всех скриптов, начало(с флагом start) и конец, вроде как неплохо получается, он у меня проставлен во многих фаилах, но не во всех, можешь пожалуйста пробежатьсы по всем фаилам в папке Профиль и подпапках кроме Util/resourses и проставить его в начале и в конце - буду очень признателен

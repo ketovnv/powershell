@@ -1,3 +1,5 @@
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
+
 param(
     [string]$Module
 )
@@ -88,3 +90,5 @@ foreach ($func in $functions) {
         wrgb "⚠️ Ошибка при анализе '$($func.Name)': $_`n" -FC "#FF0000"
     }
 }
+
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')

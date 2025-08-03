@@ -1,3 +1,5 @@
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
+
 function Get-SystemHealthSegment {
     try {
         # CPU загрузка (последние 5 секунд)
@@ -34,3 +36,5 @@ function Get-SystemHealthSegment {
 }
 
 Export-ModuleMember -Function Get-SystemHealthSegment
+
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')

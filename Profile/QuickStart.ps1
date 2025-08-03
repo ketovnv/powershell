@@ -1,3 +1,5 @@
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
+
 # ╔═══════════════════════════════════════════════════════════════════════════╗
 # ║                    🚀 QUICK START - BROWSER TRANSLATOR                      ║
 # ║                        Быстрый старт для переводчика                        ║
@@ -337,3 +339,5 @@ wrgb " - мини-переводчик" -FC "Gray" -newline
 wrgb "  • " -FC "DarkGray"
 wrgb "Show-TranslatorExamples" -FC "Yellow"
 wrgb " - примеры" -FC "Gray" -newline
+
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')

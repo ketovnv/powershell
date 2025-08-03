@@ -1,3 +1,5 @@
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
+
 function Resolve-Object
 {
     param(
@@ -184,3 +186,5 @@ function Invoke-SelectedMember
         Write-Warning "Ошибка выполнения: $_"
     }
 }
+
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')

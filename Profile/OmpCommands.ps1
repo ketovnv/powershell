@@ -1,3 +1,5 @@
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
+
 # Команды для управления Oh My Posh кастомными сегментами
 
 function Show-OmpSegments {
@@ -154,3 +156,5 @@ Set-Alias -Name ompt -Value Test-OmpSegments
 Set-Alias -Name omph -Value Show-OmpHelp
 
 Export-ModuleMember -Function Show-OmpSegments, Reset-OmpSegments, Test-OmpSegments, Set-WeatherApiKey, Show-OmpHelp -Alias omps, ompr, ompt, omph
+
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')

@@ -1,3 +1,5 @@
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
+
 # ╔═══════════════════════════════════════════════════════════════════════════╗
 # ║                    🌐 BROWSER TRANSLATOR INTEGRATION                        ║
 # ║              Интеграция браузерных переводчиков в PowerShell               ║
@@ -848,3 +850,5 @@ wrgb " для демонстрации" -FC "Gray" -newline
 if ($MyInvocation.MyCommand.Path -match '\.psm1$') {
     Export-ModuleMember -Function * -Alias * -Variable *
 }
+
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')

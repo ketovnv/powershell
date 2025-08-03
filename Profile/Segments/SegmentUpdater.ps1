@@ -1,3 +1,5 @@
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
+
 # Главный скрипт для обновления переменных окружения для Oh My Posh сегментов
 
 # Импортируем все сегменты
@@ -82,3 +84,5 @@ function Update-DiskUsageSegment { $env:OMP_DISK_USAGE = Get-DiskUsageSegment }
 function Update-ProcessInfoSegment { $env:OMP_PROCESS_INFO = Get-ProcessInfoSegment }
 
 Export-ModuleMember -Function Update-OmpEnvironmentVariables, Start-OmpSegmentUpdater, Stop-OmpSegmentUpdater, Update-WeatherSegment, Update-NetworkSegment, Update-SystemHealthSegment, Update-DiskUsageSegment, Update-ProcessInfoSegment
+
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')

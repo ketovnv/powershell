@@ -1,67 +1,86 @@
 importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
 #
-#function Show-AllGradientDemos {
-# <#
-#    .SYNOPSIS
-#        Запускает все демонстрации градиентов
-#    #>
-#
-##    Clear-Host
-#
-#    Write-GradientHeader -Title "POWERSHELL RGB GRADIENTS SHOWCASE" `
-#                        -StartColor "#FF00FF" -EndColor "#00FFFF"
-#
-#    # Типы градиентов
-#    Test-GradientTypes
-#    wrgb "`nНажмите Enter для продолжения..." -FC "DarkGray"
-#    Read-Host
-#
-#    # Интенсивность
-#
-#    wrgb "`nНажмите Enter для продолжения..." -FC "DarkGray"
-#    Read-Host
-#
-#    # Палитры
-#    Show-GradientPalettes
-#    wrgb "`nНажмите Enter для продолжения..." -FC "DarkGray"
-#    Read-Host
-#
-#    # Текст
-#    Test-GradientText
-#    wrgb "`nНажмите Enter для продолжения..." -FC "DarkGray"
-#    Read-Host
-#
-#    # Меню
-#    $menuItems = @("🎨 Цвета", "📊 Графики", "⚙️ Настройки", "❌ Выход")
-#    New-GradientMenu -Items $menuItems -Title "Главное меню" -Style "Neon"
-#
-#    wrgb "`n✨ Демонстрация завершена!" -FC "LimeGreen" -Style Bold -newline
-#}
-#
-## Быстрая проверка градиента между двумя цветами
-#function Test-QuickGradient {
-#    param(
-#        [string]$Start = "#FF0000",
-#        [string]$End = "#0000FF"
-#    )
-#
-#    wrgb "Градиент от " -FC "White"
-#    wrgb "■" -FC $Start
-#    wrgb " до " -FC "White"
-#    wrgb "■" -FC $End
-#    wrgb ": " -FC "White"
-#
-#    for ($i = 0; $i -lt 20; $i++) {
-#        $color = Get-GradientColor -Index $i -TotalItems 20 -StartColor $Start -EndColor $End
-#        wrgb "█" -FC $color
-#    }
-#    Write-Host ""
-#}
+function Show-AllGradientDemos {
+    <#
+   .SYNOPSIS
+       Запускает все демонстрации градиентов
+   #>
+
+    #    Clear-Host
+
+    Write-GradientHeader -Title "POWERSHELL RGB GRADIENTS SHOWCASE" `
+        -StartColor "#FF00FF" -EndColor "#00FFFF"
+
+    # Типы градиентов
+    Test-GradientTypes
+    wrgb "`nНажмите Enter для продолжения..." -FC "DarkGray"
+    Read-Host
+
+    # Интенсивность
+
+    wrgb "`nНажмите Enter для продолжения..." -FC "DarkGray"
+    Read-Host
+
+    # Палитры
+    Show-GradientPalettes
+    wrgb "`nНажмите Enter для продолжения..." -FC "DarkGray"
+    Read-Host
+
+    # Текст
+    Test-GradientText
+   
+
+
+    
+    Show-Palette Dracula
+    wrgb "`nНажмите Enter для продолжения..." -FC "DarkGray"
+    Read-Host     
+    Show-Palette Nord
+    wrgb "`nНажмите Enter для продолжения..." -FC "DarkGray"
+    Read-Host
+    Show-Palette Material
+    wrgb "`nНажмите Enter для продолжения..." -FC "DarkGray"
+    Read-Host
+    Show-Palette Cyber
+    wrgb "`nНажмите Enter для продолжения..." -FC "DarkGray"
+    Read-Host
+    Show-Palette OneDark
+    wrgb "`nНажмите Enter для продолжения..." -FC "DarkGray"
+    Read-Host
+    Show-GradientPalettes
+    wrgb "`nНажмите Enter для продолжения..." -FC "DarkGray"
+    Read-Host
+
+    # Меню
+    $menuItems = @("🎨 Цвета", "📊 Графики", "⚙️ Настройки", "❌ Выход")
+    New-GradientMenu -Items $menuItems -Title "Главное меню" -Style "Neon"
+
+    wrgb "`n✨ Демонстрация завершена!" -FC "LimeGreen" -Style Bold -newline
+}
+
+# Быстрая проверка градиента между двумя цветами
+function Test-QuickGradient {
+    param(
+        [string]$Start = "#FF0000",
+        [string]$End = "#0000FF"
+    )
+
+    wrgb "Градиент от " -FC "White"
+    wrgb "■" -FC $Start
+    wrgb " до " -FC "White"
+    wrgb "■" -FC $End
+    wrgb ": " -FC "White"
+
+    for ($i = 0; $i -lt 20; $i++) {
+        $color = Get-GradientColor -Index $i -TotalItems 20 -StartColor $Start -EndColor $End
+        wrgb "█" -FC $color
+    }
+    Write-Host ""
+}
 
 
 
-function Show-Welcome
-{
+function Show-Welcome {
     #    Clear-Host
 
     wrgb "`n💡 " -FC White
@@ -121,8 +140,7 @@ function Show-Welcome
 
     wrgb "Текущий ErrorView: " -FC Material_Yellow
     wrgb    $global:ErrorView -FC Green -newline
-    if ($Error.Count -ge 3)
-    {
+    if ($Error.Count -ge 3) {
         wrgb "`n`n---- Последние 3 ошибки ---" -FC Red -newline
         Show-RecentErrors -Count 3
 
@@ -130,18 +148,12 @@ function Show-Welcome
         wrgb "`n" -newline
     }
 
-    #    Show-Palette
-    #    Show-Palette Dracula
-#    Show-Palette Nord
-        Show-Palette Material
-    #    Show-Palette Cyber
-        Show-Palette OneDark
-        Show-GradientPalettes
+      
 
     #    Show-ErrorBrowser
 
 
-    #    Test-GradientDemo
+    #   
     #    Show-ParserDemo
     #    Test-GradientIntensity
 }

@@ -38,3 +38,7 @@
 # System files
 desktop.ini
 /ru-RU/
+
+# bun modules
+/.node_modules/
+/PowerShell-Docs/

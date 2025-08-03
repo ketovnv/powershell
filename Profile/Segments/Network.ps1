@@ -1,3 +1,5 @@
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
+
 function Get-NetworkSegment {
     try {
         # Проверяем активные подключения
@@ -28,3 +30,5 @@ function Get-NetworkSegment {
 }
 
 Export-ModuleMember -Function Get-NetworkSegment
+
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')

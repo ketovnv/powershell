@@ -1,3 +1,5 @@
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
+
 function Get-DiskUsageSegment {
     try {
         # Получаем информацию о диске C:
@@ -23,3 +25,5 @@ function Get-DiskUsageSegment {
 }
 
 Export-ModuleMember -Function Get-DiskUsageSegment
+
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')

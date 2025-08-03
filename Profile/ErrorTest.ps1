@@ -1,3 +1,5 @@
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
+
 wrgb "" -newline
 wrgb "`nДоступные виды ошибок:" -FC Material_Orange -newline
 $ErrorViews = (Get-Command ConvertTo-*ErrorView).Name -replace "ConvertTo-(.*)ErrorView", '$1'
@@ -153,4 +155,4 @@ $help=@"
 "@
 wrgb $help -FC "#1199FF"
 
-
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')

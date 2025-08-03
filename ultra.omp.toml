@@ -29,16 +29,16 @@ blue = "#1177DD"
 
 
 
-
-[secondary_prompt]
-template = '❯❯❯❯❯❯ '
-foreground = 'p:lemon'
-background = 'transparent'
-
-[transient_prompt]
-template = '🇺🇦 ❯❯❯❯❯❯❯ '
-foreground = 'p:bright-blue'
-background = 'transparent'
+#
+#[secondary_prompt]
+#template = '❯❯❯❯❯❯ '
+#foreground = 'p:lemon'
+#background = 'transparent'
+#
+#[transient_prompt]
+#template = '🇺🇦 ❯❯❯❯❯❯❯ '
+#foreground = 'p:bright-blue'
+#background = 'transparent'
 
 [[blocks]]
 type = 'prompt'
@@ -81,6 +81,7 @@ foreground_templates = [
     "{{if gt .PhysicalPercentUsed 65}}p:yellow{{end}}",
     "{{if gt .PhysicalPercentUsed 55}}p:lemon{{end}}"
 ]
+style = 'powerline'
 [blocks.segments.properties]
 cache_duration = 'none'
 
@@ -92,15 +93,6 @@ style = 'powerline'
 
 [blocks.segments.properties]
 cache_duration = 'none'
-
-
-[[blocks.segments]]
-type = "react"
-style = "powerline"
-powerline_symbol = ""
-background = "p:primary-yellow"
-foreground = "p:primary-blue"
-template = '{{ .Full }}⚛️'
 
 #[[blocks.segments]]
 #template = '🇺🇦'
@@ -128,7 +120,7 @@ treshhold = 0
 [[blocks.segments]]
 foreground_templates = ['{{ if gt .Code 0 }}p:red{{ end }}']
 foreground = 'p:green'
-template = ' {{ if gt .Code 0 }} {{ reason .Code }} ✗ 🙁 {{ else }}✓{{ end }}  '
+template = ' {{ if gt .Code 0 }} {{ reason .Code }} ✗ {{.Meaning}}🙁 {{ else }}✓{{ end }}  '
 type = 'status'
 style = 'plain'
 
@@ -140,43 +132,46 @@ cache_duration = 'none'
 [[blocks]]
 type = 'prompt'
 alignment = 'right'
-overflow = 'hide'
+
+[[blocks.segments]]
+template = '🌍 {{.IP}}'
+type = 'ipify'
+foreground = 'p:blue'
+style = 'powerline'
+
+[blocks.segments.properties]
+http_timeout = 1000
+[blocks.segments.cache]
+duration = '2m0s'
+strategy = 'folder'
+
 
 
 # Custom segments using environment variables
-[[blocks.segments]]
-template = '{{ .Env.OMP_WEATHER }}'
-foreground = 'p:yellow'
-type = 'text'
-style = 'plain'
+#[[blocks.segments]]
+#template = '{{ .Env.OMP_WEATHER }}'
+#foreground = 'p:yellow'
+#type = 'text'
+#style = 'plain'
+#
+#[[blocks.segments]]
+#template = '{{ .Env.OMP_NETWORK }}'
+#foreground = 'p:green'
+#type = 'text'
+#style = 'plain'
+#
+#[[blocks.segments]]
+#template = '{{ .Env.OMP_SYSTEM_HEALTH }}'
+#foreground = 'p:lightblue'
+#type = 'text'
+#style = 'plain'
+#
+#[[blocks.segments]]
+#template = '{{ .Env.OMP_DISK_USAGE }}'
+#foreground = 'p:orange'
+#type = 'text'
+#style = 'plain'
 
-[[blocks.segments]]
-template = '{{ .Env.OMP_NETWORK }}'
-foreground = 'p:green'
-type = 'text'
-style = 'plain'
-
-[[blocks.segments]]
-template = '{{ .Env.OMP_SYSTEM_HEALTH }}'
-foreground = 'p:lightblue'
-type = 'text'
-style = 'plain'
-
-[[blocks.segments]]
-template = '{{ .Env.OMP_DISK_USAGE }}'
-foreground = 'p:orange'
-type = 'text'
-style = 'plain'
-
-[[blocks.segments]]
-template = ' {{ .CurrentDate | date .Format }}'
-foreground = '#FFFF99'
-type = 'time'
-style = 'plain'
-
-[blocks.segments.properties]
-cache_duration = 'none'
-time_format = '15:04'
 
 
 [[blocks]]
@@ -197,8 +192,8 @@ style = 'powerline'
 type = 'sysinfo'
 
 [[blocks.segments]]
-powerline_symbol = "❯❯"
-template = '{{ if .Writable }}⌨️{{ else }}🔒{{ end }} ❯❯{{.Path }}'
+powerline_symbol = "❯❯ "
+template = '{{ if .Writable }} ⌨️{{ else }} 🔒{{ end }} ❯❯{{.Path }}'
 foreground = 'p:lightblue'
 type = 'path'
 style = 'diamond'
@@ -213,6 +208,7 @@ style = 'full'
 
 [blocks.segments.properties.mapped_locations]
 '~\Documents' = '📝'
+'~\Documents\Powershell' = '🔮 🦉 🔮'
 '~\Downloads' = '⬇️'
 'C:\Projects' = '🏭'
 'C:\Projects\crypta' = '💲'
@@ -220,6 +216,7 @@ style = 'full'
 
 
 [[blocks.segments]]
+style = 'powerline'
 template = '❯❯ '
 foreground = 'p:lightblue'
 foreground_templates = [
@@ -228,13 +225,56 @@ foreground_templates = [
     "{{if gt .PhysicalPercentUsed 65}}p:yellow{{end}}",
     "{{if gt .PhysicalPercentUsed 55}}p:lemon{{end}}"
 ]
-style = 'powerline'
 type = 'sysinfo'
 
 
 [blocks.segments.properties]
 cache_duration = 'none'
 
+#[blocks.segments]
+#style = 'powerline'
+#template="{{.Output}}"
+#
+#[blocks.segments.properties]
+#command = "1+1"
+
+[[blocks]]
+type = 'rprompt'
+alignment = 'right'
+newline = false
+[[blocks.segments]]
+template = '🕒 {{ .CurrentDate | date .Format }}'
+foreground = '#FFFF99'
+type = 'time'
+style = 'plain'
+
+[blocks.segments.properties]
+cache_duration = 'none'
+time_format = '15:04'
+
+
+[[blocks.segments]]
+type = "react"
+style = "powerline"
+#powerline_symbol = ""
+background = "p:primary-yellow"
+foreground = "p:primary-blue"
+template = '{{ .Full }}⚛️ '
+
+
+[[blocks.segments]]
+type = "bun"
+style = "powerline"
+#powerline_symbol = ""
+background = "p:primary-blue"
+foreground = "p:primary-yellow"
+template = '{{ if .Error }}{{ .Error }}{{ else }}{{ .Full }}🧄{{ end }}'
+
+[[blocks]]
+type = 'prompt'
+alignment = 'left'
+newline = true
+segments=[]
 
 [[blocks]]
 type = 'prompt'
@@ -253,10 +293,7 @@ foreground = "#ffffff"
 template = "<#eb6f92,#286983> </><#286983,transparent></> "
 
 
-
 [[error.line]]
 background = 'transparent'
 foreground = 'p:red'
 template = "<#eb6f92,#286983> </><#286983,transparent></> "
-
-

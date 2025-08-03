@@ -398,12 +398,12 @@ function Export-LogAnalysisReport {
 "@
 
     $topErrors = $Patterns.Errors | Group-Object Message | Sort-Object Count -Descending | Select-Object -First 10
-    foreach ($error in $topErrors) {
-        $firstOccurrence = ($error.Group | Sort-Object Timestamp | Select-Object -First 1).Timestamp
+    foreach ($errorError in $topErrors) {
+        $firstOccurrence = ($errorError.Group | Sort-Object Timestamp | Select-Object -First 1).Timestamp
         $html += @"
             <tr>
-                <td class="error">$($error.Count)</td>
-                <td>$([System.Web.HttpUtility]::HtmlEncode($error.Name))</td>
+                <td class="error">$($errorError.Count)</td>
+                <td>$([System.Web.HttpUtility]::HtmlEncode($errorError.Name))</td>
                 <td>$firstOccurrence</td>
             </tr>
 "@

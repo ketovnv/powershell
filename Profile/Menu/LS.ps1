@@ -1,9 +1,7 @@
 
-
 importProcess  $MyInvocation.MyCommand.Name.trim(".ps1") -start
 # ===== УЛУЧШЕННЫЙ LS С RGB И ИКОНКАМИ =====
-function lss
-{
+function lss {
     param(
         [string]$Path = ".",
         [string]$StartColor = "#8B00FF",
@@ -25,60 +23,56 @@ function lss
     $items = Get-ChildItem $Path | Sort-Object PSIsContainer -Descending
 
     $col = 0
-    foreach ($item in $items)
-    {
+    foreach ($item in $items) {
 
 
         $color = Get-GradientColor -Index $col -TotalItems $items.length -StartColor "#8B00FF" -EndColor "#00BFFF"
         $col++
-        if ($item.PSIsContainer)
-        {
+        if ($item.PSIsContainer) {
             Write-RGB "📂 " -FC Ocean1RGB
             Write-RGB ("{0,-35}" -f $item.Name) -FC Ocean1RGB
             Write-RGB " <DIR>" -FC $color  -newline
         }
-        else
-        {
+        else {
             $icon = Get-FileIcon  $item.Extension
             $color = Get-FileColor $item.Extension
 
-            $sizeColor = if ($item.Length -gt 1GB)
-            {
-                "#FF0000"
+
+
+            $sizeColor = "#888888"
+            if ($item.Length -gt 1GB) {
+                $sizeColor = "#FF0000"
+            } elseif ($item.Length -lt 1KB){
+                    $sizeColor = "#BBBBAA"
             }
-            elseif ($item.Length -gt 100MB)
-            {
-                "Sunset1RGB"
-            }
-            elseif ($item.Length -gt 10MB)
-            {
-                "NeonRedRGB"
-            }
-            elseif ($item.Length -gt 1MB)
-            {
-                "OrangeRGB"
-            }
-            elseif ($item.Length -gt 100KB)
-            {
-                "LimeRGB"
-            }
-            else
-            {
-                "TealRGB"
+            else {
+                $k = 0.2
+                $_red = [math]::Round(255 * [math]::Pow( $item.Length / 1GB, $k))               
+                $_blue = (255 - $_red) / 1.33
+                $_green = $_blue / 1.5                
+                if ($item.Length -lt 99999) {
+                    $_green = 200 - [math]::Round(255 *  $item.Length / 99999)
+                    $_red = [math]::Round(255 *  $item.Length / 220KB)
+                }                 
+                $red = nthp $_red
+                $green = nthp $_green
+                $blue = nthp $_blue
+                $sizeColor = "#${red}${green}${blue}"
             }
 
 
  
 
-            Write-RGB "$icon " -FC White
-            Write-RGB ("{0,-35}" -f $item.Name) -FC $color
-            if ($item.Length -gt 11111) {
-                    Write-RGB ("{0,10:N1} MB" -f ($item.Length / 1MB)) -FC $sizeColor
-            } else {
-                Write-RGB ("{0,10} B " -f (("{0:N0}" -f $item.Length).Replace(',', ' '))) -FC $sizeColor
+            Write-RGB "$icon "      
+            Write-GradientText ("{0,-25}" -f $item.Name).Substring(0, 25) -StartColor $color -EndColor $sizeColor  -NoNewline
+            if ($item.Length -gt 111111) {
+                Write-RGB ("{0,10:N1} MB" -f ($item.Length / 1MB)) -FC $sizeColor
+            }
+            else {                
+                Write-RGB ("{0,10}  B" -f (("{0:N0}" -f $item.Length).Replace(',', ' '))) -FC $sizeColor
             }
             # Write-RGB ("  {0}" -f $item.LastWriteTime.ToString("yyyy-MM-dd HH:mm"),,[System.Globalization.CultureInfo]::GetCultureInfo("ru-RU")) -FC TealRGB -newline
-            Write-RGB ("  {0}" -f $item.LastWriteTime.ToString("dd MMM"),,[System.Globalization.CultureInfo]::GetCultureInfo("ru-RU")).trim('.') -FC TealRGB -newline
+            Write-RGB ("  {0}" -f $item.LastWriteTime.ToString("dd MMM"), , [System.Globalization.CultureInfo]::GetCultureInfo("ru-RU")).trim('.') -FC TealRGB -newline
         }
     }
 
@@ -95,8 +89,8 @@ function lss
     $files = $count - $dirs
 
 
-    $d = Get-Date
-    return $withYear ? "{0:dd} {1} {0:yyyy}" -f $d, $months[$d.Month] : "{0:dd} {1}" -f $d, $months[$d.Month]
+    # $d = Get-Date
+    # return $withYear ? "{0:dd} {1} {0:yyyy}" -f $d, $months[$d.Month] : "{0:dd} {1}" -f $d, $months[$d.Month]
     Write-RGB "📊 Total: " -FC GoldRGB
     Write-RGB "$count items " -FC White
     Write-RGB "(📂 $dirs dirs, 📄 $files files)" -FC CyanRGB -newline

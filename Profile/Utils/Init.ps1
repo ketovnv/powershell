@@ -2,14 +2,37 @@
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 Import-Module Microsoft.PowerShell.PSResourceGet -Force
 
-$newModulePath = "C:\Users\ketov\Documents\PowerShell\Modules"
-$env:PSModulePath = $newModulePath
-[Environment]::SetEnvironmentVariable("PSModulePath", $newModulePath, "User")
-$env:POSH_IGNORE_ALLUSER_PROFILES = $true
+
+$global:successScripts = @()
+$global:problemScripts = @()
+
+function checkInitScripts
+{    
+    $global:successScripts = @()
+    $global:problemScripts = @()
+
+    # Проверка на успешную инициализацию
+    foreach ($scriptInitStart in $global:initStartScripts)
+    {
+        if ($global:initEndScripts -contains $scriptInitStart)
+        {
+            $global:successScripts += Write-Status -Success $scriptInitStart -returnRow
+        }
+        else
+        {
+            $global:problemScripts += Write-Status -Problem  $scriptInitStart  -returnRow
+        }
+    }
+
+    $global:successScripts | Format-Wide
+    $global:problemScripts | Format-Wide
+}
+
 
 $global:initStartScripts = @()
 $global:initEndScripts = @()
 
+Set-Alias -Name chs -Value checkInitScripts
 # ===== ИМПОРТ  СКРИПТОВ =====
 #importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
 function importProcess
@@ -23,32 +46,12 @@ function importProcess
     if ($finalInitialiazation)
     {
         #    Импорт оставшихся скриптов
-        foreach ($script in $scriptsAfter)
+        foreach ($script in  $scriptsAfter)
         {
             . "${global:profilePath}${script}.ps1"
         }
-        # Проверка на успешную инициализацию
-        foreach ($scriptInitStart in $global:initStartScripts)
-        {
-            $successScripts=@()
-            $problemScripts=@()
-            if ($global:initEndScripts -contains $scriptInitStart)
-            {
-#                $successScripts += Write-Status -Success $scriptInitStart -returnRow
-            }
-            else
-            {
-                $problemScripts += Write-Status -Problem  $scriptInitStart  -returnRow
-            }
 
-
-
-
-        }
-        $global:initStartScripts | Format-Wide -
-        Write-Host ""
-        return
-
+        checkInitScripts
     }
 
     if ($start)
@@ -67,11 +70,11 @@ $scriptsBefore = @(
     'Utils\NiceColors',
     'Utils\Keyboard'
     'Utils\ProgressBar',
-    'Utils\Aliases'
-    'ErrorMethods',
-#    'Menu\Welcome',
+    'Utils\Aliases',
     'Menu\LS'
-
+    'ErrorMethods'
+    'Menu\Welcome'
+    'Menu\ShowMenu'
 #    'ErrorHandler',
 )
 
@@ -82,14 +85,15 @@ foreach ($script in $scriptsBefore)
 
 
 $scriptsAfter = @(
-    'Menu\NetworkSystem',
-    'Menu\MenuItems',
-    'Menu\AppsBrowsersMenu',
-    'Parser\NiceParser',
-    'Utils\Rainbow',
-    'Helper',
-    'BrowserTranslator',
-    'QuickStart'
+   'Menu\NetworkSystem',
+   'Menu\MenuItems',
+   'Menu\AppsBrowsersMenu'
+ 
+#    'Parser\NiceParser',
+#    'Utils\Rainbow'
+#    'Helper'
+#    'BrowserTranslator',
+#    'QuickStart'
 )
 
 
@@ -97,7 +101,7 @@ $scriptsAfter = @(
 
 # ===== МОДУЛИ =====
 $modules = @(
-    'Logger',
+#    'Logger',
     'PSColor',
     'PSFzf',
     'syntax-highlighting',
@@ -151,3 +155,7 @@ Set-PSReadLineOption -Colors @{
     ListPrediction = $PSStyle.Foreground.FromRgb(185, 185, 185)
     ContinuationPrompt = $PSStyle.Foreground.FromRgb(100, 255, 0)
 }
+
+
+if (-not (Get-Command checkInitScripts -ErrorAction SilentlyContinue)) { Write-Host 'checkInitScripts Error' }
+if (-not (Get-Command importProcess -ErrorAction SilentlyContinue)) { Write-Host ' importProcess Error' }

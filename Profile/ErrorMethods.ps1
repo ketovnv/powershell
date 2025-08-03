@@ -671,7 +671,7 @@ function Disable-GlobalErrorHandler
 
 
 # Включаем умный обработчик
-Clear-Host
+#Clear-Host
 Enable-GlobalErrorHandler
 
 

@@ -1,3 +1,5 @@
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
+
 # 🔥 ADVANCED NMAP SCANNER WITH REAL-TIME PARSER
 # Автор: PowerShell Ninja 🥷
 
@@ -612,3 +614,5 @@ Invoke-NmapScan -Target 10.0.0.1 -Ports "80,443,3306,8080" -AggressiveScan
 Invoke-NmapScan -Target example.com -OSDetection -ServiceDetection -Ports "1-65535"
 
 "@ -FC "DarkCyan"
+
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')

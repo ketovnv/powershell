@@ -14,7 +14,7 @@
                 applications   = '#FF143C'
                 shortcuts      = '#FF143C'
                 links          = '#FF143C'
-                fonts          = '#DC143C'
+                fonts          = '#d00edeff'
                 images         = '#9ACD32'
                 photos         = '#9ACD32'
                 pictures       = '#9ACD32'

@@ -1,3 +1,5 @@
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
+
 param(
     [string]$InputFolder = "ast_exports",
     [string]$OutputFile = "AST_Report.md"
@@ -93,3 +95,5 @@ foreach ($file in $jsonFiles) {
 $markdown -join "`n" | Out-File -FilePath $OutputFile -Encoding utf8
 
 Write-Host "✅ Markdown-отчёт сохранён: $OutputFile" -ForegroundColor Green
+
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')

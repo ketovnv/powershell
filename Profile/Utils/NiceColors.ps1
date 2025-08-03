@@ -1423,8 +1423,7 @@ function Write-Status
 
     if ($returnRow)
     {
-#        return "${Icon} ${Message}"
-        return   $Message
+        return "${Icon} ${Message}"
     }
     else
     {
@@ -1434,7 +1433,6 @@ function Write-Status
 }
 
 #Get-GradientList
-#Write-Host""
 importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')
 
 

@@ -1,3 +1,5 @@
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
+
 function Normalize-Path {
     param([string]$path)
     # Убираем эмодзи и любые неASCII символы
@@ -23,7 +25,7 @@ $knownInjectors | ForEach-Object { wrgb "- $_" -FC "#3399FF" -newline }
 wrgb ("{0,-25} {1,-8} {2,-45} {3,-8} {4,-45}" -f "TimeCreated", "SrcPID", "SourceImage", "TgtPID", "TargetImage") -FC "#444444" -newline
 $knownCleaned = $knownInjectors | ForEach-Object { Normalize-Path $_ }
 # Данные
-Get-WinEvent -LogName 'Microsoft-Windows-Sysmon/Operational' -ErrorAction SilentlyContinue |
+Get-WinEvent -LogName "Microsoft-Windows-Sysmon/Operational"  -ErrorAction SilentlyContinue |
         Where-Object {
             $_.Id -eq 8 -and
                     ($injector = Normalize-Path $_.Properties[4].Value) -and
@@ -48,3 +50,5 @@ Get-WinEvent -LogName 'Microsoft-Windows-Sysmon/Operational' -ErrorAction Silent
 wrgb "Поиск завершен" -FC "#3322FF" -newline
 wrgb "Если вывод пуст - не найдено ничего подозрительного" -FC "#00FF77" -newline
 wrgb "Если в списке есть процессы - это повод для серьезного расследования" -FC "#FF3355" -newline
+
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')

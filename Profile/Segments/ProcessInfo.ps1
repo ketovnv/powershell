@@ -1,3 +1,5 @@
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
+
 function Get-ProcessInfoSegment {
     try {
         # Количество запущенных процессов
@@ -26,3 +28,5 @@ function Get-ProcessInfoSegment {
 }
 
 Export-ModuleMember -Function Get-ProcessInfoSegment
+
+importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')

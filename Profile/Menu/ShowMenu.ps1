@@ -1,7 +1,5 @@
+ importProcess  $MyInvocation.MyCommand.Name.trim(".ps1") -start
 
-
-importProcess  $MyInvocation.MyCommand.Name.trim(".ps1") -start
-# ===== УЛУЧШЕННАЯ ФУНКЦИЯ МЕНЮ С ГРАДИЕНТАМИ =====
 function Show-Menu
 {
     param(
@@ -40,7 +38,7 @@ function Show-Menu
 
         Write-RGB "`n" -newline
         Write-RGB "➤ " -FC NeonMaterial_LightGreen
-        Write-RGB "$Prompt (1-$( $MenuItems.Count )): " -FC  "99CCFF"
+        Write-RGB "$Prompt (1-$( $MenuItems.Count )): " -FC  "#99CCFF"
 
         # ИСПРАВЛЕНИЕ: правильное чтение ввода
         $menuInput = [Console]::ReadLine()
@@ -51,7 +49,7 @@ function Show-Menu
             if ($choice -ge 1 -and $choice -le $MenuItems.Count)
             {
                 # Анимация выбора
-                Write-RGB "`n✨ " -FC YelloWrite-RGB
+                Write-RGB "`n✨ " -FC YellowWrite-RGB
                 Write-RGB "Выбрано: " -FC White
                 Write-RGB $MenuItems[$choice - 1].Text -FC NeonMaterial_LightGreen -newline
                 Start-Sleep -Milliseconds 750
@@ -137,6 +135,7 @@ function Show-RGBProgress
 
 function Show-RGBDemo
 {
+    Write-Host "RGB"
     #Clear-Host
     #    Write-RGB "`n🌈 RGB COLOR DEMONSTRATION 🌈" -FC UkraineBlueRGB -newline
 
@@ -158,43 +157,51 @@ function Show-RGBDemo
     #    Write-RGB "" -newline
 
     # Матрица с градиентом
-    Write-RGB "`n💻 Matrix Effect:" -FC LimeRGB -newline
-    for ($row = 0; $row -lt 5; $row++) {
-        for ($col = 0; $col -lt 40; $col++) {
-            $char = [char](Get-Random -Minimum 33 -Maximum 126)
-            $greenShade = Get-GradientColor -Index $col -TotalItems 40 -StartColor "#00FF00" -EndColor "#001100"
-            Write-RGB $char -FC $greenShade
-        }
-        Write-RGB "" -newline
-    }
+    # Write-RGB "`n💻 Matrix Effect:" -FC LimeRGB -newline
+    # for ($row = 0; $row -lt 5; $row++) {
+    #     for ($col = 0; $col -lt 40; $col++) {
+    #         $char = [char](Get-Random -Minimum 33 -Maximum 126)
+    #         $greenShade = Get-GradientColor -Index $col -TotalItems 40 -StartColor "#00FF00" -EndColor "#001100"
+    #         Write-RGB $char -FC $greenShade
+    #     }
+    #     Write-RGB "" -newline
+    # }
 
     # Неоновые цвета
-    Write-RGB "`n✨ Neon Colors:" -FC White -newline
-    $neonColors = @("NeonBlueRGB", "NeonMaterial_LightGreen", "NeonPinkRGB", "NeonRedRGB", "CyanRGB", "MagentaRGB", "YelloWrite-RGB", "OrangeRGB")
-    foreach ($colorName in $neonColors)
-    {
-        Write-RGB "████ " -FC $colorName
-        Write-RGB $colorName -FC $colorName -newline
-    }
+    # Write-RGB "`n✨ Neon Colors:" -FC White -newline
+    # $neonColors = @("NeonBlueRGB", "NeonMaterial_LightGreen", "NeonPinkRGB", "NeonRedRGB", "CyanRGB", "MagentaRGB", "YelloWrite-RGB", "OrangeRGB")
+    # foreach ($colorName in $neonColors)
+    # {
+    #     Write-RGB "████ " -FC $colorName
+    #     Write-RGB $colorName -FC $colorName -newline
+    # }
 
     # Градиентный текст
-    Write-RGB "`n🎯 Gradient Text:" -FC White -newline
-    $text = "POWERSHELL ROCKS!"
-    for ($i = 0; $i -lt $text.Length; $i++) {
-        $color = Get-GradientColor -Index $i -TotalItems $text.Length -StartColor "#FF00FF" -EndColor "#00FFFF" -GradientType "Exponential"
-        Write-RGB $text[$i] -FC $color
-    }
-    Write-RGB "" -newline
+    # Write-RGB "`n🎯 Gradient Text:" -FC White -newline
+    # $text = "POWERSHELL ROCKS!"
+    # for ($i = 0; $i -lt $text.Length; $i++) {
+    #     $color = Get-GradientColor -Index $i -TotalItems $text.Length -StartColor "#FF00FF" -EndColor "#00FFFF" -GradientType "Exponential"
+    #     Write-RGB $text[$i] -FC $color
+    # }
+    # Write-RGB "" -newline
 
-    Write-RGB "`nНажмите любую клавишу..." -FC CyanRGB -newline
-    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
-    Show-MainMenu
+    # Write-RGB "`nНажмите любую клавишу..." -FC CyanRGB -newline
+    # $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+    # Show-MainMenu
 }
 
 
-if (Get-Module -ListAvailable -Name SecurityWatcher)
-{
-    Import-Module SecurityWatcher -ErrorAction SilentlyContinue
-    Write-RGB "🛡️  SecurityWatcher loaded" -FC LimeRGB -newline
-}
+# if (Get-Module -ListAvailable -Name SecurityWatcher)
+# {
+#     Import-Module SecurityWatcher -ErrorAction SilentlyContinue
+#     Write-RGB "🛡️  SecurityWatcher loaded" -FC LimeRGB -newline
+# }
+
+
+
+if (-not (Get-Command Show-Menu -ErrorAction SilentlyContinue)) { Write-Host 'Show-Menu Error' }
+if (-not (Get-Command Show-RGBLoader -ErrorAction SilentlyContinue)) { Write-Host 'Show-RGBLoader Error' }
+if (-not (Get-Command Show-RGBProgress -ErrorAction SilentlyContinue)) { Write-Host 'Show-RGBProgress Error' }
+if (-not (Get-Command Show-RGBDemo -ErrorAction SilentlyContinue)) { Write-Host 'Show-RGBDemo Error' }
+
 importProcess  $MyInvocation.MyCommand.Name.trim(".ps1")
