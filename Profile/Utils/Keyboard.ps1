@@ -1,4 +1,4 @@
-importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
+Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)) -start
 
 Function Switch-KeyboardLayout {
     [CmdletBinding()]
@@ -116,7 +116,7 @@ function ru
     wrgb "⌨️ Рус"  -FC "#118855"
 }
 
-importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')
+Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))
 
 # Альтернативная функция через системные команды
 #Function Switch-KeyboardLayoutAlt {

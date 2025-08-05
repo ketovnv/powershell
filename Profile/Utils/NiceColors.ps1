@@ -1,14 +1,14 @@
-importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
+ Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)) -start
 
 #region Утилитарные функции
-function Test-ColorSupport
-{
-    <#
-    .SYNOPSIS
-        Проверяет поддержку цветов в текущем окружении
-    #>
-    return $null -ne $PSStyle
-}
+# function Test-ColorSupport
+# {
+#     <#
+#     .SYNOPSIS
+#         Проверяет поддержку цветов в текущем окружении
+#     #>
+#     return $null -ne $PSStyle
+# }
 
 function ConvertTo-RGBComponents
 {
@@ -53,89 +53,79 @@ function ConvertTo-RGBComponents
     }
 }
 
-function ConvertFrom-RGBToHex
-{
-    <#
-    .SYNOPSIS
-        Конвертирует RGB компоненты в HEX
-    #>
-    param(
-        [Parameter(ParameterSetName = 'Separate')]
-        [ValidateRange(0, 255)][int]$R,
+# function ConvertFrom-RGBToHex
+# {
+#     <#
+#     .SYNOPSIS
+#         Конвертирует RGB компоненты в HEX
+#     #>
+#     param(
+#         [Parameter(ParameterSetName = 'Separate')]
+#         [ValidateRange(0, 255)][int]$R,
 
-        [Parameter(ParameterSetName = 'Separate')]
-        [ValidateRange(0, 255)][int]$G,
+#         [Parameter(ParameterSetName = 'Separate')]
+#         [ValidateRange(0, 255)][int]$G,
 
-        [Parameter(ParameterSetName = 'Separate')]
-        [ValidateRange(0, 255)][int]$B,
+#         [Parameter(ParameterSetName = 'Separate')]
+#         [ValidateRange(0, 255)][int]$B,
 
-        [Parameter(ParameterSetName = 'Hashtable')]
-        [hashtable]$Color
-    )
+#         [Parameter(ParameterSetName = 'Hashtable')]
+#         [hashtable]$Color
+#     )
 
-    if ($PSCmdlet.ParameterSetName -eq 'Hashtable')
-    {
-        $R = $Color.R
-        $G = $Color.G
-        $B = $Color.B
-    }
+#     if ($PSCmdlet.ParameterSetName -eq 'Hashtable')
+#     {
+#         $R = $Color.R
+#         $G = $Color.G
+#         $B = $Color.B
+#     }
 
-    return "#{0:X2}{1:X2}{2:X2}" -f $R, $G, $B
-}
+#     return "#{0:X2}{1:X2}{2:X2}" -f $R, $G, $B
+# }
 
-function Get-RGBColor
-{
+function Get-RGBColor {
     <#
     .SYNOPSIS
         Получает ANSI последовательность для RGB цвета
     #>
     param($Color)
 
-    if (-not (Test-ColorSupport))
-    {
+    if (-not (Test-ColorSupport)) {
         return ""
     }
 
-    if ($Color -is [hashtable] -and $Color.ContainsKey('R') -and $Color.ContainsKey('G') -and $Color.ContainsKey('B'))
-    {
+    if ($Color -is [hashtable] -and $Color.ContainsKey('R') -and $Color.ContainsKey('G') -and $Color.ContainsKey('B')) {
         return $PSStyle.Foreground.FromRgb($Color.R, $Color.G, $Color.B)
     }
-    elseif ($Color -is [string] -and $Color -match '^#?[0-9A-Fa-f]{3,6}$')
-    {
+    elseif ($Color -is [string] -and $Color -match '^#?[0-9A-Fa-f]{3,6}$') {
         $rgb = ConvertTo-RGBComponents -HexColor $Color
         return $PSStyle.Foreground.FromRgb($rgb.R, $rgb.G, $rgb.B)
     }
-    else
-    {
+    else {
         Write-Warning "Неверный формат цвета: $Color"
         return ""
     }
 }
 
-function Get-RGBBackgroundColor
-{
+function Get-RGBBackgroundColor {
     <#
     .SYNOPSIS
         Получает ANSI последовательность для RGB цвета фона
     #>
     param($Color)
 
-    if (-not (Test-ColorSupport))
-    {
+    if (-not (Test-ColorSupport)) {
         return ""
     }
 
-    if ($Color -is [hashtable] -and $Color.ContainsKey('R') -and $Color.ContainsKey('G') -and $Color.ContainsKey('B'))
-    {
+    if ($Color -is [hashtable] -and $Color.ContainsKey('R') -and $Color.ContainsKey('G') -and $Color.ContainsKey('B')) {
         return $PSStyle.Background.FromRgb($Color.R, $Color.G, $Color.B)
     }
-    elseif ($Color -is [string] -and $Color -match '^#?[0-9A-Fa-f]{3,6}$')
-    {
+    elseif ($Color -is [string] -and $Color -match '^#?[0-9A-Fa-f]{3,6}$') {
         $rgb = ConvertTo-RGBComponents -HexColor $Color
         return $PSStyle.Background.FromRgb($rgb.R, $rgb.G, $rgb.B)
     }
-    else
-    {
+    else {
         Write-Warning "Неверный формат цвета фона: $Color"
         return ""
     }
@@ -148,18 +138,14 @@ $allHexColors = $additionalColors + $newHexColors
 $allRgbColors = $colorsRGB
 
 # Добавляем в глобальную палитру
-foreach ($color in $allHexColors.GetEnumerator())
-{
-    if (-not $global:RGB.ContainsKey($color.Key))
-    {
-        $global:RGB[$color.Key] = $color.Value
+foreach ($color in $allHexColors.GetEnumerator()) {
+    if (-not $global:RGB.ContainsKey($color.Key)) {
+        $global:RGB[$color.Key] = ConvertTo-RGBComponents -HexColor $color.Value
     }
 }
 
-foreach ($color in $allRgbColors.GetEnumerator())
-{
-    if (-not $global:RGB.ContainsKey($color.Key))
-    {
+foreach ($color in $allRgbColors.GetEnumerator()) {
+    if (-not $global:RGB.ContainsKey($color.Key)) {
         $global:RGB[$color.Key] = $color.Value
     }
 }
@@ -168,8 +154,7 @@ $global:RainbowGradient = $RAINBOWGRADIENT
 $global:RainbowGradientVariant = $RAINBOWGRADIENT2
 #region Основная функция Write-RGB (улучшенная)
 
-function Write-RGB
-{
+function Write-RGB {
     <#
     .SYNOPSIS
         Выводит текст с поддержкой RGB цветов
@@ -214,24 +199,21 @@ function Write-RGB
         [string[]]$Style = 'Normal',
 
 
-    # Для совместимости со старым кодом
+        # Для совместимости со старым кодом
         [switch]$newline,
         [switch]$Bold
     )
 
     begin {
-        if (-not (Test-ColorSupport))
-        {
+        if (-not (Test-ColorSupport)) {
             Write-Warning "PSStyle не поддерживается в данной версии PowerShell"
             # Fallback к обычному Write-Host
             $fallbackParams = @{
             }
-            if ($FC -and $FC -in @('Black', 'DarkBlue', 'DarkGreen', 'DarkCyan', 'DarkRed', 'DarkMagenta', 'DarkYellow', 'Gray', 'DarkGray', 'Blue', 'Green', 'Cyan', 'Red', 'Magenta', 'Yellow', 'White'))
-            {
+            if ($FC -and $FC -in @('Black', 'DarkBlue', 'DarkGreen', 'DarkCyan', 'DarkRed', 'DarkMagenta', 'DarkYellow', 'Gray', 'DarkGray', 'Blue', 'Green', 'Cyan', 'Red', 'Magenta', 'Yellow', 'White')) {
                 $fallbackParams['ForegroundColor'] = $FC
             }
-            if ($BC -and $BC -in @('Black', 'DarkBlue', 'DarkGreen', 'DarkCyan', 'DarkRed', 'DarkMagenta', 'DarkYellow', 'Gray', 'DarkGray', 'Blue', 'Green', 'Cyan', 'Red', 'Magenta', 'Yellow', 'White'))
-            {
+            if ($BC -and $BC -in @('Black', 'DarkBlue', 'DarkGreen', 'DarkCyan', 'DarkRed', 'DarkMagenta', 'DarkYellow', 'Gray', 'DarkGray', 'Blue', 'Green', 'Cyan', 'Red', 'Magenta', 'Yellow', 'White')) {
                 $fallbackParams['BackgroundColor'] = $BC
             }
 
@@ -245,28 +227,25 @@ function Write-RGB
 
         # Обработка параметров совместимости
 
-        if ($Bold -and $Style -notcontains 'Bold')
-        {
+        if ($Bold -and $Style -notcontains 'Bold') {
             $Style += 'Bold'
         }
 
         $output = ""
 
         # Применение стилей
-        foreach ($s in $Style)
-        {
-            switch ($s)
-            {
-                'Bold'      {
+        foreach ($s in $Style) {
+            switch ($s) {
+                'Bold' {
                     $output += $PSStyle.Bold
                 }
-                'Italic'    {
+                'Italic' {
                     $output += $PSStyle.Italic
                 }
                 'Underline' {
                     $output += $PSStyle.Underline
                 }
-                'Blink'     {
+                'Blink' {
                     $output += $PSStyle.Blink
                 }
             }
@@ -276,50 +255,39 @@ function Write-RGB
         $systemColors = @('Black', 'DarkBlue', 'DarkGreen', 'DarkCyan', 'DarkRed', 'DarkMagenta', 'DarkYellow', 'Gray', 'DarkGray', 'Blue', 'Green', 'Cyan', 'Red', 'Magenta', 'Yellow', 'White')
 
         # Применение цвета переднего плана
-        if ($FC -in $systemColors)
-        {
+        if ($FC -in $systemColors) {
             $output += $PSStyle.Foreground.$FC
         }
-        elseif ($global:RGB.ContainsKey($FC))
-        {
+        elseif ($global:RGB.ContainsKey($FC)) {
             $output += Get-RGBColor $global:RGB[$FC]
         }
-        elseif ($FC -match '^#?[0-9A-Fa-f]{3,6}$')
-        {
+        elseif ($FC -match '^#?[0-9A-Fa-f]{3,6}$') {
             $output += Get-RGBColor $FC
         }
-        else
-        {
+        else {
             # Пытаемся найти без суффикса RGB
             $baseName = $FC -replace 'RGB$', ''
-            if ( $global:RGB.ContainsKey($baseName))
-            {
+            if ( $global:RGB.ContainsKey($baseName)) {
                 $output += Get-RGBColor $global:RGB[$baseName]
             }
-            else
-            {
+            else {
                 Write-Warning "Неизвестный цвет: $FC. Используется белый."
                 $output += $PSStyle.Foreground.White
             }
         }
 
         # Применение цвета фона
-        if ($BC)
-        {
-            if ($BC -in $systemColors)
-            {
+        if ($BC) {
+            if ($BC -in $systemColors) {
                 $output += $PSStyle.Background.$BC
             }
-            elseif ($global:RGB.ContainsKey($BC))
-            {
+            elseif ($global:RGB.ContainsKey($BC)) {
                 $output += Get-RGBBackgroundColor $global:RGB[$BC]
             }
-            elseif ($BC -match '^#?[0-9A-Fa-f]{3,6}$')
-            {
+            elseif ($BC -match '^#?[0-9A-Fa-f]{3,6}$') {
                 $output += Get-RGBBackgroundColor $BC
             }
-            else
-            {
+            else {
                 Write-Warning "Неизвестный цвет фона: $BC"
             }
         }
@@ -334,8 +302,7 @@ function Write-RGB
 }
 #endregion
 
-function Get-GradientColor
-{
+function Get-GradientColor {
     <#
     .SYNOPSIS
         Создает градиентные цвета для элементов меню
@@ -427,146 +394,12 @@ function Get-GradientColor
         [int]$Brightness = 100
     )
 
-    # Функция для конвертации hex в RGB
-    function ConvertFrom-HexToRGB
-    {
-        param(
-            [Parameter(Mandatory = $true)]
-            [string]$HexColor
-        )
 
-        # Проверка на null и пустую строку
-        if ( [string]::IsNullOrWhiteSpace($HexColor))
-        {
-            Write-Error "Hex color string cannot be empty or null"
-            return $null
-        }
+      
 
-        # Нормализация: удаление решетки и пробелов, перевод в верхний регистр
-        $cleanHex = $HexColor.Trim().ToUpper() -replace '^#', ''
-
-        # Валидация формата с помощью регулярного выражения
-        if (-not ($cleanHex -match '^([A-F0-9]{3}|[A-F0-9]{6})$'))
-        {
-
-            $stringRepresentation = ""
-            foreach ($key in $HexColor.Keys)
-            {
-                $value = $HexColor[$key]
-                $stringRepresentation += "$key=$value;"
-            }
-
-            # Remove the trailing semicolon if present
-            if ( $stringRepresentation.EndsWith(";"))
-            {
-                $stringRepresentation = $stringRepresentation.TrimEnd(";")
-            }
-
-            Write-RGB $stringRepresentation  -FC "#1177CC"
-
-
-            #            Write-Error "Invalid hex color format. Valid formats: #RGB, #RRGGBB"
-            return $null
-        }
-
-        # Расширение сокращенной формы (3 символа -> 6)
-        if ($cleanHex.Length -eq 3)
-        {
-            $cleanHex = $cleanHex -replace '(.)(.)(.)', '$1$1$2$2$3$3'
-        }
-
-        # Извлечение компонентов с помощью регулярного выражения
-        if ($cleanHex -match '^([A-F0-9]{2})([A-F0-9]{2})([A-F0-9]{2})$')
-        {
-            try
-            {
-                return [PSCustomObject]@{
-                    R = [Convert]::ToInt32($Matches[1], 16)
-                    G = [Convert]::ToInt32($Matches[2], 16)
-                    B = [Convert]::ToInt32($Matches[3], 16)
-                }
-            }
-            catch
-            {
-                Write-Error "Conversion error: $_"
-                return $null
-            }
-        }
-
-        Write-Error "Unexpected error during hex parsing"
-        return $null
-    }
-
-    # Функция для конвертации RGB в hex
-    function ConvertFrom-RGBToHex
-    {
-        param([int]$R, [int]$G, [int]$B)
-
-        $R = [Math]::Max(0,[Math]::Min(255, $R))
-        $G = [Math]::Max(0,[Math]::Min(255, $G))
-        $B = [Math]::Max(0,[Math]::Min(255, $B))
-
-        return "#{0:X2}{1:X2}{2:X2}" -f $R, $G, $B
-    }
-
-    # Функция для расчета позиции в градиенте
-    function Get-GradientPosition
-    {
-        param([int]$Index, [int]$Total, [string]$Type, [scriptblock]$CustomFunc)
-
-        if ($Total -le 1)
-        {
-            return 0
-        }
-
-        $normalizedIndex = $Index / ($Total - 1)
-
-        switch ($Type)
-        {
-            "Linear" {
-                return $normalizedIndex
-            }
-            "Exponential" {
-                return [Math]::Pow($normalizedIndex, 2)
-            }
-            "Sine" {
-                return [Math]::Sin($normalizedIndex * [Math]::PI / 2)
-            }
-            "Custom" {
-                if ($CustomFunc)
-                {
-                    return & $CustomFunc $normalizedIndex
-                }
-                else
-                {
-                    return $normalizedIndex
-                }
-            }
-            default {
-                return $normalizedIndex
-            }
-        }
-    }
-
-    # Обработка особых случаев
-    if ($TotalItems -eq 1)
-    {
-        return $StartColor
-    }
-
-    if ($Index -eq 0 -and -not $Reverse)
-    {
-        return $StartColor
-    }
-
-    if ($Index -eq ($TotalItems - 1) -and -not $Reverse)
-    {
-        return $EndColor
-    }
 
     # Реверс если нужно
-    if ($Reverse)
-    {
+    if ($Reverse) {
         $temp = $StartColor
         $StartColor = $EndColor
         $EndColor = $temp
@@ -590,8 +423,7 @@ function Get-GradientColor
     $finalB = [int]($startRGB.B + $blueDiff)
 
     # Применение насыщенности и яркости
-    if ($Saturation -ne 100 -or $Brightness -ne 100)
-    {
+    if ($Saturation -ne 100 -or $Brightness -ne 100) {
         $satFactor = $Saturation / 100.0
         $brightFactor = $Brightness / 100.0
 
@@ -602,11 +434,9 @@ function Get-GradientColor
         $finalB = [int](($finalB - $gray) * $satFactor + $gray) * $brightFactor
     }
 
-    return ConvertFrom-RGBToHex $finalR $finalG $finalB
 }
 
-function Get-MenuGradientColor
-{
+function Get-MenuGradientColor {
     <#
     .SYNOPSIS
         Упрощенная функция для градиентов в меню
@@ -618,19 +448,19 @@ function Get-MenuGradientColor
     )
 
     $styles = @{
-        Ocean = @{
+        Ocean   = @{
             Start = "#0080FF"; End = "#00FFD4"
         }
-        Fire = @{
+        Fire    = @{
             Start = "#FF0000"; End = "#FFD700"
         }
-        Nature = @{
+        Nature  = @{
             Start = "#00FF00"; End = "#90EE90"
         }
-        Neon = @{
+        Neon    = @{
             Start = "#FF00FF"; End = "#00FFFF"
         }
-        Pastel = @{
+        Pastel  = @{
             Start = "#FFB6C1"; End = "#E6E6FA"
         }
         Ukraine = @{
@@ -643,7 +473,7 @@ function Get-MenuGradientColor
 
     $colors = $styles[$Style]
     Get-GradientColor -Index $Index -TotalItems $Total `
-                     -StartColor $colors.Start -EndColor $colors.End
+        -StartColor $colors.Start -EndColor $colors.End
 }
 
 #function Test-GradientIntensity
@@ -676,8 +506,7 @@ function Get-MenuGradientColor
 #    Write-Host ""
 #}
 
-function Show-GradientPalettes
-{
+function Show-GradientPalettes {
     <#
     .SYNOPSIS
         Показывает предустановленные градиентные палитры
@@ -686,26 +515,25 @@ function Show-GradientPalettes
     Write-RGB "`n=== Градиентные палитры ===" -FC "Cyan" -Style Bold -newline
 
     $palettes = @{
-        "🌊 Ocean" = @{ Start = "#0080FF"; End = "#00FFD4" }
-        "🔥 Fire" = @{ Start = "#FF0000"; End = "#FFD700" }
-        "🌿 Nature" = @{ Start = "#00FF00"; End = "#90EE90" }
-        "💜 Neon" = @{ Start = "#FF00FF"; End = "#00FFFF" }
-        "🌸 Pastel" = @{ Start = "#FFB6C1"; End = "#E6E6FA" }
+        "🌊 Ocean"     = @{ Start = "#0080FF"; End = "#00FFD4" }
+        "🔥 Fire"      = @{ Start = "#FF0000"; End = "#FFD700" }
+        "🌿 Nature"    = @{ Start = "#00FF00"; End = "#90EE90" }
+        "💜 Neon"      = @{ Start = "#FF00FF"; End = "#00FFFF" }
+        "🌸 Pastel"    = @{ Start = "#FFB6C1"; End = "#E6E6FA" }
         "🇺🇦 Ukraine" = @{ Start = "#0057B7"; End = "#FFD500" }
-        "🦇 Dracula" = @{ Start = "#FF79C6"; End = "#BD93F9" }
-        "🌅 Sunset" = @{ Start = "#FF5E3A"; End = "#FF2A68" }
-        "🌌 Galaxy" = @{ Start = "#667EEA"; End = "#764BA2" }
-        "🍭 Candy" = @{ Start = "#F093FB"; End = "#F5576C" }
+        "🦇 Dracula"   = @{ Start = "#FF79C6"; End = "#BD93F9" }
+        "🌅 Sunset"    = @{ Start = "#FF5E3A"; End = "#FF2A68" }
+        "🌌 Galaxy"    = @{ Start = "#667EEA"; End = "#764BA2" }
+        "🍭 Candy"     = @{ Start = "#F093FB"; End = "#F5576C" }
     }
 
-    foreach ($palette in $palettes.GetEnumerator())
-    {
+    foreach ($palette in $palettes.GetEnumerator()) {
         Write-RGB "`n$( $palette.Key ): " -FC "White" -Style Bold
 
         for ($i = 0; $i -lt 30; $i++) {
             $color = Get-GradientColor -Index $i -TotalItems 30 `
-                                     -StartColor $palette.Value.Start `
-                                     -EndColor $palette.Value.End
+                -StartColor $palette.Value.Start `
+                -EndColor $palette.Value.End
             Write-RGB "█" -FC $color
         }
     }
@@ -713,8 +541,7 @@ function Show-GradientPalettes
 }
 
 # Функция для создания палитры градиентных цветов
-function New-GradientPalette
-{
+function New-GradientPalette {
     <#
     .SYNOPSIS
         Создает палитру цветов для градиента
@@ -729,15 +556,14 @@ function New-GradientPalette
     $palette = @()
     for ($i = 0; $i -lt $Count; $i++) {
         $palette += Get-GradientColor -Index $i -TotalItems $Count `
-                                    -StartColor $StartColor -EndColor $EndColor `
-                                    -GradientType $GradientType
+            -StartColor $StartColor -EndColor $EndColor `
+            -GradientType $GradientType
     }
     $palette
 }
 
 
-function Write-RBGLine
-{
+function Write-RBGLine {
     <#
     .SYNOPSIS
         Write-RGB с переводом строки (явное имя)
@@ -753,8 +579,7 @@ function Write-RBGLine
     Write-RGB @PSBoundParameters -newline
 }
 
-function Write-RBGNoNewLine
-{
+function Write-RBGNoNewLine {
     <#
     .SYNOPSIS
         Write-RGB без перевода строки (явное имя)
@@ -770,8 +595,7 @@ function Write-RBGNoNewLine
     Write-RGB @PSBoundParameters
 }
 
-function Test-GradientText
-{
+function Test-GradientText {
     <#
     .SYNOPSIS
         Демонстрирует градиентный текст
@@ -798,8 +622,9 @@ function Test-GradientText
     Write-Host ""
 }
 
-function Write-GradientText
-{
+
+
+function Write-GradientText {
     <#
     .SYNOPSIS
         Выводит текст с градиентом по символам
@@ -853,33 +678,35 @@ function Write-GradientText
         [switch]$Reverse
     )
 
-    if ( [string]::IsNullOrEmpty($Text))
-    {
+    if ( [string]::IsNullOrEmpty($Text)) {
         Write-Warning "Текст не может быть пустым"
         return
     }
 
-    $chars = $Text.ToCharArray()
-    $length = $chars.Length
+
+    $textElements = [System.Globalization.StringInfo]::GetTextElementEnumerator($Text)
+    $elements = @()
+    while ( $textElements.MoveNext()) {
+        $elements += $textElements.GetTextElement()
+    }
+    $length = $elements.Count
+
     for ($i = 0; $i -lt $length; $i++) {
         # Получаем цвет для текущего символа
         $color = Get-GradientColor -Index $i -TotalItems $length `
-                                  -StartColor $StartColor -EndColor $EndColor `
-                                  -GradientType $GradientType
-        #        $GradientType -Reverse:$Reverse
+            -StartColor $StartColor -EndColor $EndColor `
+            -GradientType $GradientType
 
-        # Выводим символ
-        Write-RGB -Text $chars[$i] -FC $color -Style $Style
+        # Выводим символ (теперь это полноценная графема)
+        Write-RGB -Text $elements[$i] -FC $color -Style $Style
 
         # Задержка для эффекта печатной машинки
-        if ($CharDelay -gt 0)
-        {
+        if ($CharDelay -gt 0) {
             Start-Sleep -Milliseconds $CharDelay
         }
     }
 
-    if (-not $NoNewline)
-    {
+    if (-not $NoNewline) {
         Write-Host ""
     }
 }
@@ -887,57 +714,56 @@ function Write-GradientText
 #region Утилитарные функции для работы с палитрой
 
 # Вспомогательная функция для приблизительного соответствия консольным цветам
-function Get-ConsoleColor
-{
+function Get-ConsoleColor {
     param([string]$HexColor)
 
     $rgb = ConvertFrom-HexToRGB $HexColor
 
     # Простая логика выбора ближайшего консольного цвета
     $colors = @{
-        "Red" = @{
+        "Red"         = @{
             R = 255; G = 0; B = 0
         }
-        "Green" = @{
+        "Green"       = @{
             R = 0; G = 255; B = 0
         }
-        "Blue" = @{
+        "Blue"        = @{
             R = 0; G = 0; B = 255
         }
-        "Yellow" = @{
+        "Yellow"      = @{
             R = 255; G = 255; B = 0
         }
-        "Cyan" = @{
+        "Cyan"        = @{
             R = 0; G = 255; B = 255
         }
-        "Magenta" = @{
+        "Magenta"     = @{
             R = 255; G = 0; B = 255
         }
-        "White" = @{
+        "White"       = @{
             R = 255; G = 255; B = 255
         }
-        "Gray" = @{
+        "Gray"        = @{
             R = 128; G = 128; B = 128
         }
-        "DarkRed" = @{
+        "DarkRed"     = @{
             R = 128; G = 0; B = 0
         }
-        "DarkGreen" = @{
+        "DarkGreen"   = @{
             R = 0; G = 128; B = 0
         }
-        "DarkBlue" = @{
+        "DarkBlue"    = @{
             R = 0; G = 0; B = 128
         }
-        "DarkYellow" = @{
+        "DarkYellow"  = @{
             R = 128; G = 128; B = 0
         }
-        "DarkCyan" = @{
+        "DarkCyan"    = @{
             R = 0; G = 128; B = 128
         }
         "DarkMagenta" = @{
             R = 128; G = 0; B = 128
         }
-        "DarkGray" = @{
+        "DarkGray"    = @{
             R = 64; G = 64; B = 64
         }
     }
@@ -945,16 +771,14 @@ function Get-ConsoleColor
     $minDistance = [double]::MaxValue
     $closestColor = "White"
 
-    foreach ($colorName in $colors.Keys)
-    {
+    foreach ($colorName in $colors.Keys) {
         $distance = [Math]::Sqrt(
-                [Math]::Pow($rgb.R - $colors[$colorName].R, 2) +
-                        [Math]::Pow($rgb.G - $colors[$colorName].G, 2) +
-                        [Math]::Pow($rgb.B - $colors[$colorName].B, 2)
+            [Math]::Pow($rgb.R - $colors[$colorName].R, 2) +
+            [Math]::Pow($rgb.G - $colors[$colorName].G, 2) +
+            [Math]::Pow($rgb.B - $colors[$colorName].B, 2)
         )
 
-        if ($distance -lt $minDistance)
-        {
+        if ($distance -lt $minDistance) {
             $minDistance = $distance
             $closestColor = $colorName
         }
@@ -964,8 +788,7 @@ function Get-ConsoleColor
 }
 
 
-function Show-Colors
-{
+function Show-Colors {
     <#
     .SYNOPSIS
         Показывает все доступные цвета
@@ -982,14 +805,12 @@ function Show-Colors
     } | Sort-Object
     $colorIndex = 0
 
-    foreach ($colorName in $filteredColors)
-    {
+    foreach ($colorName in $filteredColors) {
         # Показываем образец цвета
         Write-RGB "  $colorName " -FC $colorName
 
         $colorIndex++
-        if ($colorIndex % $ColumnsPerRow -eq 0)
-        {
+        if ($colorIndex % $ColumnsPerRow -eq 0) {
             Write-Host ""
         }
     }
@@ -999,8 +820,7 @@ function Show-Colors
 }
 
 
-function Test-GradientDemo
-{
+function Test-GradientDemo {
     Write-GradientText  "`n=== Демонстрация градиентов ===`n" -StartColor "#ffffff" -EndColor "#000000"
 
     $gradientTypes = @("Linear", "Exponential", "Sine", "Cosine")
@@ -1019,8 +839,7 @@ function Test-GradientDemo
         }
     )
 
-    foreach ($colorPair in ( $colorPairs | Sort-Object))
-    {
+    foreach ($colorPair in ( $colorPairs | Sort-Object)) {
         Write-GradientText  $colorPair.Name  -StartColor $colorPair.Start -EndColor $colorPair.End
         Write-GradientLine -Length 50 -Char "█" -StartColor $colorPair.Start -EndColor $colorPair.End
     }
@@ -1029,25 +848,24 @@ function Test-GradientDemo
 
 
 
-function Show-Palette
-{
+function Show-Palette {
     <#
     .SYNOPSIS
         Показывает цвета определенной палитры
     #>
     param(
         [ValidateSet("Nord", "Dracula", "Material", "Cyber", "OneDark", "Pastel", "Neon", "All")]
-        [string]$Palette = "All"
+        [string]$Palette = "All",
+        [switch]$withoutNames
     )
 
-    $paletteColors = switch ($Palette)
-    {
+    $paletteColors = switch ($Palette) {
         "NordKeys" {
             $global:RGB.Keys | Where-Object {
                 $_ -like "Nord_*"
             }
         }
-        "Dracula"  {
+        "Dracula" {
             $global:RGB.Keys | Where-Object {
                 $_ -like "Dracula_*"
             }
@@ -1057,27 +875,27 @@ function Show-Palette
                 $_ -like "Material_*"
             }
         }
-        "Cyber"    {
+        "Cyber" {
             $global:RGB.Keys | Where-Object {
                 $_ -like "Cyber_*"
             }
         }
-        "OneDark"  {
+        "OneDark" {
             $global:RGB.Keys | Where-Object {
                 $_ -like "OneDark_*"
             }
         }
-        "Pastel"   {
+        "Pastel" {
             $global:RGB.Keys | Where-Object {
                 $_ -like "Pastel*"
             }
         }
-        "Neon"     {
+        "Neon" {
             $global:RGB.Keys | Where-Object {
                 $_ -like "*Neon*" -or $_ -like "*Electric*"
             }
         }
-        "All"      {
+        "All" {
             $global:RGB.Keys
         }
     }
@@ -1089,27 +907,26 @@ function Show-Palette
     for ($i = 0; $i -lt $paletteColors.Count; $i++) {
 
         $key = $paletteColors[$i]
-        if ($key -eq 0)
-        {
+        if ($key -eq 0) {
             $keyPrev = $paletteColors[$paletteColors.Count - 1]
         }
-        else
-        {
+        else {
             $keyPrev = $paletteColors[$i - 1]
         }
 
         $valuePrev = $global:RGB[$keyPrev]
         $value = $global:RGB[$key]
-        Write-RGB "■ $keyPrev ■           " -FC $keyPrev
-        Write-RGB "■ $key ■" -FC $key -newline
+        if(!$withoutNames) {
+            Write-RGB "■ $keyPrev ■           " -FC $keyPrev
+            Write-RGB "■ $key ■" -FC $key -newline
+        }      
         Write-GradientLine -Length 50 -Char "██" -StartColor $valuePrev -EndColor  $value
-        Write-RGB  "" -newline
+        # Write-RGB  "" -newline
     }
 }
 
 
-function Show-RGBHeader
-{
+function Show-RGBHeader {
     <#
     .SYNOPSIS
         Отображает красивый заголовок с градиентом и рамкой
@@ -1140,27 +957,26 @@ function Show-RGBHeader
         [string]$BorderStyle = 'Double',
 
         [hashtable]$TitleColor = @{
-        StartColor = "#FF6B6B"
-        EndColor = "#4ECDC4"
-    },
+            StartColor = "#FF6B6B"
+            EndColor   = "#4ECDC4"
+        },
 
         [string]$BorderColor = "DeepPurple"
     )
 
     # Определение символов рамки
     $borders = @{
-        'Single' = @{ TL = "┌"; TR = "┐"; BL = "└"; BR = "┘"; H = "─"; V = "│" }
-        'Double' = @{ TL = "╔"; TR = "╗"; BL = "╚"; BR = "╝"; H = "═"; V = "║" }
+        'Single'  = @{ TL = "┌"; TR = "┐"; BL = "└"; BR = "┘"; H = "─"; V = "│" }
+        'Double'  = @{ TL = "╔"; TR = "╗"; BL = "╚"; BR = "╝"; H = "═"; V = "║" }
         'Rounded' = @{ TL = "╭"; TR = "╮"; BL = "╰"; BR = "╯"; H = "─"; V = "│" }
-        'Heavy' = @{ TL = "┏"; TR = "┓"; BL = "┗"; BR = "┛"; H = "━"; V = "┃" }
-        'Dashed' = @{ TL = "┌"; TR = "┐"; BL = "└"; BR = "┘"; H = "╌"; V = "┆" }
+        'Heavy'   = @{ TL = "┏"; TR = "┓"; BL = "┗"; BR = "┛"; H = "━"; V = "┃" }
+        'Dashed'  = @{ TL = "┌"; TR = "┐"; BL = "└"; BR = "┘"; H = "╌"; V = "┆" }
     }
 
     $border = $borders[$BorderStyle]
 
     # Вычисление ширины
-    if ($Width -eq 0)
-    {
+    if ($Width -eq 0) {
         $Width = $Title.Length + 6
     }
     $Width = [Math]::Max($Width, $Title.Length + 6)
@@ -1180,8 +996,7 @@ function Show-RGBHeader
     Write-RGB -Text (" " * $leftPad)
 
     # Градиентный заголовок
-    if ($TitleColor.StartColor -and $TitleColor.EndColor)
-    {
+    if ($TitleColor.StartColor -and $TitleColor.EndColor) {
         # Сохраняем текущую позицию
         $currentY = $Host.UI.RawUI.CursorPosition.Y
 
@@ -1198,14 +1013,11 @@ function Show-RGBHeader
         #        Write-RGB -Text $Title -FC "#1177FF"
         Write-RGB -Text (" " * $rightPad)
     }
-    else
-    {
-        $titleColorName = if ($TitleColor -is [string])
-        {
+    else {
+        $titleColorName = if ($TitleColor -is [string]) {
             $TitleColor
         }
-        else
-        {
+        else {
             "White"
         }
         Write-RGB -Text $Title -FC $titleColorName -Style Bold
@@ -1221,8 +1033,7 @@ function Show-RGBHeader
 }
 
 
-function Write-GradientLine
-{
+function Write-GradientLine {
     <#
     .SYNOPSIS
         Рисует градиентную линию из символов
@@ -1239,14 +1050,13 @@ function Write-GradientLine
     )
 
     Write-GradientText -Text ($Char * $Length) `
-                      -StartColor $StartColor `
-                      -EndColor $EndColor `
-                      -GradientType $GradientType
+        -StartColor $StartColor `
+        -EndColor $EndColor `
+        -GradientType $GradientType
 }
 
 # Функция для градиентного заголовка с рамкой
-function Write-GradientHeader
-{
+function Write-GradientHeader {
     <#
     .SYNOPSIS
         Создает красивый заголовок с градиентным текстом и рамкой
@@ -1280,8 +1090,7 @@ function Write-GradientHeader
 }
 
 # Альтернативная функция для простых заголовков (совместимость)
-function Show-Header
-{
+function Show-Header {
     param(
         [string]$Title,
         [string]$StartColor = "#FF6B6B",
@@ -1290,12 +1099,11 @@ function Show-Header
 
     Show-RGBHeader -Title $Title -TitleColor @{
         StartColor = $StartColor
-        EndColor = $EndColor
+        EndColor   = $EndColor
     }
 }
 
-function NumberToHexPair
-{
+function NumberToHexPair {
     param (
         [Parameter(Mandatory = $true)]
         [int]$Number,
@@ -1308,12 +1116,10 @@ function NumberToHexPair
     $remainder = $Number % 510
 
     # Если в первой половине (0..255) — растёт, иначе — падает
-    $adjustedValue = if ($remainder -le 255)
-    {
+    $adjustedValue = if ($remainder -le 255) {
         $remainder
     }
-    else
-    {
+    else {
         510 - $remainder  # 510 - 256 = 254, 510 - 257 = 253, ..., 510 - 510 = 0
     }
 
@@ -1321,28 +1127,26 @@ function NumberToHexPair
     $adjustedValue = $adjustedValue % 256
 
     # Форматируем в HEX с ведущим нулём, если нужно
-    if ($adjustedValue -lt 16)
-    {
+    if ($adjustedValue -lt 16) {
         "0{0:X}" -f $adjustedValue
     }
-    else
-    {
+    else {
         "{0:X}" -f $adjustedValue
     }
 }
 
 
-function Get-GradientList
-{
+function Get-GradientList {
     param(
+        [Parameter(ValueFromPipeline = $true)]
         $list = (Get-Command)
     )
     $i = 0
     $list | ForEach-Object {
-        $cmd = $_.Name
+        $cmd = $_.Name ?? $_.PSPath ?? $_
         $hex1 = NumberToHexPair $i
         $hex2 = NumberToHexPair (256 - $i)
-        $hex3 = NumberToHexPair ($i - 256/2 + $i)
+        $hex3 = NumberToHexPair ($i - 256 / 2 + $i)
         Write-GradientText $cmd  -StartColor "#${hex3}${hex1}${hex2}" -EndColor "#${hex2}${hex2}${hex1}"
         $i++
     }
@@ -1350,16 +1154,48 @@ function Get-GradientList
     Write-Host""
 }
 
-function GetGradientIcons
-{
+function Get-GradientTerminalIcons {
+    if (-not $global:icons) {
+        $psd1Content = Get-Content -Raw "$global:profilePath/Utils/resourses/glyphs.psd1"
+        $global:icons = Invoke-Expression $psd1Content
+    }
 
-
+    $list = $icons.GetEnumerator() | ForEach-Object { "$( $_.Key ) $( $_.Value )" }
+    Get-GradientList $list
 }
 
 
+function Find-Icon {
+    param(
+        [string]$SearchQuery
+    )
 
-function Write-GradientFull
-{
+    # Загружаем иконки (если $icons еще не определен)
+    if (-not $global:icons) {
+        $psd1Content = Get-Content -Raw "$global:profilePath/Utils/resourses/glyphs.psd1"
+        $global:icons = Invoke-Expression $psd1Content
+    }
+
+    # Фильтрация по запросу (без учета регистра)
+    $results = $global:icons.GetEnumerator() |
+    Where-Object { $_.Key -like "*$SearchQuery*" } |
+    Sort-Object Key
+
+    # Вывод результатов
+
+    $c = 1
+    $results | ForEach-Object {
+        $red = NumberToHexPair ($c / 2)
+        $green = NumberToHexPair (256 - $c)
+        $icon = $_.Value
+        Write-RGB -Text "${icon}     " -FC "#${red}AA${green}"
+        $c = $c + 11
+    }
+
+    Write-Host "`nНайдено иконок: $( $results.Count )" -ForegroundColor Cyan
+}
+
+function Write-GradientFull {
     param (
         [string]$Text,
         [int]$R1, [int]$G1, [int]$B1, # Цвет текста от
@@ -1385,8 +1221,7 @@ function Write-GradientFull
 }
 
 
-function Write-Status
-{
+function Write-Status {
     param(
         [string]$Message,
         [switch]$Success,
@@ -1400,40 +1235,252 @@ function Write-Status
     $icon = "📌"
     $color = "White"
 
-    if ($Success)
-    {
+    if ($Success) {
         $icon = Get-StatusIcon('success'); $color = "Material_Green"
     }
-    elseif ($Warning)
-    {
+    elseif ($Warning) {
         $icon = Get-StatusIcon('warning'); $color = "Material_Amber"
     }
-    elseif ($Problem)
-    {
+    elseif ($Problem) {
         $icon = Get-StatusIcon('problem'); $color = "Material_Red"
     }
-    elseif ($Critical)
-    {
+    elseif ($Critical) {
         $icon = Get-StatusIcon('critical'); $color = "#FF0000"
     }
-    elseif ($Info)
-    {
+    elseif ($Info) {
         $icon = "ℹ️"; $color = "Cyan"
     }
 
-    if ($returnRow)
-    {
+    if ($returnRow) {
         return "${Icon} ${Message}"
     }
-    else
-    {
+    else {
         Write-RGB $icon
         Write-RGB $Message -FC $color
     }
 }
 
-#Get-GradientList
-importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')
+function Show-TestGradientFull {
+    Write-GradientFull "┌────────────────────────────────────────┐" 0 255 255 0 100 255 0 0 0 20 20 60
+    Write-GradientFull "│  🌐  NET INTERFACE v0.8                │" 0 255 128 0 120 255 0 0 0 20 20 60
+    Write-GradientFull "│  📡  SCANNING: 192.168.1.1/24          │" 155 255 255 200 255 128 0 0 0 40 0 60
+    Write-GradientFull "│  🔓  STATUS: INTRUSION CHECK...        │" 55 128 0 255 0 128 0 0 0 30 20 60
+    Write-GradientFull "│  🧪  PROGRESS: 50%                     │" 0 255 0 255 0 255 0 0 0 30 0 50
+    Write-GradientFull "└────────────────────────────────────────┘" 0 255 255 0 100 255 0 0 0 20 20 60
+
+
+    Write-GradientFull " ✔️  SCAN COMPLETE — HOSTS FOUND: 12" 0 255 0 0 150 255 0 0 0 0 80 0
+    Write-GradientFull " 💥  VULNERABILITIES: SMBv1, SSH 6.2" 255 0 0 255 255 0 0 0 0 40 0 0
+}
+
+function Write-Rainbow {
+    <#
+    .SYNOPSIS
+        Создает радужный текст с различными режимами и эффектами
+
+    .DESCRIPTION
+        Продвинутая функция для создания радужных эффектов с поддержкой
+        анимации, различных палитр и режимов применения
+
+    .PARAMETER Text
+        Текст для радужного отображения
+
+    .PARAMETER Mode
+        Режим применения: Char (по символам), Word (по словам), Line (построчно)
+
+    .PARAMETER Palette
+        Палитра цветов или предустановленный стиль
+
+    .PARAMETER Speed
+        Скорость анимации (если включена)
+
+    .PARAMETER Reverse
+        Обратный порядок цветов
+
+    .PARAMETER Wave
+        Волновой эффект
+
+    .EXAMPLE
+        "Hello World" | Write-Rainbow
+
+    .EXAMPLE
+        Write-Rainbow -Text "PowerShell Rocks!" -Mode Word -Palette Fire -Animated
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(ValueFromPipeline = $true)]
+        [string]$Text,
+
+        [ValidateSet("Char", "Word", "Line", "Gradient", "Wave")]
+        [string]$Mode = "Char",
+
+        [string[]]$Palette,
+
+        [ValidateSet("Rainbow", "Fire", "Ocean", "Forest", "Sunset", "Neon", "Pastel", "Ukraine", "Custom")]
+        [string]$Style = "Rainbow",
+
+        [switch]$Bold,
+        [switch]$Italic,
+        [switch]$Animated,
+
+        [int]$Speed = 50,
+        [switch]$Reverse,
+        [switch]$Loop,
+        [int]$LoopCount = 1,
+
+        [switch]$Wave,
+        [double]$WaveAmplitude = 0.5,
+        [double]$WaveFrequency = 0.2
+    )
+
+    begin {
+        # Предустановленные палитры
+        $palettes = @{
+            Rainbow = $global:RAINBOWCOLORS
+            Fire    = @("#8B0000", "#FF0000", "#FF4500", "#FFA500", "#FFD700", "#FFFF00", "#FFFACD")
+            Ocean   = @("#000080", "#0000CD", "#0000FF", "#0080FF", "#00BFFF", "#00CED1", "#00FFFF")
+            Forest  = @("#013220", "#228B22", "#32CD32", "#00FF00", "#7CFC00", "#ADFF2F", "#9ACD32")
+            Sunset  = @("#FF1744", "#FF6E40", "#FF9100", "#FFC400", "#FFD740", "#FFE57F")
+            Neon    = @("#FF00FF", "#FF00AA", "#FF0080", "#FF0040", "#FF0000", "#FF4000", "#FF8000", "#FFFF00")
+            Pastel  = @("#FFB3BA", "#FFDFBA", "#FFFFBA", "#BAFFC9", "#BAE1FF", "#E0BBE4", "#FFDFD3")
+            Ukraine = @("#0057B7", "#0057B7", "#FFD500", "#FFD500")
+        }
+
+
+
+
+        # Выбираем палитру
+        if ($Style -eq "Custom" -and $Palette) {
+            $colors = $Palette
+        }
+        else {
+            $colors = $palettes[$Style]
+        }
+
+        if ($Reverse) {
+            [array]::Reverse($colors)
+        }
+
+        $index = 0
+        $styles = @()
+        if ($Bold) { $styles += 'Bold' }
+        if ($Italic) { $styles += 'Italic' }
+        if ($styles.Count -eq 0) { $styles = @('Normal') }
+    }
+
+    process {
+        if (-not $Text) { return }
+
+        if ($Animated) {
+            # Анимированный режим
+            for ($loop = 0; $loop -lt $(if ($Loop) { $LoopCount } else { 1 }); $loop++) {
+                for ($shift = 0; $shift -lt $colors.Count; $shift++) {
+                    # Сохраняем позицию курсора
+                    $pos = $Host.UI.RawUI.CursorPosition
+
+                    switch ($Mode) {
+                        "Char" {
+                            $chars = $Text.ToCharArray()
+                            for ($i = 0; $i -lt $chars.Length; $i++) {
+                                $colorIndex = ($i + $shift) % $colors.Length
+
+                                if ($Wave) {
+                                    # Волновой эффект
+                                    $waveOffset = [Math]::Sin($i * $WaveFrequency + $shift * 0.5) * $WaveAmplitude
+                                    $colorIndex = [Math]::Abs([int](($colorIndex + $waveOffset * $colors.Length) % $colors.Length))
+                                }
+
+                                Write-RBG $chars[$i] -FC $colors[$colorIndex] -Style $styles
+                            }
+                        }
+
+                        "Word" {
+                            $words = $Text -split '\s+'
+                            for ($i = 0; $i -lt $words.Length; $i++) {
+                                $colorIndex = ($i + $shift) % $colors.Length
+                                Write-RBG "$($words[$i]) " -FC $colors[$colorIndex] -Style $styles
+                            }
+                        }
+                    }
+
+                    Start-Sleep -Milliseconds $Speed
+
+                    # Возвращаемся к началу строки
+                    $Host.UI.RawUI.CursorPosition = $pos
+                }
+            }
+
+            # Финальный вывод
+            $shift = 0
+        }
+
+        # Статичный вывод
+        switch ($Mode) {
+            "Char" {
+                $chars = $Text.ToCharArray()
+                foreach ($char in $chars) {
+                    $color = $colors[$index % $colors.Length]
+                    Write-RBG $char -FC $color -Style $styles
+                    $index++
+                }
+                Write-Host ""
+            }
+
+            "Word" {
+                $words = $Text -split '\s+'
+                foreach ($word in $words) {
+                    $color = $colors[$index % $colors.Length]
+                    Write-RBG "$word " -FC $color -Style $styles
+                    $index++
+                }
+                Write-Host ""
+            }
+
+            "Line" {
+                $color = $colors[$index % $colors.Length]
+                Write-RBG $Text -FC $color -Style $styles -newline
+                $index++
+            }
+
+            "Gradient" {
+                # Градиентный режим между цветами палитры
+                $length = $Text.Length
+                $chars = $Text.ToCharArray()
+
+                for ($i = 0; $i -lt $length; $i++) {
+                    $progress = $i / [Math]::Max(1, $length - 1)
+                    $paletteProgress = $progress * ($colors.Length - 1)
+                    $colorIndex = [Math]::Floor($paletteProgress)
+                    $localProgress = $paletteProgress - $colorIndex
+
+                    $startColor = $colors[[Math]::Min($colorIndex, $colors.Length - 1)]
+                    $endColor = $colors[[Math]::Min($colorIndex + 1, $colors.Length - 1)]
+
+                    $color = Get-GradientColor -Position $localProgress `
+                        -StartColor $startColor `
+                        -EndColor $endColor
+
+                    Write-RBG $chars[$i] -FC $color -Style $styles
+                }
+                Write-Host ""
+            }
+
+            "Wave" {
+                # Волновой режим
+                $chars = $Text.ToCharArray()
+                for ($i = 0; $i -lt $chars.Length; $i++) {
+                    $wave = [Math]::Sin($i * $WaveFrequency) * 0.5 + 0.5
+                    $colorIndex = [int]($wave * ($colors.Length - 1))
+                    $color = $colors[$colorIndex]
+                    Write-RBG $chars[$i] -FC $color -Style $styles
+                }
+                Write-Host ""
+            }
+        }
+    }
+}
+
+Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))
 
 
 

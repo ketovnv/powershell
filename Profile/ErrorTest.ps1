@@ -1,4 +1,4 @@
-importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
+Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)) -start
 
 wrgb "" -newline
 wrgb "`nДоступные виды ошибок:" -FC Material_Orange -newline
@@ -155,4 +155,4 @@ $help=@"
 "@
 wrgb $help -FC "#1199FF"
 
-importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')
+Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))

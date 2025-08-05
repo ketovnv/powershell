@@ -11,29 +11,6 @@
 # Help and documentation
 /Help/
 
-# PowerShell modules (organized by category)
-# Core PowerShell modules
-/Modules/PSReadLine/
-/Modules/PowerShellGet/
-/Modules/PackageManagement/
-
-# Microsoft modules
-/Modules/Microsoft.*/
-
-# Third-party modules
-/Modules/Terminal-Icons/
-/Modules/posh-git/
-/Modules/Pester/
-# ... и так далее
-
-# PowerShell module metadata
-/Modules/*/PSGetModuleInfo.xml
-
-# Profile and configuration files
-/___Microsoft.PowerShell_profile.___.ps1
-/blackTheme.omp.json*
-/dockerNpm.ps1
-/gpreport.html
 
 # System files
 desktop.ini
@@ -41,4 +18,9 @@ desktop.ini
 
 # bun modules
 /.node_modules/
+.bun.lock
+
+
 /PowerShell-Docs/
+
+

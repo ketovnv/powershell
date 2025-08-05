@@ -1,5 +1,5 @@
 
-importProcess  $MyInvocation.MyCommand.Name.trim(".ps1") -start
+Trace-ImportProcess  $MyInvocation.MyCommand.Name.trim(".ps1") -start
 
 #region Инициализация
 if (-not $global:RGB) {
@@ -767,4 +767,4 @@ if (Get-Command wrgb -ErrorAction SilentlyContinue) {
 
 
 
-importProcess  $MyInvocation.MyCommand.Name.trim(".ps1")
+Trace-ImportProcess  $MyInvocation.MyCommand.Name.trim(".ps1")

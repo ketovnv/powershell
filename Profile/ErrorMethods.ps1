@@ -1,6 +1,6 @@
 
 
-importProcess  $MyInvocation.MyCommand.Name.trim(".ps1") -start
+Trace-ImportProcess  $MyInvocation.MyCommand.Name.trim(".ps1") -start
 # Advanced ErrorView Handler with Templates and Translation
 # Расширенная система перехвата и обработки ошибок с шаблонами и переводом
 
@@ -725,4 +725,4 @@ function errorMethodsInfo
 
 #errorMethodsInfo
 #endregion
-importProcess  $MyInvocation.MyCommand.Name.trim(".ps1")
+Trace-ImportProcess  $MyInvocation.MyCommand.Name.trim(".ps1")

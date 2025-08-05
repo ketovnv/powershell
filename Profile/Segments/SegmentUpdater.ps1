@@ -1,4 +1,4 @@
-importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
+Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)) -start
 
 # Главный скрипт для обновления переменных окружения для Oh My Posh сегментов
 
@@ -85,4 +85,4 @@ function Update-ProcessInfoSegment { $env:OMP_PROCESS_INFO = Get-ProcessInfoSegm
 
 Export-ModuleMember -Function Update-OmpEnvironmentVariables, Start-OmpSegmentUpdater, Stop-OmpSegmentUpdater, Update-WeatherSegment, Update-NetworkSegment, Update-SystemHealthSegment, Update-DiskUsageSegment, Update-ProcessInfoSegment
 
-importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')
+Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))

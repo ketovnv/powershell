@@ -1,4 +1,4 @@
-importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
+Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)) -start
 
 # ╔═══════════════════════════════════════════════════════════════════════════╗
 # ║                    🚀 QUICK START - BROWSER TRANSLATOR                      ║
@@ -25,7 +25,7 @@ function Install-TranslatorDependencies {
 
         # Определяем версию Edge
         $edgeVersion = (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\msedge.exe').'(Default)' |
-                ForEach-Object { (Get-Item $_).VersionInfo.ProductVersion }
+        ForEach-Object { (Get-Item $_).VersionInfo.ProductVersion }
 
         # Загружаем соответствующий драйвер
         $driverUrl = "https://msedgedriver.azureedge.net/$edgeVersion/edgedriver_win64.zip"
@@ -59,7 +59,7 @@ function Quick-Translate {
         "Welcome to PowerShell" | Quick-Translate -To es
     #>
     param(
-        [Parameter(Mandatory, Position=0, ValueFromPipeline)]
+        [Parameter(Mandatory, Position = 0, ValueFromPipeline)]
         [string]$Text,
 
         [string]$To = 'ru'
@@ -120,7 +120,8 @@ function Simple-BrowserTranslate {
 
             return $result
 
-        } catch {
+        }
+        catch {
             Write-Status -Error "Ошибка перевода: $_"
         }
     }
@@ -180,7 +181,8 @@ function Translate-FileSimple {
                 # Получаем перевод
                 $result = $driver.FindElementByClassName("J0lOec").Text
                 $translated += $result
-            } else {
+            }
+            else {
                 $translated += ""
             }
         }
@@ -191,7 +193,8 @@ function Translate-FileSimple {
         Write-Progress -Activity "Перевод" -Completed
         Write-Status -Success "Перевод сохранен: $outPath"
 
-    } finally {
+    }
+    finally {
         $driver.Quit()
     }
 }
@@ -228,7 +231,8 @@ function Mini-Translator {
             wrgb "🔄 " -FC "Green"
             wrgb $result -FC "White" -Style Bold -newline
         }
-    } finally {
+    }
+    finally {
         $driver.Quit()
     }
 }
@@ -253,7 +257,8 @@ function Lightning-Translate {
         wrgb $translation -FC "Green" -Style Bold -newline
 
         return $translation
-    } catch {
+    }
+    catch {
         Write-Status -Error "API недоступен, используйте браузерный метод"
     }
 }
@@ -340,4 +345,4 @@ wrgb "  • " -FC "DarkGray"
 wrgb "Show-TranslatorExamples" -FC "Yellow"
 wrgb " - примеры" -FC "Gray" -newline
 
-importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')
+Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))

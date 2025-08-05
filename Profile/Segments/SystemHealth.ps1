@@ -1,4 +1,4 @@
-importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
+Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)) -start
 
 function Get-SystemHealthSegment {
     try {
@@ -37,4 +37,4 @@ function Get-SystemHealthSegment {
 
 Export-ModuleMember -Function Get-SystemHealthSegment
 
-importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')
+Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))

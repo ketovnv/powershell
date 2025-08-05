@@ -1,6 +1,6 @@
 
 
-importProcess  $MyInvocation.MyCommand.Name.trim(".ps1") -start
+Trace-ImportProcess  $MyInvocation.MyCommand.Name.trim(".ps1") -start
 
 
 function Prognoz{
@@ -160,4 +160,4 @@ function Get-CryptoInfo {
 }
 
 Get-CryptoInfo
-importProcess  $MyInvocation.MyCommand.Name.trim(".ps1")
+Trace-ImportProcess  $MyInvocation.MyCommand.Name.trim(".ps1")

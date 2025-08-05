@@ -1,4 +1,4 @@
-importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
+Trace-ImportProcess  (([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))) -start
 
 #region Инициализация
 $global:RGB = @{ }
@@ -14,7 +14,7 @@ if (-not $global:ColorSupport)
 
 #region Цветовые палитры
 # Палитры в формате HEX (упорядочены и дополнены)
-$newHexColors = @{
+$global:newHexColors = @{
 # Палитра Nord (спокойные и элегантные тона)
     "Nord_PolarNight" = "#2E3440" # Очень темный сине-серый
     "Nord_DarkBlue" = "#3B4252" # Темно-синий
@@ -85,7 +85,7 @@ $newHexColors = @{
     "OneDark_White" = "#ABB2BF"
 }
 
-$additionalColors = @{
+$global:additionalColors = @{
 # Пастельные тона
     "PastelPink" = "#FFD1DC"
     "PastelBlue" = "#AEC6CF"
@@ -145,7 +145,7 @@ $additionalColors = @{
 }
 
 # RGB версии цветов (оптимизированы)
-$colorsRGB = @{
+$global:colorsRGB = @{
 # Основные цвета (исправлены для лучшего отображения)
     "BlackRGB" = @{
         R = 0; G = 0; B = 0
@@ -226,7 +226,7 @@ $colorsRGB = @{
 }
 
 
-$RAINBOWGRADIENT = @(
+$global:RAINBOWGRADIENT = @(
     "#FF0000",
     "#FF4000",
     "#FF8000",
@@ -244,7 +244,7 @@ $RAINBOWGRADIENT = @(
     "#BF00FF",
     "#FF00FF")
 
-$RAINBOWGRADIENT2 = @(
+$global:RAINBOWGRADIENT2 = @(
     '#FF0000',
     '#FF5500',
     '#FFAA00',
@@ -265,9 +265,6 @@ $RAINBOWGRADIENT2 = @(
 
 
 
-function Get-TerminalIcons{
-    $terminalIcons = Import-PowerShellDataFile "$global:profilePath/Utils/resourses/glyphs.psd1"
-}
 # Подгрузка PSD1 файла
 $fileColors = Import-PowerShellDataFile "$global:profilePath/Utils/resourses/filecolors.psd1"
 # Функция для получения цвета файла
@@ -357,4 +354,4 @@ $Env:LS_COLORS = @(
 ) -join ":"
 
 
-importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')
+Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))

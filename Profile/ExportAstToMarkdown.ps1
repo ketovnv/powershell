@@ -1,4 +1,4 @@
-importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
+Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)) -start
 
 param(
     [string]$InputFolder = "ast_exports",
@@ -96,4 +96,4 @@ $markdown -join "`n" | Out-File -FilePath $OutputFile -Encoding utf8
 
 Write-Host "✅ Markdown-отчёт сохранён: $OutputFile" -ForegroundColor Green
 
-importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')
+Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))

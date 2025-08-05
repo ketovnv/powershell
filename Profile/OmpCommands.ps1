@@ -1,4 +1,4 @@
-importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
+Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)) -start
 
 # Команды для управления Oh My Posh кастомными сегментами
 
@@ -11,12 +11,12 @@ function Show-OmpSegments {
     Write-Host "=" * 50 -ForegroundColor Cyan
     
     $segments = @{
-        "Weather" = $env:OMP_WEATHER
-        "Network" = $env:OMP_NETWORK  
+        "Weather"       = $env:OMP_WEATHER
+        "Network"       = $env:OMP_NETWORK  
         "System Health" = $env:OMP_SYSTEM_HEALTH
-        "Disk Usage" = $env:OMP_DISK_USAGE
-        "Process Info" = $env:OMP_PROCESS_INFO
-        "Last Update" = $env:OMP_LAST_UPDATE
+        "Disk Usage"    = $env:OMP_DISK_USAGE
+        "Process Info"  = $env:OMP_PROCESS_INFO
+        "Last Update"   = $env:OMP_LAST_UPDATE
     }
     
     foreach ($segment in $segments.GetEnumerator()) {
@@ -63,7 +63,8 @@ function Test-OmpSegments {
     try {
         $weather = Get-WeatherSegment
         Write-Host "✅ Weather: $weather" -ForegroundColor Green
-    } catch {
+    }
+    catch {
         Write-Host "❌ Weather failed: $($_.Exception.Message)" -ForegroundColor Red
     }
     
@@ -71,7 +72,8 @@ function Test-OmpSegments {
     try {
         $network = Get-NetworkSegment
         Write-Host "✅ Network: $network" -ForegroundColor Green
-    } catch {
+    }
+    catch {
         Write-Host "❌ Network failed: $($_.Exception.Message)" -ForegroundColor Red
     }
     
@@ -79,7 +81,8 @@ function Test-OmpSegments {
     try {
         $health = Get-SystemHealthSegment
         Write-Host "✅ System Health: $health" -ForegroundColor Green
-    } catch {
+    }
+    catch {
         Write-Host "❌ System Health failed: $($_.Exception.Message)" -ForegroundColor Red
     }
     
@@ -87,7 +90,8 @@ function Test-OmpSegments {
     try {
         $disk = Get-DiskUsageSegment
         Write-Host "✅ Disk Usage: $disk" -ForegroundColor Green
-    } catch {
+    }
+    catch {
         Write-Host "❌ Disk Usage failed: $($_.Exception.Message)" -ForegroundColor Red
     }
     
@@ -95,7 +99,8 @@ function Test-OmpSegments {
     try {
         $process = Get-ProcessInfoSegment
         Write-Host "✅ Process Info: $process" -ForegroundColor Green
-    } catch {
+    }
+    catch {
         Write-Host "❌ Process Info failed: $($_.Exception.Message)" -ForegroundColor Red
     }
 }
@@ -108,7 +113,7 @@ function Set-WeatherApiKey {
     API ключ от OpenWeatherMap
     #>
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$ApiKey
     )
     
@@ -157,4 +162,4 @@ Set-Alias -Name omph -Value Show-OmpHelp
 
 Export-ModuleMember -Function Show-OmpSegments, Reset-OmpSegments, Test-OmpSegments, Set-WeatherApiKey, Show-OmpHelp -Alias omps, ompr, ompt, omph
 
-importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')
+Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))

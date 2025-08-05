@@ -1,4 +1,4 @@
-importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
+Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)) -start
 
 # Heavy-Functions.ps1
 # Тяжелые функции для отложенной загрузки
@@ -7,7 +7,7 @@ importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
 function Initialize-WeatherComponents {
     try {
         if (Get-Command Openwe -ErrorAction SilentlyContinue) {
-            Openwe
+            $global:openWeatherKey
         }
     } catch {
         Write-Warning "Failed to initialize weather components: $_"
@@ -25,4 +25,4 @@ Initialize-AdditionalComponents
 
 Write-Host "🔧 Heavy functions loaded" -ForegroundColor Magenta
 
-importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')
+Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))

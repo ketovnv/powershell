@@ -1,5 +1,5 @@
 
-importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
+Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)) -start
 function Get-Help
 {
     [CmdletBinding(DefaultParameterSetName = 'AllUsersView')]
@@ -2367,4 +2367,4 @@ if ($MyInvocation.MyCommand.Path -match '\.psm1$')
 }
 
 Show-PracticalProxyExamples
-importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')
+Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))

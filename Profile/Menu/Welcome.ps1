@@ -1,4 +1,4 @@
-importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
+Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)) -start
 #
 function Show-AllGradientDemos {
     <#
@@ -82,13 +82,11 @@ function Test-QuickGradient {
 
 function Show-Welcome {
     #    Clear-Host
-
-    wrgb "`n💡 " -FC White
     wrgb "Type " -FC Material_Grey
     wrgb "Show-MainMenu" -FC NeonPinkRGB
     wrgb " or " -FC Material_Grey
     wrgb "menu" -FC LimeRGB
-    wrgb " to open the main menu 💡`n`n" -FC Material_Grey -newline
+    wrgb " to open the main menu " -FC Material_Grey -newline
 
     # Анимированный заголовок
     $title = "POWERSHELL PROFILE "
@@ -99,13 +97,14 @@ function Show-Welcome {
     }
     wrgb " 🇺🇦" -newline
 
-    wrgb "═════════════════════════════════════════════════════" -FC UkraineBlueRGB -newline
+#    wrgb "═════════════════════════════════════════════════════" -FC UkraineBlueRGB -newline
+    wrgb "卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍" -FC UkraineBlueRGB -newline
 
 
     # Системная информация
     Write-Host "📅 " -NoNewline
-    Write-Host "⏰ " -NoNewline
     wrgb (Get-Date -Format "dd.MM.yyyy ") -FC LimeRGB
+    Write-Host "⏰ " -NoNewline
     wrgb (Get-Date -Format "HH:mm") -FC WhiteRGB -newline
 
     Write-Host "🖥️  " -NoNewline
@@ -119,8 +118,8 @@ function Show-Welcome {
     wrgb "⚙️  Processes: " -FC OrangeRGB
     wrgb "$processCount" -FC NeonBlueRGB
     wrgb " running" -FC OrangeRGB -newline
-    wrgb "═════════════════════════════════════════════════════" -FC UkraineYellowRGB -newline
-
+#    wrgb "═════════════════════════════════════════════════════" -FC UkraineYellowRGB -newline
+    wrgb "卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍" -FC UkraineYellowRGB -newline
     #     @"
     # CPU: $( (Get-Counter "\Процессор(_Total)\% загруженности процессора").CounterSamples.CookedValue )%
     # RAM: $([math]::Round((Get-Counter "\Память\Доступно МБ").CounterSamples.CookedValue / 1024, 1) ) GB
@@ -138,8 +137,8 @@ function Show-Welcome {
 
     #    wrgb "═════════════════════════════════════════════════════`n" -FC UkraineYellowRGB -newline
 
-    wrgb "Текущий ErrorView: " -FC Material_Yellow
-    wrgb    $global:ErrorView -FC Green -newline
+#    wrgb "Текущий ErrorView: " -FC Material_Yellow
+#    wrgb    $global:ErrorView -FC Green -newline
     if ($Error.Count -ge 3) {
         wrgb "`n`n---- Последние 3 ошибки ---" -FC Red -newline
         Show-RecentErrors -Count 3
@@ -162,4 +161,4 @@ function Show-Welcome {
 Show-Welcome
 
 #Show-AllGradientDemos
-importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')
+Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))

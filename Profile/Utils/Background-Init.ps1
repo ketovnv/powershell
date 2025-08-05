@@ -1,4 +1,4 @@
-# importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
+# Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)) -start
 Write-Host "[Background] Background initialization started" -ForegroundColor Cyan
 # Background-Init.ps1
 # Файл для тяжелых модулей, загружаемых в фоновом режиме
@@ -57,4 +57,4 @@ try {
     }
 }
 
-# importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')
+# Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))

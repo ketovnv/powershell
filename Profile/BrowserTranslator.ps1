@@ -1,4 +1,4 @@
-importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
+Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)) -start
 
 # ╔═══════════════════════════════════════════════════════════════════════════╗
 # ║                    🌐 BROWSER TRANSLATOR INTEGRATION                        ║
@@ -851,4 +851,4 @@ if ($MyInvocation.MyCommand.Path -match '\.psm1$') {
     Export-ModuleMember -Function * -Alias * -Variable *
 }
 
-importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')
+Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))

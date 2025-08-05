@@ -1,6 +1,6 @@
 
 
-importProcess  $MyInvocation.MyCommand.Name.trim(".ps1") -start
+Trace-ImportProcess  $MyInvocation.MyCommand.Name.trim(".ps1") -start
 function Run-Application {
     $menuItems = @(
         @{ Text = "💻 WebStorm 2025.1.ws3"; Data = @{ Path = "pwsh ws" } },
@@ -91,4 +91,4 @@ function Run-Browser {
         }
     }
 }
-importProcess  $MyInvocation.MyCommand.Name.trim(".ps1")
+Trace-ImportProcess  $MyInvocation.MyCommand.Name.trim(".ps1")

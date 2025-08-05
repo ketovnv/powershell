@@ -1,4 +1,4 @@
- importProcess  $MyInvocation.MyCommand.Name.trim(".ps1") -start
+ Trace-ImportProcess  $MyInvocation.MyCommand.Name.trim(".ps1") -start
 
 function Show-Menu
 {
@@ -49,7 +49,7 @@ function Show-Menu
             if ($choice -ge 1 -and $choice -le $MenuItems.Count)
             {
                 # Анимация выбора
-                Write-RGB "`n✨ " -FC YellowWrite-RGB
+                Write-RGB "`n✨ " -FC Yellow
                 Write-RGB "Выбрано: " -FC White
                 Write-RGB $MenuItems[$choice - 1].Text -FC NeonMaterial_LightGreen -newline
                 Start-Sleep -Milliseconds 750
@@ -197,11 +197,100 @@ function Show-RGBDemo
 #     Write-RGB "🛡️  SecurityWatcher loaded" -FC LimeRGB -newline
 # }
 
+# ===== ГЛАВНОЕ МЕНЮ С RGB =====
+function Show-MainMenu
+{
+    #Clear-Host
+
+    # Анимированный заголовок с градиентом
+    $title = "👻👻  POWERSHELL ULTRA MENU  🥷🥷"
+    $padding = " " * ((60 - $title.Length) / 2)
+
+    Write-Host $padding -NoNewline
+    for ($i = 0; $i -lt $title.Length; $i++) {
+        if ($title[$i] -ne ' ')
+        {
+            $color = Get-GradientColor -Index $i -TotalItems $title.Length -StartColor "#FF0080" -EndColor "#00FFFF"
+            Write-RGB $title[$i] -FC $color
+        }
+        else
+        {
+            Write-Host " " -NoNewline
+        }
+    }
+    Write-RGB "" -newline
+
+    # Градиентная линия
+    for ($i = 0; $i -lt 60; $i++) {
+        $color = Get-GradientColor -Index $i -TotalItems 60 -StartColor "#FFD700" -EndColor "#0057B7"
+        Write-RGB "═" -FC $color
+    }
+    Write-RGB "" -newline
+
+    $menuItems = @(
+        @{ Text = "🛠️  Инструменты разработчика"; Data = "dev-tools" },
+        @{ Text = "🚀 Запуск приложений"; Data = "run-application" },
+        @{ Text = "⚙️  Настройка PowerShell"; Data = "powershell-config" },
+        @{ Text = "🧹 Обслуживание системы"; Data = "system-cleanup" },
+        @{ Text = "💻 Информация о системе"; Data = "system-info" },
+        @{ Text = "🌐 Сетевые утилиты"; Data = "network-utils" },
+        @{ Text = "🎨 RGB Demo"; Data = "rgb-demo" },
+        @{ Text = "🚪 Выход"; Data = "exit" }
+    )
+
+    $gradientOptions = @{
+        StartColor = "#01BB01"
+        EndColor = "#FF7755"
+        GradientType = "Linear"
+    }
+
+    $selected = Show-Menu -MenuItems $menuItems -MenuTitle "" -Prompt "Выберите действие" -GradientOptions $gradientOptions
+
+    switch ($selected.Data)
+    {
+        "dev-tools" {
+            Show-DevToolsMenu
+        }
+        "run-application" {
+            Run-Application
+        }
+        "powershell-config" {
+            Show-PowerShellConfigMenu
+        }
+        "system-cleanup" {
+            Show-CleanupMenu
+        }
+        "system-info" {
+            Show-SystemInfo
+            Write-RGB "`nНажмите любую клавишу..." -FC CyanRGB -newline
+            $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+            Show-MainMenu
+        }
+        "network-utils" {
+            Show-NetworkMenu
+        }
+        "rgb-demo" {
+            Show-RGBDemo
+        }
+        "exit" {
+            # Анимация выхода
+            Write-RGB "`n👋 " -FC White
+            $goodbye = "До свидания!"
+            for ($i = 0; $i -lt $goodbye.Length; $i++) {
+                $color = Get-GradientColor -Index $i -TotalItems $goodbye.Length -StartColor "#FFD700" -EndColor "#FF1493"
+                Write-RGB $goodbye[$i] -FC $color
+                Start-Sleep -Milliseconds 100
+            }
+            Write-RGB "" -newline
+            return
+        }
+    }
+}
 
 
 if (-not (Get-Command Show-Menu -ErrorAction SilentlyContinue)) { Write-Host 'Show-Menu Error' }
 if (-not (Get-Command Show-RGBLoader -ErrorAction SilentlyContinue)) { Write-Host 'Show-RGBLoader Error' }
 if (-not (Get-Command Show-RGBProgress -ErrorAction SilentlyContinue)) { Write-Host 'Show-RGBProgress Error' }
 if (-not (Get-Command Show-RGBDemo -ErrorAction SilentlyContinue)) { Write-Host 'Show-RGBDemo Error' }
-
-importProcess  $MyInvocation.MyCommand.Name.trim(".ps1")
+if (-not (Get-Command  Show-MainMenu -ErrorAction SilentlyContinue)) { Write-Host ' Show-MainMenu Error' }
+Trace-ImportProcess  $MyInvocation.MyCommand.Name.trim(".ps1")

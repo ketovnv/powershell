@@ -1,5 +1,5 @@
 
-importProcess  $MyInvocation.MyCommand.Name.trim(".ps1") -start
+Trace-ImportProcess  $MyInvocation.MyCommand.Name.trim(".ps1") -start
 
 # Исправленная функция Show-RGBProgress
 function Show-RGBProgress {
@@ -329,4 +329,4 @@ function Show-ProgressExamples {
 }
 
 #Show-ProgressExamples
-importProcess $MyInvocation.MyCommand.Name.trim(".ps1")
+Trace-ImportProcess $MyInvocation.MyCommand.Name.trim(".ps1")

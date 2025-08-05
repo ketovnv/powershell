@@ -1,5 +1,5 @@
 
-importProcess  $MyInvocation.MyCommand.Name.trim(".ps1") -start
+Trace-ImportProcess  $MyInvocation.MyCommand.Name.trim(".ps1") -start
 # ╔═══════════════════════════════════════════════════════════════════════════╗
 # ║                    🚨 UNIFIED ERROR HANDLER v3.0                           ║
 # ║              Объединенная система обработки ошибок PowerShell              ║

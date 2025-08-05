@@ -1,4 +1,4 @@
-importProcess  $MyInvocation.MyCommand.Name.trim('.ps1') -start
+Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)) -start
 
 # 🔥 ADVANCED NMAP SCANNER WITH REAL-TIME PARSER
 # Автор: PowerShell Ninja 🥷
@@ -21,9 +21,9 @@ function wrgb {
     }
 
     $params = @{
-        Object = $output
+        Object          = $output
         ForegroundColor = $FC
-        NoNewline = $NoNewline
+        NoNewline       = $NoNewline
     }
     if ($BC) { $params.BackgroundColor = $BC }
 
@@ -36,14 +36,14 @@ function Out-Default {
     [CmdletBinding()]
     param(
         [switch]$Transcript,
-        [Parameter(ValueFromPipeline=$true)]
+        [Parameter(ValueFromPipeline = $true)]
         [psobject]$InputObject
     )
 
     begin {
         $realOutDefault = $ExecutionContext.InvokeCommand.GetCommand(
-                'Microsoft.PowerShell.Core\Out-Default',
-                [System.Management.Automation.CommandTypes]::Cmdlet
+            'Microsoft.PowerShell.Core\Out-Default',
+            [System.Management.Automation.CommandTypes]::Cmdlet
         )
         $steppablePipeline = { & $realOutDefault @PSBoundParameters }.GetSteppablePipeline()
         $steppablePipeline.Begin($PSCmdlet)
@@ -130,13 +130,13 @@ function Invoke-NmapScan {
 
     # Глобальные счетчики
     $script:ScanStats = @{
-        OpenPorts = 0
-        ClosedPorts = 0
-        Services = @{}
+        OpenPorts       = 0
+        ClosedPorts     = 0
+        Services        = @{}
         Vulnerabilities = @()
-        HttpServers = @()
-        Databases = @()
-        StartTime = Get-Date
+        HttpServers     = @()
+        Databases       = @()
+        StartTime       = Get-Date
     }
 
     # Запускаем nmap с обработкой в реальном времени
@@ -161,12 +161,12 @@ function Invoke-NmapScan {
                 if ($line -match '^(\d+)/(tcp|udp)\s+(\w+)\s+(\w+)\s*(.*)$') {
                     $portInfo = [PSCustomObject]@{
                         PSTypeName = 'Nmap.PortInfo'
-                        Port = [int]$Matches[1]
-                        Protocol = $Matches[2]
-                        State = $Matches[3]
-                        Service = $Matches[4]
-                        Version = $Matches[5]
-                        Target = $Target
+                        Port       = [int]$Matches[1]
+                        Protocol   = $Matches[2]
+                        State      = $Matches[3]
+                        Service    = $Matches[4]
+                        Version    = $Matches[5]
+                        Target     = $Target
                     }
 
                     # Обновляем статистику
@@ -291,8 +291,8 @@ function Test-HttpServer {
             wrgb ($missingHeaders -join ", ") -FC "Red"
 
             $script:ScanStats.Vulnerabilities += @{
-                Type = "Missing Security Headers"
-                Target = "${Target}:${Port}"
+                Type    = "Missing Security Headers"
+                Target  = "${Target}:${Port}"
                 Details = $missingHeaders
             }
         }
@@ -321,10 +321,12 @@ function Test-HttpServer {
                     wrgb $path -FC "Cyan" -NoNewline
                     wrgb " [$($pathResponse.StatusCode)]" -FC "Gray"
                 }
-            } catch {}
+            }
+            catch {}
         }
 
-    } catch {
+    }
+    catch {
         wrgb "    ❌ " -FC "Red" -NoNewline
         wrgb "HTTP check failed: $($_.Exception.Message)" -FC "DarkRed"
     }
@@ -341,7 +343,7 @@ function Test-HttpsServer {
         $tcpClient = New-Object System.Net.Sockets.TcpClient
         $tcpClient.Connect($Target, $Port)
 
-        $sslStream = New-Object System.Net.Security.SslStream($tcpClient.GetStream(), $false, {$true})
+        $sslStream = New-Object System.Net.Security.SslStream($tcpClient.GetStream(), $false, { $true })
         $sslStream.AuthenticateAsClient($Target)
 
         $cert = $sslStream.RemoteCertificate
@@ -368,7 +370,8 @@ function Test-HttpsServer {
 
         $tcpClient.Close()
 
-    } catch {
+    }
+    catch {
         wrgb "    ❌ " -FC "Red" -NoNewline
         wrgb "SSL check failed: $($_.Exception.Message)" -FC "DarkRed"
     }
@@ -415,7 +418,8 @@ function Test-DatabaseServer {
                 }
 
                 $tcpClient.Close()
-            } catch {}
+            }
+            catch {}
         }
     }
 }
@@ -452,7 +456,8 @@ function Format-NmapPort {
     if ($Port.Version) {
         wrgb " │ " -FC "DarkGray" -NoNewline
         wrgb $Port.Version -FC "Magenta"
-    } else {
+    }
+    else {
         Write-Host
     }
 }
@@ -475,12 +480,12 @@ function Show-ScanSummary {
     if ($script:ScanStats.Services.Count -gt 0) {
         wrgb "`n🔝 TOP SERVICES:" -FC "Yellow" -Style Bold
         $script:ScanStats.Services.GetEnumerator() |
-                Sort-Object Value -Descending |
-                Select-Object -First 5 |
-                ForEach-Object {
-                    $bar = "█" * $_.Value
-                    wrgb ("  {0,-15} {1} ({2})" -f $_.Key, $bar, $_.Value) -FC "Cyan"
-                }
+        Sort-Object Value -Descending |
+        Select-Object -First 5 |
+        ForEach-Object {
+            $bar = "█" * $_.Value
+            wrgb ("  {0,-15} {1} ({2})" -f $_.Key, $bar, $_.Value) -FC "Cyan"
+        }
     }
 
     # HTTP серверы
@@ -560,11 +565,11 @@ function Invoke-AdvancedWebRequest {
     while ($attempt -le $RetryCount -and -not $success) {
         try {
             $params = @{
-                Uri = $Uri
-                Method = $Method
-                TimeoutSec = $TimeoutSec
-                Headers = $Headers
-                ErrorAction = 'Stop'
+                Uri             = $Uri
+                Method          = $Method
+                TimeoutSec      = $TimeoutSec
+                Headers         = $Headers
+                ErrorAction     = 'Stop'
                 UseBasicParsing = $true
             }
 
@@ -576,11 +581,13 @@ function Invoke-AdvancedWebRequest {
             $success = $true
             return $response
 
-        } catch {
+        }
+        catch {
             $attempt++
             if ($attempt -le $RetryCount) {
                 Start-Sleep -Seconds 1
-            } else {
+            }
+            else {
                 throw $_
             }
         }
@@ -615,4 +622,4 @@ Invoke-NmapScan -Target example.com -OSDetection -ServiceDetection -Ports "1-655
 
 "@ -FC "DarkCyan"
 
-importProcess  $MyInvocation.MyCommand.Name.trim('.ps1')
+Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))

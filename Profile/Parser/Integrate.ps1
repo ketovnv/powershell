@@ -1,5 +1,5 @@
 
-importProcess  $MyInvocation.MyCommand.Name.trim(".ps1") -start
+Trace-ImportProcess  $MyInvocation.MyCommand.Name.trim(".ps1") -start
 
 # ╔═══════════════════════════════════════════════════════════════════════════╗
 # ║                    🔧 FINAL PARSER FIXES & SUPER FEATURES                   ║
@@ -1056,4 +1056,4 @@ wrgb " для полного погружения!" -FC "Gray" -newline
 if ($MyInvocation.MyCommand.Path -match '\.psm1$') {
     Export-ModuleMember -Function * -Alias * -Variable *
 }
-importProcess  $MyInvocation.MyCommand.Name.trim(".ps1")
+Trace-ImportProcess  $MyInvocation.MyCommand.Name.trim(".ps1")

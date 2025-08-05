@@ -1,4 +1,4 @@
-﻿@{
+@{
     'nf-cod-account'                                 = ''
     'nf-cod-activate_breakpoints'                    = ''
     'nf-cod-add'                                     = ''
