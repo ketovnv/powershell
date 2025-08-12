@@ -3,7 +3,7 @@
 Trace-ImportProcess  $MyInvocation.MyCommand.Name.trim(".ps1") -start
 function Run-Application {
     $menuItems = @(
-        @{ Text = "💻 WebStorm 2025.1.ws3"; Data = @{ Path = "pwsh ws" } },
+        @{ Text = "💻 WebStorm 2025.2"; Data = @{ Path = "webstorm64" } },
         @{ Text = "📝 Zed"; Data = @{ Path = "zed" } },
         @{ Text = "🖥️  Wezterm"; Data = @{ Path = "wezterm-gui" } },
         @{ Text = "🪟 Windows Terminal Preview"; Data = @{ Path = "wt" } },
@@ -42,25 +42,25 @@ function Run-Application {
 # ===== МЕНЮ БРАУЗЕРОВ С RGB =====
 function Run-Browser {
     $browsers = @(
-        @{ Text = "🦊 Firefox Nightly"; Data = "firefox"; Args = "-P nightly" },
-        @{ Text = "🦊 Firefox Developer"; Data = "firefox"; Args = "-P dev-edition-default" },
+#        @{ Text = "🦊 Firefox Nightly"; Data = "firefox"; Args = "-P nightly" },
+#        @{ Text = "🦊 Firefox Developer"; Data = "firefox"; Args = "-P dev-edition-default" },
         @{ Text = "🦊 Firefox"; Data = "firefox" },
         @{ Text = "🔶 Chrome Canary"; Data = "chrome"; Args = "--chrome-canary" },
-        @{ Text = "🔷 Chrome Dev"; Data = "chrome"; Args = "--chrome-dev" },
+#        @{ Text = "🔷 Chrome Dev"; Data = "chrome"; Args = "--chrome-dev" },
         @{ Text = "🔵 Chrome"; Data = "chrome" },
         @{ Text = "🟦 Edge Canary"; Data = "msedge-canary" },
-        @{ Text = "🟦 Edge Dev"; Data = "msedge-dev" },
+#        @{ Text = "🟦 Edge Dev"; Data = "msedge-dev" },
         @{ Text = "🟦 Edge"; Data = "msedge" },
         @{ Text = "🎭 Opera"; Data = "opera" },
-        @{ Text = "🎨 Vivaldi"; Data = "vivaldi" },
+#        @{ Text = "🎨 Vivaldi"; Data = "vivaldi" },
         @{ Text = "🧅 Tor"; Data = "tor" },
-        @{ Text = "🔷 Chromium"; Data = "chromium" },
+#        @{ Text = "🔷 Chromium"; Data = "chromium" },
         @{ Text = "🦁 Brave"; Data = "brave" },
-        @{ Text = "🌊 Floorp"; Data = "floorp" },
-        @{ Text = "💧 Waterfox"; Data = "waterfox" },
-        @{ Text = "⚡ Thorium"; Data = "thorium" },
-        @{ Text = "🐺 LibreWolf"; Data = "librewolf" },
-        @{ Text = "🟡 Yandex"; Data = "yandex" },
+#        @{ Text = "🌊 Floorp"; Data = "floorp" },
+#        @{ Text = "💧 Waterfox"; Data = "waterfox" },
+#        @{ Text = "⚡ Thorium"; Data = "thorium" },
+#        @{ Text = "🐺 LibreWolf"; Data = "librewolf" },
+#        @{ Text = "🟡 Yandex"; Data = "yandex" },
         @{ Text = "🔙 Назад"; Data = "back" }
     )
 

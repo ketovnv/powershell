@@ -30,6 +30,9 @@ function wrgb {
     Write-Host @params
 }
 
+function wrgbn{
+    wrgb @args -newline
+}
 
 # Наш модифицированный Out-Default для красивого вывода
 function Out-Default {

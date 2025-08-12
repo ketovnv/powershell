@@ -107,6 +107,79 @@ $global:ErrorColorSchemes = @{
 
 }
 
+
+function Handle-PythonImportError {
+    param([System.Management.Automation.ErrorRecord]$ErrorRecord)
+
+    $message = $ErrorRecord.Exception.Message
+
+    # Извлекаем путь
+    $path = $null
+    if ($message -match ':\s*(.+)$') {
+        $path = $matches[1].Trim()
+    }
+
+    if (-not $path) { return }
+
+    # Анализируем проблему
+    $analysis = @{
+        RequestedPath = $path
+        Exists = Test-Path $path
+        Directory = Split-Path $path -Parent
+        FileName = Split-Path $path -Leaf
+    }
+
+    # Автокоррекция опечаток
+    if (-not $analysis.Exists -and (Test-Path $analysis.Directory)) {
+        # Ищем похожие файлы (опечатка в имени)
+        $pattern = $analysis.FileName -replace '\.py$', ''
+        $suggestions = Get-ChildItem $analysis.Directory -Filter "*.py" |
+                Where-Object {
+                    $_.BaseName -like "*$pattern*" -or
+                            (LevenshteinDistance $_.BaseName $pattern) -le 2
+                }
+
+        if ($suggestions.Count -eq 1) {
+            Write-Host "Auto-correcting to: $($suggestions[0].FullName)" -ForegroundColor Yellow
+            return $suggestions[0].FullName
+        } elseif ($suggestions.Count -gt 1) {
+            Write-Host "Did you mean one of these?" -ForegroundColor Cyan
+            $suggestions | ForEach-Object { Write-Host "  - $($_.Name)" }
+        }
+    }
+
+    # Проверяем типичные опечатки в пути
+    $commonTypos = @{
+        'Profie' = 'Profile'
+        'Pyton' = 'Python'
+        'scrips' = 'scripts'
+    }
+
+    $correctedPath = $path
+    foreach ($typo in $commonTypos.Keys) {
+        if ($path -match $typo) {
+            $correctedPath = $path -replace $typo, $commonTypos[$typo]
+            if (Test-Path $correctedPath) {
+                Write-Host "Found typo: '$typo' → '$($commonTypos[$typo])'" -ForegroundColor Yellow
+                Write-Host "Corrected path: $correctedPath" -ForegroundColor Green
+                return $correctedPath
+            }
+        }
+    }
+
+    return $null
+}
+
+# Использование в try-catch
+try {
+    Import-PythonModule "network_tools"
+} catch {
+    $correctedPath = Handle-PythonImportError $_
+    if ($correctedPath) {
+        Import-PythonModule $correctedPath
+    }
+}
+
 # Переводы ошибок (расширенные)
 $global:ErrorTranslations = @{
 # Общие сообщения

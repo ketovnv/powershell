@@ -87,7 +87,7 @@ cache_duration = 'none'
 
 
 [[blocks.segments]]
-template = "<p:yellow>{{round .PhysicalPercentUsed .Precision }}</><#1177DD>%</> "
+template = "<p:yellow>{{round .PhysicalPercentUsed .Precision }}</><p:blue>%</> "
 type = 'sysinfo'
 style = 'powerline'
 
@@ -109,7 +109,7 @@ cache_duration = 'none'
 foreground = 'p:yellow'
 background = 'p:darkblue'
 type = 'executiontime'
-trailing_diamond = "\ue0b4"
+trailing_diamond = "<p:yellow></>"
 style = 'diamond'
 template = ' ❄️ {{ .FormattedMs}} 🔥 '
 

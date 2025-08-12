@@ -1,5 +1,5 @@
 """
-EmojiSystem.py - Централизованная система управления эмодзи с поддержкой Rich
+emoji_system.py - Централизованная система управления эмодзи с поддержкой Rich
 Обеспечивает красивое отображение эмодзи во всех терминалах
 """
 
@@ -9,7 +9,8 @@ from rich.table import Table
 from rich.panel import Panel
 from rich.columns import Columns
 from rich.text import Text
-from rich import print as rprint
+from rich import print
+import os
 import re
 
 
@@ -404,7 +405,7 @@ class EmojiSystem:
 
         # Показываем файловые расширения если нужно
         if category == '*' or 'file' in category.lower():
-            file_items = list(self.database["file_icons"].items())[:24]  # Первые 24
+            file_items = list(self.database["file_icons"].items())[:100]  # Первые 100
 
             table = Table(show_header=False, box=None, padding=(0, 1))
             for _ in range(4):
@@ -507,6 +508,34 @@ def show_all_emojis(category: str = '*'):
     emoji_system.show_all_emojis(category)
 
 
+def ukraine_support():
+    # console = Console();
+    console.print(Panel.fit(
+        "[bold blue]🇺🇦 Слава Українi[/bold blue]",
+        border_style="yellow"
+    ))
+    flag_text = Text();
+    ukr_icon = get_emoji("ukraine", "ukraine")
+    flag_text.append(ukr_icon * 29, style="bold");
+    console.print(flag_text)
+    console.print("")
+
+
+def ukraine_support_wt():
+    # console = Console();
+    ukr_icon = get_emoji("heart", "ukraine")
+
+    flag_text = Text();
+    flag_text.append(ukr_icon * 30, style="bold");
+    console.print(flag_text)
+    console.print(Panel.fit(
+        ukr_icon + "[bold blue] Слава Українi! [/bold blue]" + ukr_icon,
+        border_style="yellow"
+    ))
+    console.print(flag_text)
+    console.print("")
+
+
 # Демонстрация использования
 if __name__ == "__main__":
     import argparse
@@ -519,17 +548,19 @@ if __name__ == "__main__":
     parser.add_argument("--get", "-g", help="Получить конкретный эмодзи")
     parser.add_argument("--from-cat", help="Категория для --get")
     parser.add_argument("--groups", action="store_true", help="Показать результаты поиска по группам")
+    parser.add_argument("--ukraine", action="store_true", help="Слава Україні!")
+    parser.add_argument("--hearts", action="store_true", help="Слава Україні!")
 
     args = parser.parse_args()
 
     console = Console()
 
     # Красивое приветствие
-    console.print(Panel.fit(
-        "[bold magenta]🎨 EmojiSystem.py[/bold magenta]\n"
-        "[cyan]Централизованная система управления эмодзи с Rich поддержкой[/cyan]",
-        border_style="magenta"
-    ))
+    # console.print(Panel.fit(
+    #     "[bold magenta]🎨 emoji_system.py[/bold magenta]\n"
+    #     "[cyan]Централизованная система управления эмодзи с Rich поддержкой[/cyan]",
+    #     border_style="magenta"
+    # ))
 
     if args.search:
         console.print(f"\n[bold]🔍 Поиск эмодзи: '{args.search}'[/bold]")
@@ -543,6 +574,11 @@ if __name__ == "__main__":
         console.print("\n[bold]🌟 Все доступные эмодзи:[/bold]")
         show_all_emojis()
 
+    elif args.ukraine:
+        ukraine_support()
+    elif args.hearts:
+        ukraine_support_wt()
+
     elif args.file:
         icon = get_file_icon(args.file)
         console.print(f"\n[bold]📁 Иконка для файла '{args.file}': {icon}[/bold]")
@@ -552,64 +588,64 @@ if __name__ == "__main__":
         category_text = f" из категории '{args.from_cat}'" if args.from_cat else ""
         console.print(f"\n[bold]✨ Эмодзи '{args.get}'{category_text}: {emoji}[/bold]")
 
-    else:
-        # Интерактивная демонстрация
-        console.print("\n[bold green]🚀 Демонстрация возможностей:[/bold green]")
+        # else:
+        #     # Интерактивная демонстрация
+        #     console.print("\n[bold green]🚀 Демонстрация возможностей:[/bold green]")
 
         # Примеры использования
-        examples = [
-            ("Файловые иконки", [
-                (get_file_icon("py"), "Python файл (.py)"),
-                (get_file_icon("js"), "JavaScript файл (.js)"),
-                (get_file_icon("docker"), "Docker файл"),
-                (get_file_icon("json"), "JSON файл"),
-            ]),
-            ("Network", [
-                (get_emoji("server", "network"), "Сервер"),
-                (get_emoji("wifi", "network"), "WiFi"),
-                (get_emoji("cloud", "network"), "Облако"),
-                (get_emoji("vpn", "network"), "VPN"),
-            ]),
-            ("DevOps", [
-                (get_emoji("docker", "devops"), "Docker"),
-                (get_emoji("kubernetes", "devops"), "Kubernetes"),
-                (get_emoji("pipeline", "devops"), "Pipeline"),
-                (get_emoji("deploy", "devops"), "Deploy"),
-            ]),
-            ("Статусы", [
-                (get_emoji("running", "status"), "Запущено"),
-                (get_emoji("error", "status"), "Ошибка"),
-                (get_emoji("success", "status"), "Успех"),
-                (get_emoji("warning", "status"), "Предупреждение"),
-            ]),
-            ("Git", [
-                (get_emoji("commit", "git"), "Коммит"),
-                (get_emoji("branch", "git"), "Ветка"),
-                (get_emoji("merge", "git"), "Слияние"),
-                (get_emoji("conflict", "git"), "Конфликт"),
-            ]),
-            ("Украина 🇺🇦", [
-                (get_emoji("ukraine", "ukraine"), "Украина"),
-                (get_emoji("peace", "ukraine"), "Мир"),
-                (get_emoji("sunflower", "ukraine"), "Подсолнух"),
-                (get_emoji("victory", "ukraine"), "Победа"),
-            ])
-        ]
+        # examples = [
+        #     ("Файловые иконки,", [
+        #         # (get_file_icon("py"), "Python файл (.py)"),
+        #         (get_file_icon("js"), "JavaScript файл (.js)"),
+        #         # (get_file_icon("docker"), "Docker файл"),
+        #         # (get_file_icon("json"), "JSON файл"),
+        #     ]),
+        #     ("Network", [
+        #         (get_emoji("server", "network"), "Сервер"),
+        #         # (get_emoji("wifi", "network"), "WiFi"),
+        #         # (get_emoji("cloud", "network"), "Облако"),
+        #         # (get_emoji("vpn", "network"), "VPN"),
+        #     ]),
+        #     ("DevOps", [
+        #         (get_emoji("docker", "devops"), "Docker"),
+        #         # (get_emoji("kubernetes", "devops"), "Kubernetes"),
+        #         # (get_emoji("pipeline", "devops"), "Pipeline"),
+        #         # (get_emoji("deploy", "devops"), "Deploy"),
+        #     ]),
+        #     ("Статусы", [
+        #         (get_emoji("running", "status"), "Запущено"),
+        #         # (get_emoji("error", "status"), "Ошибка"),
+        #         # (get_emoji("success", "status"), "Успех"),
+        #         # (get_emoji("warning", "status"), "Предупреждение"),
+        #     ]),
+        #     ("Git", [
+        #         # (get_emoji("commit", "git"), "Коммит"),
+        #         (get_emoji("branch", "git"), "Ветка"),
+        #         # (get_emoji("merge", "git"), "Слияние"),
+        #         # (get_emoji("conflict", "git"), "Конфликт"),
+        #     ]),
+        #     # ("Украина 🇺🇦", [
+        #     #     (get_emoji("ukraine", "ukraine"), "Украина"),
+        #     #     (get_emoji("peace", "ukraine"), "Мир"),
+        #     #     (get_emoji("sunflower", "ukraine"), "Подсолнух"),
+        #     #     (get_emoji("victory", "ukraine"), "Победа"),
+        #     # ])
+        # ]
 
-        for category_name, items in examples:
-            table = Table(show_header=False, box=None, padding=(0, 1))
-            table.add_column(width=8)
-            table.add_column(width=30)
-
-            for emoji, description in items:
-                table.add_row(emoji, description)
-
-            panel = Panel(
-                table,
-                title=f"[bold yellow]{category_name}[/bold yellow]",
-                border_style="yellow"
-            )
-            console.print(panel)
+        # for category_name, items in examples:
+        #     table = Table(show_header=False, box=None, padding=(0, 1))
+        #     table.add_column(width=8)
+        #     table.add_column(width=10)
+        #
+        #     for emoji, description in items:
+        #         table.add_row(emoji, description)
+        #
+        #     panel = Panel(
+        #         table,
+        #         title=f"[bold yellow]{category_name}[/bold yellow]",
+        #         border_style="yellow"
+        #     )
+        #     console.print(panel)
 
         # Инструкции по использованию
         usage_panel = Panel(
@@ -644,7 +680,7 @@ python emoji_system.py --search git --groups
             title="[bold green]📖 Руководство[/bold green]",
             border_style="green"
         )
-        console.print(usage_panel)
+        # console.print(usage_panel)
 
         # Статистика
         total_categories = len(emoji_system.database["categories"])
@@ -658,5 +694,3 @@ python emoji_system.py --search git --groups
 • Файловых расширений: {total_files}
 • Алиасов: {total_aliases}
 • Всего символов: {total_emojis + total_files}"""
-
-        console.print(stats_panel)

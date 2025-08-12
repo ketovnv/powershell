@@ -1,6 +1,7 @@
 Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)) -start
 #
-function Show-AllGradientDemos {
+function Show-AllGradientDemos
+{
     <#
    .SYNOPSIS
        Запускает все демонстрации градиентов
@@ -28,13 +29,13 @@ function Show-AllGradientDemos {
 
     # Текст
     Test-GradientText
-   
 
 
-    
+
+
     Show-Palette Dracula
     wrgb "`nНажмите Enter для продолжения..." -FC "DarkGray"
-    Read-Host     
+    Read-Host
     Show-Palette Nord
     wrgb "`nНажмите Enter для продолжения..." -FC "DarkGray"
     Read-Host
@@ -59,7 +60,8 @@ function Show-AllGradientDemos {
 }
 
 # Быстрая проверка градиента между двумя цветами
-function Test-QuickGradient {
+function Test-QuickGradient
+{
     param(
         [string]$Start = "#FF0000",
         [string]$End = "#0000FF"
@@ -80,46 +82,62 @@ function Test-QuickGradient {
 
 
 
-function Show-Welcome {
+function Show-Welcome
+{
     #    Clear-Host
-    wrgb "Type " -FC Material_Grey
-    wrgb "Show-MainMenu" -FC NeonPinkRGB
-    wrgb " or " -FC Material_Grey
-    wrgb "menu" -FC LimeRGB
-    wrgb " to open the main menu " -FC Material_Grey -newline
+    #    wrgb "Type " -FC Material_Grey
+    #    wrgb "Show-MainMenu" -FC NeonPinkRGB
+    #    wrgb " or " -FC Material_Grey
+    #    wrgb "menu" -FC LimeRGB
+    #    wrgb " to open the main menu " -FC Material_Grey -newline
 
     # Анимированный заголовок
     $title = "POWERSHELL PROFILE "
-    for ($i = 0; $i -lt $title.Length; $i++) {
+    #       wgt $title -StartColor  UkraineBlueRGB  -EndColor 'UkraineYellowRGB'
+    #    for ($i = 0; $i -lt $title.Length; $i++) {
+    #        Get-GradientColor  $title[$i]  -Index $i   -TotalItems $title.Length  -StartColor $global:RGB['UkraineBlueRGB']    -EndColor  $global:RGB['UkraineYellowRGB']
+    #        Start-Sleep -Milliseconds 30
+    #    }
+    #    wrgb " 🇺🇦 🇺🇦 🇺🇦 🇺🇦 🇺🇦"   -FC UkraineBlueRGB -newline
+    #    wrgb " 🇺🇦 🇺🇦 🇺🇦 🇺🇦 🇺🇦"  -FC UkraineYellowRGB -newline
+    #    pres --ukraine
+    #    wrgb "══════════════════════════════════════════════════════════" -FC UkraineYellowRGB -newline
+    #    wrgb "❀ ☘ ✿ ☘ ❀ ☘ ✿ ☘ ❀ ☘ ✿ ☘ ❀ ☘ ✿ ☘ ❀ ☘ ✿ ☘ ❀ ☘ ✿ ☘ ❀ ☘ ✿ ☘ ❀"  -FC UkraineBlueRGB -newline
 
-        #        Get-GradientColor  $title[$i]  -Index $i   -TotalItems $title.Length  -StartColor UkraineBlueRGB    -EndColor  UkraineYellowRGB
-        Start-Sleep -Milliseconds 30
-    }
-    wrgb " 🇺🇦" -newline
-
-#    wrgb "═════════════════════════════════════════════════════" -FC UkraineBlueRGB -newline
-    wrgb "卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍" -FC UkraineBlueRGB -newline
+    Write-Host "🖥️  " -NoNewline
+    wrgb "Windows 11" -FC CyanRGB
+    Write-Host " 🪐" -NoNewline
+    wrgb " PowerShell " -FC YellowRGB
+    wrgb "$( $PSVersionTable.PSVersion )" -FC NeonMaterial_LightGreen
 
 
     # Системная информация
-    Write-Host "📅 " -NoNewline
-    wrgb (Get-Date -Format "dd.MM.yyyy ") -FC LimeRGB
-    Write-Host "⏰ " -NoNewline
+    Write-Host "  📅 " -NoNewline
+    wrgb (Get-Date -Format " dd.MM.yyyy ") -FC LimeRGB
+    Write-Host "                ⏰ " -NoNewline
     wrgb (Get-Date -Format "HH:mm") -FC WhiteRGB -newline
 
-    Write-Host "🖥️  " -NoNewline
-    wrgb "Windows 11 " -FC CyanRGB -newline
-    Write-Host "⚡ " -NoNewline
-    wrgb "PowerShell " -FC YellowRGB
-    wrgb "$( $PSVersionTable.PSVersion )" -FC NeonMaterial_LightGreen -newline
+
 
     # Статистика
-    $processCount = (Get-Process).Count
-    wrgb "⚙️  Processes: " -FC OrangeRGB
-    wrgb "$processCount" -FC NeonBlueRGB
-    wrgb " running" -FC OrangeRGB -newline
-#    wrgb "═════════════════════════════════════════════════════" -FC UkraineYellowRGB -newline
-    wrgb "卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍卍" -FC UkraineYellowRGB -newline
+    #    $processCount = (Get-Process).Count
+    #    wrgb "⚙️  Processes: " -FC OrangeRGB
+    #    wrgb "$processCount" -FC NeonBlueRGB
+    #    wrgb " running" -FC OrangeRGB -newline
+    #    wrgb "══════════════════════════════════════════════════════════" -FC UkraineBlueRGB -newline
+    #    wrgb "❀ ☘ ✿ ☘ ❀ ☘ ✿ ☘ ❀ ☘ ✿ ☘ ❀ ☘ ✿ ☘ ❀ ☘ ✿ ☘ ❀ ☘ ✿ ☘ ❀ ☘ ✿ ☘ ❀" -FC UkraineYellowRGB -newline
+
+    if ($env:WT_SESSION)
+    {
+        pres --hearts
+    }
+    else
+    {
+        pres --hearts
+    }
+
+
+    wrgb ""  -newline
     #     @"
     # CPU: $( (Get-Counter "\Процессор(_Total)\% загруженности процессора").CounterSamples.CookedValue )%
     # RAM: $([math]::Round((Get-Counter "\Память\Доступно МБ").CounterSamples.CookedValue / 1024, 1) ) GB
@@ -137,9 +155,10 @@ function Show-Welcome {
 
     #    wrgb "═════════════════════════════════════════════════════`n" -FC UkraineYellowRGB -newline
 
-#    wrgb "Текущий ErrorView: " -FC Material_Yellow
-#    wrgb    $global:ErrorView -FC Green -newline
-    if ($Error.Count -ge 3) {
+    #    wrgb "Текущий ErrorView: " -FC Material_Yellow
+    #    wrgb    $global:ErrorView -FC Green -newline
+    if ($Error.Count -ge 3)
+    {
         wrgb "`n`n---- Последние 3 ошибки ---" -FC Red -newline
         Show-RecentErrors -Count 3
 
@@ -147,18 +166,13 @@ function Show-Welcome {
         wrgb "`n" -newline
     }
 
-      
-
     #    Show-ErrorBrowser
-
-
-    #   
     #    Show-ParserDemo
     #    Test-GradientIntensity
 }
 
 
 Show-Welcome
-
+#Show-PygmentsThemes
 #Show-AllGradientDemos
 Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))

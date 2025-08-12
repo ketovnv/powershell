@@ -3,7 +3,7 @@ Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocatio
 wrgb "" -newline
 wrgb "`nДоступные виды ошибок:" -FC Material_Orange -newline
 $ErrorViews = (Get-Command ConvertTo-*ErrorView).Name -replace "ConvertTo-(.*)ErrorView", '$1'
-$ErrorViews | ForEach-Object { wrgb  "  - $_" -FC Material_Red}
+$ErrorViews | ForEach-Object { wrgb  "  - $_" -FC Material_Red -newline}
 # Очищаем коллекцию ошибок
 $Error.Clear()
 
@@ -35,49 +35,49 @@ catch {
 # Ошибка внешней команды (если ping доступен)
 ping invalid-host-name-that-does-not-exist 2>$null
 
-wrgb "Создано несколько тестовых ошибок для демонстрации" -FC Green
+wrgb "Создано несколько тестовых ошибок для демонстрации" -FC Green -newline
 
-wrgb "`n=== Демонстрация различных видов отображения ошибок ===" -FC Cyan
+wrgb "`n=== Демонстрация различных видов отображения ошибок ===" -FC Cyan -newline
 
 
 # Демонстрация Simple view (по умолчанию)
 wrgb "`n--- Simple ErrorView (текущий) ---" -FC Yellow
-wrgb "Текущий вид ошибок: $global:ErrorView"
+wrgb "Текущий вид ошибок: $global:ErrorView" -FC Material_Orange -newline
 if ($Error.Count -gt 0) {
-    $Error[0]
+    $Error[0] | bat -l pip
 }
 
 # Демонстрация Normal view
-wrgb "`n--- Normal ErrorView ---" -FC
+wrgb "`n--- Normal ErrorView ---"  -FC Material_Orange -newline
 if ($Error.Count -gt 0) {
-    $Error[0] | Format-Error Normal
+    $Error[0] | Format-Error Normal | bat -l pip
 }
 
 # Демонстрация Category view
 wrgb "`n--- Category ErrorView ---" -FC Yellow
 if ($Error.Count -gt 0) {
-    $Error[0] | Format-Error Category
+    $Error[0] | Format-Error Category | bat -l pip
 }
 
 # Демонстрация Full view
 wrgb "`n--- Full ErrorView ---" -FC Yellow
 if ($Error.Count -gt 0) {
-    $Error[0] | Format-Error Full
+    $Error[0] | Format-Error Full | bat -l pip
 }
 
 
 
 if ($Error.Count -ge 3) {
     wrgb "`n--- Последние 3 ошибки (Normal view) ---" -FC Yellow
-    $Error[0..2] | Format-Error Normal
+    $Error[0..2] | Format-Error Normal | bat -l pip
 } else {
-    $Error | Format-Error Normal
+    $Error | Format-Error Normal | bat -l pip
 }
 
 # Показать ошибку с рекурсией во внутренние исключения
 wrgb "`n--- Ошибка с рекурсией во внутренние исключения ---" -FC Yellow
 if ($Error.Count -gt 0) {
-    $Error[0] | Format-Error Full -Recurse
+    $Error[0] | Format-Error Full -Recurse | bat -l pip
 }
 
 # Демонстрируем кастомный вид

@@ -1,7 +1,7 @@
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 Import-Module Microsoft.PowerShell.PSResourceGet -Force
-
+# $env:PYTHONPATH += ";C:\Users\ketov\pipx\venvs\rich-cli\Scripts"
 
 $global:successScripts = @()
 $global:problemScripts = @()
@@ -28,6 +28,7 @@ function Test-InitScripts {
 $global:initStartScripts = @()
 $global:initEndScripts = @()
 
+
 Set-Alias -Name chs -Value Test-InitScripts
 # ===== ИМПОРТ  СКРИПТОВ =====
 #Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)) -start
@@ -53,13 +54,23 @@ function Trace-ImportProcess {
 $scriptsBefore = @(
 #  'Utils\resourses\emoji',
     'Utils\resourses\EmojiSystem',
+    'Utils\resourses\EmojiTest',
     'Utils\Colors',
-     'Utils\NiceColors',
+    'Utils\NiceColors',
+    'Utils\Aliases',
     'Utils\ColorSystem',
+    'ErrorMethods',
+#    'ErrorTest',
     'Utils\Keyboard',
     'Utils\ProgressBar',
-    'Utils\Aliases'
-    
+
+    'Rich\RichInit',
+    #    'Rich\GlobalPython',
+    'Rich\RichColors',
+    'Rich\RichTheme',
+    'Rich\Rich'
+#    'Rich\files\PythonDiagnostics'
+
     #    'ErrorHandler',
 )
 
@@ -73,14 +84,13 @@ $global:scriptsAfter = @(
     'Menu\NetworkSystem',
     'Menu\MenuItem',
     'Menu\AppsBrowsersMenu',
-    'ErrorMethods',    
     'Menu\Welcome',
     'Menu\ShowMenu'
     #  'Utils\Rainbow'
     #    'Parser\NiceParser',
     #    'Helper',
     #    'BrowserTranslator',
-    #    'QuickStart',
+    #    'QuickStart',pipx install poetrypipx install poetry
 )
 
 # Show-TestGradientFull

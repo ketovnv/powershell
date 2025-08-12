@@ -1336,7 +1336,7 @@ function Write-Rainbow {
     begin {
         # Предустановленные палитры
         $palettes = @{
-            Rainbow = $global:RAINBOWCOLORS
+            Rainbow = $global:RAINBOWGRADIENT
             Fire    = @("#8B0000", "#FF0000", "#FF4500", "#FFA500", "#FFD700", "#FFFF00", "#FFFACD")
             Ocean   = @("#000080", "#0000CD", "#0000FF", "#0080FF", "#00BFFF", "#00CED1", "#00FFFF")
             Forest  = @("#013220", "#228B22", "#32CD32", "#00FF00", "#7CFC00", "#ADFF2F", "#9ACD32")

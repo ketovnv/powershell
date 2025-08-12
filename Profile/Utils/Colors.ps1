@@ -62,6 +62,7 @@ $global:newHexColors = @{
     "Material_DeepOrange" = "#FF5722"
     "Material_Brown" = "#795548"
     "Material_Grey" = "#9E9E9E"
+    "Material_Comment" = "#3E3E3E"
     "Material_BlueGrey" = "#607D8B"
 
     # Новая палитра - Cyber/Synthwave

@@ -1,15 +1,14 @@
-
-
-
 #📅 Дата и время
 #$VerbosePreference = "Continue"
 Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)) -start
-function ez {
+function ez
+{
     eza  --group-directories-first --hyperlink --icons=always --color=always --color-scale-mode=gradient --git  -x  @args
 }
 
 
-function gh {
+function gh
+{
     [CmdletBinding(DefaultParameterSetName = 'AllUsersView', HelpUri = 'https://go.microsoft.com/fwlink/?LinkID=2096483')]
     param(
         [Parameter(Position = 0, ValueFromPipelineByPropertyName = $true)]
@@ -54,7 +53,7 @@ function gh {
         $style = @{
             SECTION = $PSStyle.Formatting.FormatAccent
             COMMAND = $PSStyle.Foreground.BrightYellow
-            PARAM   = $PSStyle.Foreground.FromRgb(64, 200, 230)
+            PARAM = $PSStyle.Foreground.FromRgb(64, 200, 230)
         }
 
         # Escape the command name for use in RegEx
@@ -70,17 +69,18 @@ function gh {
         # Format the help object
         $help | Out-String | ForEach-Object {
             [regex]::Replace($_, $regEx, {
-                    # Get the RegEx group that has matched.
-                    $matchGroup = $args.Groups.Where{ $_.Success }[1]
-                    # Use the RegEx group name to select associated style for colorizing the match.
-                    $style[$matchGroup.Name] + $matchGroup.Value + $PSStyle.Reset
-                })
+                # Get the RegEx group that has matched.
+                $matchGroup = $args.Groups.Where{ $_.Success }[1]
+                # Use the RegEx group name to select associated style for colorizing the match.
+                $style[$matchGroup.Name] + $matchGroup.Value + $PSStyle.Reset
+            })
         }
     }
 }
 
 
-function ruDate {
+function ruDate
+{
     param(
         [switch] $withTime,
         [switch] $onlyTime
@@ -89,10 +89,11 @@ function ruDate {
     $format = $onlyTime ? "HH часов mm минут ss" :
     ($withTime ? "dd MMMM yyyy HH часов mm минут ss": "dd MMMM yyyy")
 
-    (Get-Date).ToString($format, [System.Globalization.CultureInfo]::GetCultureInfo("ru-RU"))
+    (Get-Date).ToString($format,[System.Globalization.CultureInfo]::GetCultureInfo("ru-RU"))
 }
 
-function ruDay {
+function ruDay
+{
     param(
         [switch] $withYear
     )
@@ -104,26 +105,31 @@ function ruDay {
     return $withYear ? "{0:dd} {1} {0:yyyy}" -f $d, $months[$d.Month] : "{0:dd} {1}" -f $d, $months[$d.Month]
 }
 
-function ExternalScripts {
+function ExternalScripts
+{
     Get-Command -CommandType externalscript | Get-Item |
-    Select-Object Directory, Name, Length, CreationTime, LastwriteTime,
-    @{ name = "Signature"; Expression = { (Get-AuthenticodeSignature $_.fullname).Status } }
+            Select-Object Directory, Name, Length, CreationTime, LastwriteTime,
+            @{ name = "Signature"; Expression = { (Get-AuthenticodeSignature $_.fullname).Status } }
 }
 
-function freeC {
+function freeC
+{
     #    (gcim win32_logicaldisk -Filter "deviceid = 'C:'").FreeSpace / 1gb
     #or use the PSDrive
     (Get-PSDrive c).Free / 1gb
 }
 
-function commandsExample {
+function commandsExample
+{
     debug (Get-Command).where({ $_.source }) | Sort-Object Source, CommandType, Name | Format-Table -GroupBy Source -Property CommandType, Name, @{ Name = "Synopsis"; Expression = { (Get-Help $_.name).Synopsis } }
 }
 
 
-function view {
+function view
+{
     param ([string]$file)
-    if (-not (Test-Path $file)) {
+    if (-not (Test-Path $file))
+    {
         Write-Host "Файл не найден: $file" -ForegroundColor Red
         return
     }
@@ -131,12 +137,14 @@ function view {
 }
 
 # Быстрый поиск по содержимому всех файлов с интерактивным выбором через fzf + предпросмотром
-function fsearch {
+function fsearch
+{
     param (
         [string]$pattern
     )
 
-    if (-not $pattern) {
+    if (-not $pattern)
+    {
         Write-Host "Пример использования: fsearch 'ошибка'" -ForegroundColor Yellow
         return
     }
@@ -144,7 +152,8 @@ function fsearch {
     # Ищем по всем текстовым файлам
     $results = Select-String -Path (Get-ChildItem -Recurse -File -Include *.ps1, *.txt, *.log, *.md) -Pattern $pattern -ErrorAction SilentlyContinue
 
-    if (-not $results) {
+    if (-not $results)
+    {
         Write-Host "Ничего не найдено" -ForegroundColor DarkGray
         return
     }
@@ -155,19 +164,21 @@ function fsearch {
 }
 
 # Альтернатива grep
-function grepz {
+function grepz
+{
     param(
         [string]$pattern,
         [string]$path = "."
     )
 
     Select-String -Path $path -Pattern $pattern |
-    fzf --ansi --delimiter : `
+            fzf --ansi --delimiter : `
         --preview "bat --color=always --highlight-line {2} {1}" `
         --preview-window=up:60%:wrap
 }
 
-function goto {
+function goto
+{
     param(
         [string]$path
     )
@@ -176,51 +187,66 @@ function goto {
 }
 
 
-function gotoCrypta {
+function gotoCrypta
+{
     goto C:\projects\crypta
 }
-function gotoAppData {
+function gotoAppData
+{
     goto C:\Users\ketov\AppData
 }
-function gotoPowershellModules {
+function gotoPowershellModules
+{
     goto C:\Users\ketov\Documents\PowerShell\Modules
 }
-function gotoPowershellProfile {
+function gotoPowershellProfile
+{
     goto C:\projects\PowerShell\Profile
 }
 
-function desktop {
+function desktop
+{
     goto "$HOME\Desktop"
 }
-function downloads {
+function downloads
+{
     goto "$HOME\Downloads"
 }
-function docs {
+function docs
+{
     goto "$HOME\Documents"
 }
-function ~ {
+function ~
+{
     goto $HOME
 }
-function cd.. {
+function cd..
+{
     goto ..
 }
-function cd... {
+function cd...
+{
     goto ..\..
 }
-function cd.... {
+function cd....
+{
     goto ..\..\..
 }
 
-function c {
+function c
+{
     Clear-Host; goto C:\
 }
-function cm {
+function cm
+{
     goto C:\Users\ketov\.config\micro\
 }
-function reloadProfile {
+function reloadProfile
+{
     . $PROFILE; wrgb "🔁 Profile was reloaded" -FC "#a0FF99"
 }
-function gotoKaliRoot {
+function gotoKaliRoot
+{
     goto \\wsl.localhost\kali-linux\
 }
 
@@ -255,54 +281,69 @@ Set-Alias pp gotoPowershellProfile
 Set-Alias d  debug
 
 # ---- WINGET ----
-function wgs {
+function wgs
+{
     winget search --verbose @args
 }
-function wgi {
-    winget install --verbose @args 
+function wgi
+{
+    winget install --verbose @args
 }
-function wgu {
+function wgu
+{
     winget upgrade --all --verbose @args
 }
-function wgr {
+function wgr
+{
     winget restore --verbose @args
 }
-function wgl {
+function wgl
+{
     winget list @args
 }
-function wgrm {
+function wgrm
+{
     winget uninstall @args
 }
-function wgsh {
+function wgsh
+{
     winget show --verbose  @args
 }
-function wgsrc {
+function wgsrc
+{
     winget source list @args
 }
 
 
-function reloadProfile {
+function reloadProfile
+{
     . $PROFILE; wrgb "🔁 Profile was reloaded" -FC "#a0FF99"
 }
 
-function ShowHostColors {
+function ShowHostColors
+{
     $colors = $Host.PrivateData | Get-Member -MemberType Property | Where-Object { $_.Name -match "color" }
 
-    foreach ($color in $colors) {
+    foreach ($color in $colors)
+    {
         $name = $color.Name
         $value = $Host.PrivateData.$name
 
         # Определяем цвет текста на основе значения
-        $fgColor = if ($name -match "Foreground") {
+        $fgColor = if ($name -match "Foreground")
+        {
             $value
         }
-        else {
+        else
+        {
             "White"
         }
-        $bgColor = if ($name -match "Background") {
+        $bgColor = if ($name -match "Background")
+        {
             $value
         }
-        else {
+        else
+        {
             "Black"
         }
 
@@ -316,53 +357,65 @@ Set-Alias np notepad
 Set-Alias exp explorer
 
 # ---- ПРОЦЕССЫ ----
-function top {
+function top
+{
     Get-Process | Sort-Object CPU -Descending | Select-Object -First 15 | Format-Table -AutoSize
 }
-function pkill {
+function pkill
+{
     Get-Process -Name $args[0] | Stop-Process -Force
 }
-function psx {
+function psx
+{
     Get-Process | fzf | ForEach-Object { Stop-Process -Id $_.Id -Force }
 }
 
 # ---- НАВИГАЦИЯ ----
-function up {
+function up
+{
     Set-Location ..
 }
-function home {
+function home
+{
     Set-Location $HOME
 }
 Set-Alias h home
-function fcd {
+function fcd
+{
     Set-Location (Get-ChildItem -Directory | fzf).FullName
 }
 
 # ---- ПОИСК И ОТКРЫТИЕ ----
-function fe {
+function fe
+{
     Invoke-Item (fzf)
 }
-function fhist {
+function fhist
+{
     Get-History | fzf | ForEach-Object { Invoke-Expression $_.CommandLine }
 }
 
 # ---- СЕТЬ ----
-function myIP {
+function myIP
+{
     curl 2ip.ua
 }
 Set-Alias ipconfig Get-NetIPAddress
 
 
 # ---- ОЧИСТКА ----
-function Remove-tmp {
+function Remove-tmp
+{
     Remove-Item "$env:TEMP\*" -Recurse -Force -ErrorAction SilentlyContinue
 }
-function Remove-ds {
+function Remove-ds
+{
     Get-ChildItem -Recurse -Force -Filter *.DS_Store | Remove-Item -Force
 }
 
 # ---- ЛОКАЛЬНЫЙ WEB СЕРВЕР ----
-function serverPython {
+function serverPython
+{
     param ([int]$port = 8000)
     Start-Process "http://localhost:$port"
     python -m http.server $port
@@ -373,9 +426,11 @@ Set-Alias m micro
 
 
 # ---- RIPGREP ----
-function rgf {
+function rgf
+{
     param([string]$pattern)
-    if (!$pattern) {
+    if (!$pattern)
+    {
         $pattern = Read-Host "Введи патерн для пошуку"
     }
     rg --no-heading --line-number --color always $pattern | fzf --ansi | ForEach-Object {
@@ -386,7 +441,8 @@ function rgf {
 
 # ---- BAT ----
 Set-Alias cat bat
-function batf {
+function batf
+{
     bat (fzf)  --color=always
 }
 
@@ -394,27 +450,33 @@ function batf {
 Set-Alias sys btop
 
 # ---- НАВИГАЦИЯ ----
-function fcd {
+function fcd
+{
     Set-Location (Get-ChildItem -Directory | fzf).FullName
 }
-function fe {
+function fe
+{
     Invoke-Item (fzf)
 }
 
 # ---- ПЕРЕГЛЯД ИСТОРИИ ----
-function fhist {
+function fhist
+{
     Get-History | fzf | ForEach-Object { Invoke-Expression $_.CommandLine }
 }
 
 # ---- ВИДАЛЕННЯ ФАЙЛУ ----
-function frm {
+function frm
+{
     Get-ChildItem | fzf | Remove-Item -Force
 }
 
 # ---- ПЕРЕЙМЕНУВАННЯ ФАЙЛУ ----
-function frn {
+function frn
+{
     $item = Get-ChildItem | fzf
-    if ($item) {
+    if ($item)
+    {
         $newName = Read-Host "Нове ім’я для '$( $item.Name )'"
         Rename-Item $item.FullName $newName
     }
@@ -425,7 +487,8 @@ Set-Alias -Name wgt -Value Write-GradientText -Scope Global -Force
 Set-Alias -Name wrgbl -Value WriteRGBLine -Force
 Set-Alias -Name nthp -Value NumberToHexPair -Force
 
-function pr_ {
+function pr_
+{
     param(
         [string]$string,
         [switch]$reload,
@@ -435,24 +498,29 @@ function pr_ {
 
     $profileContent = Get-Content -Path $filePath -Raw -ErrorAction SilentlyContinue
 
-    if ($toStart) {
-        Set-Content -Path $filePath -Value ("`n" + $string + "`n" + $profileContent ) -Encoding UTF8 -NoNewline
+    if ($toStart)
+    {
+        Set-Content -Path $filePath -Value ("`n" + $string + "`n" + $profileContent) -Encoding UTF8 -NoNewline
     }
-    else {
+    else
+    {
         Set-Content -Path $filePath -Value ("`n" + $profileContent + "`n" + $string + "`n") -Encoding UTF8 -NoNewline
     }
-    if ($reload) {
+    if ($reload)
+    {
         reloadProfile
         Write-Host "`n"
     }
     Write-Warning "`nСтрока ${string} добавлена в ${filePath}`n"
 }
 
-function bunRun {
+function bunRun
+{
     bun run dev
 }
 
-function oklch {
+function oklch
+{
     $projectRoot = "C:\projects\colors\oklch"  # укажите свой путь
     Set-Location $projectRoot
     chrome "http://localhost:5173/#0.5731,0.1773,254.35,100"
@@ -466,28 +534,35 @@ Set-Alias -Name br -Value bunRun
 Set-Alias -Name es -Value Everything64.exe -Force
 Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))
 
+Set-Alias -Name p -Value python -Force
+
+function  cath
+{
+    pygmentize -O style=monokai @args
+}
+
+function lessh{ pygmentize -O style=monokai @args | less -M -R }
 
 
 
-function gF {        
+function gF
+{
     param(
-    [switch]$all,
-    [string]$scriptPathName
+        [switch]$all,
+        [string]$scriptPathName
     )
 
-    if ($scriptPathName) {
+    if ($scriptPathName)
+    {
         $scriptPathName = [System.IO.Path]::GetFileNameWithoutExtension($scriptPathName)
-        $scriptPath =  "${global:profilePath}${$scriptPathName}.ps1"
+        $scriptPath = "${global:profilePath}${$scriptPathName}.ps1"
         $scriptContent = Get-Content -Path $scriptPath -Raw
         $ast = [System.Management.Automation.Language.Parser]::ParseInput($scriptContent, [ref]$null, [ref]$null)
         $functions = $ast.FindAll({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] }, $true)
         $functions | ForEach-Object { $_.Name }
     }
-    else {
-        Get-ChildItem Function: | Where-Object { $all -or (-not $_.Source) } | Select-Object Name  
+    else
+    {
+        Get-ChildItem Function: | Where-Object { $all -or (-not $_.Source) } | Select-Object Name
     }
 }
-
-
-  
-

@@ -328,24 +328,24 @@ function Show-SystemMonitor {
     }
     wrgb "" -newline
 
-    # CPU
-    $cpu = Get-CimInstance Win32_Processor
-    $cpuLoad = (Get-Counter "\Processor(_Total)\% Processor Time" -ErrorAction SilentlyContinue).CounterSamples.CookedValue
-    $cpuColor = if ($cpuLoad -gt 80) { "NeonRedRGB" }
-    elseif ($cpuLoad -gt 50) { "OrangeRGB" }
-    else { "LimeRGB" }
-
-    wrgb "`n🔧 CPU Usage: " -FC CyanRGB
-
-    # Градиентный прогресс бар для CPU
-    $cpuBar = ""
-    $cpuFilled = [int]($cpuLoad / 5)
-    for ($j = 0; $j -lt $cpuFilled; $j++) {
-        $barColor = Get-GradientColor -Index $j -TotalItems 20 -StartColor "#00FF00" -EndColor "#FF0000"
-        wrgb "█" -FC $barColor
-    }
-    Write-Host ("░" * (20 - $cpuFilled)) -NoNewline
-    wrgb " $([Math]::Round($cpuLoad, 1))%" -FC $cpuColor -newline
+#    # CPU
+#    $cpu = Get-CimInstance Win32_Processor
+#    $cpuLoad = (Get-Counter "\Processor(_Total)\% Processor Time" -ErrorAction SilentlyContinue).CounterSamples.CookedValue
+#    $cpuColor = if ($cpuLoad -gt 80) { "NeonRedRGB" }
+#    elseif ($cpuLoad -gt 50) { "OrangeRGB" }
+#    else { "LimeRGB" }
+#
+#    wrgb "`n🔧 CPU Usage: " -FC CyanRGB
+#
+#    # Градиентный прогресс бар для CPU
+#    $cpuBar = ""
+#    $cpuFilled = [int]($cpuLoad / 5)
+#    for ($j = 0; $j -lt $cpuFilled; $j++) {
+#        $barColor = Get-GradientColor -Index $j -TotalItems 20 -StartColor "#00FF00" -EndColor "#FF0000"
+#        wrgb "█" -FC $barColor
+#    }
+#    Write-Host ("░" * (20 - $cpuFilled)) -NoNewline
+#    wrgb " $([Math]::Round($cpuLoad, 1))%" -FC $cpuColor -newline
 
     # Memory
     $os = Get-CimInstance Win32_OperatingSystem
@@ -354,7 +354,7 @@ function Show-SystemMonitor {
     $usedMem = $totalMem - $freeMem
     $memPercent = [int](($usedMem / $totalMem) * 100)
 
-    wrgb "💾 Memory Usage: " -FC YellowRGB
+    wrgb "⚜️ Memory Usage: " -FC YellowRGB
 
     # Градиентный прогресс бар для памяти
     $memFilled = [int]($memPercent / 5)
@@ -367,16 +367,19 @@ function Show-SystemMonitor {
     wrgb "($([Math]::Round($usedMem, 1))GB / $([Math]::Round($totalMem, 1))GB)" -FC White -newline
 
     # Top processes с градиентом
-    wrgb "`n🏃 TOP PROCESSES BY CPU:" -FC MagentaRGB -newline
-    $topProcesses = Get-Process | Sort-Object CPU -Descending | Select-Object -First 5
+    wrgb "`n 🔝 TOP PROCESSES BY OEM:" -FC "#5599DD" -newline
+    $topProcesses = Get-Process | Sort-Object WS -Descending | Select-Object -First 5
     $procIndex = 0
     foreach ($proc in $topProcesses) {
-        $procColor = Get-GradientColor -Index $procIndex -TotalItems 5 -StartColor "#FF00FF" -EndColor "#00FFFF"
-        wrgb "   • " -FC PurpleRGB
-        wrgb ("{0,-20}" -f $proc.ProcessName) -FC $procColor
-        wrgb "CPU: $([Math]::Round($proc.CPU, 2))s " -FC CyanRGB
-        wrgb "Mem: $([Math]::Round($proc.WS / 1MB, 1))MB" -FC YellowRGB -newline
+        $procColor = Get-GradientColor -Index $procIndex -TotalItems 5 -StartColor "#7700FF" -EndColor "#00FFFF"
+        $memColor = ($proc.WS -gt 1GB) ? 'OrangeRGB' : 'YellowRGB'
+        wrgb "   • " -FC TealRGB
+        wrgb ("{0,-25}" -f $proc.ProcessName) -FC $procColor
+        wrgb ("{0,-20}" -f "$([Math]::Round($proc.WS / 1GB, 1))GB") -FC $memColor
+        wrgb "CPU: $([Math]::Round($proc.CPU, 1))s " -FC CyanRGB -newline
         $procIndex++
     }
 }
+
+Set-Alias -Name ssm -Value Show-SystemMonitor
 Trace-ImportProcess  $MyInvocation.MyCommand.Name.trim(".ps1")
