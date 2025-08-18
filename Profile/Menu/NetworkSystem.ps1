@@ -230,7 +230,7 @@ function Test-ConnectionVisual {
         try {
             $result = Test-Connection -ComputerName $ComputerName -Count 1 -ErrorAction Stop
             $time = $result.ResponseTime
-            Write-Rbg $time -fc "#FF0000"
+            Write-RGB $time -fc "#FF0000"
             $color = if ($time -lt 50) { "LimeRGB" }
             elseif ($time -lt 100) { "YellowRGB" }
             else { "NeonRedRGB" }
@@ -367,7 +367,7 @@ function Show-SystemMonitor {
     wrgb "($([Math]::Round($usedMem, 1))GB / $([Math]::Round($totalMem, 1))GB)" -FC White -newline
 
     # Top processes с градиентом
-    wrgb "`n 🔝 TOP PROCESSES BY OEM:" -FC "#5599DD" -newline
+    wrgb "`n 🔝 PROCESSES BY OEM:" -FC "#5599DD" -newline
     $topProcesses = Get-Process | Sort-Object WS -Descending | Select-Object -First 5
     $procIndex = 0
     foreach ($proc in $topProcesses) {

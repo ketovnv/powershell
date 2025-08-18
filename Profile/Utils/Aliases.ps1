@@ -483,9 +483,14 @@ function frn
 }
 
 Set-Alias -Name wrgb -Value Write-RGB -Scope Global -Force
+Set-Alias -Name wrgb -Value Write-RGB -Scope Global -Force
 Set-Alias -Name wgt -Value Write-GradientText -Scope Global -Force
 Set-Alias -Name wrgbl -Value WriteRGBLine -Force
 Set-Alias -Name nthp -Value NumberToHexPair -Force
+
+function wrgbn{
+    wrgb  -newline @args
+}
 
 function pr_
 {

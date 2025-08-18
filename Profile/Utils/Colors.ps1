@@ -45,7 +45,7 @@ $global:newHexColors = @{
 
     # Палитра Material Design
     "Material_Red" = "#F44336"
-    "Material_Pink" = "#E91E63"
+    "Material_Pink" = "#DD99C6"
     "Material_Purple" = "#9C27B0"
     "Material_DeepPurple" = "#673AB7"
     "Material_Indigo" = "#3F51B5"
@@ -67,7 +67,7 @@ $global:newHexColors = @{
 
     # Новая палитра - Cyber/Synthwave
     "Cyber_Neon" = "#00FFFF"
-    "Cyber_Pink" = "#FF006E"
+    "Cyber_Pink" = "#DD44C6"
     "Cyber_Purple" = "#8338EC"
     "Cyber_Blue" = "#006FFF"
     "Cyber_Green" = "#00F5FF"

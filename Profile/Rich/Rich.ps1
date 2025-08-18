@@ -1,7 +1,7 @@
 Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)) -start
 
 $global:richFolder = "${global:profilePath}/Rich/"
-Import-PythonModule network_tools -AsGlobal
+#Import-PythonModule network_tools -AsGlobal
 
 function pr
 {

@@ -20,6 +20,10 @@ desktop.ini
 /.node_modules/
 .bun.lock
 
+poetry.lock
+omp.json
+
+
 
 /PowerShell-Docs/
 

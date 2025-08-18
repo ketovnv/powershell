@@ -58,22 +58,22 @@ foreach ($func in $functions) {
         wrgb "`n📦 Модуль: " -FC "#00CED1"; wrgb "$module`n" -FC "#AAAAAA"
         wrgb "⚙️  Функция: " -FC "#00FF00"; wrgb "$name`n" -FC "#FFFFFF"
 
-        # Парсинг
-        $parsed = Parse-Code -ScriptText $definition
-
-        wrgb "🔍 Токены:`n" -FC "#FFAA00"
-        foreach ($token in $parsed.Tokens) {
-            $tokColor = switch ($token.Kind) {
-                "Keyword"      { "#00FFFF" }
-                "Identifier"   { $color }
-                "StringLiteral"{ "#FF55FF" }
-                "NumberLiteral"{ "#FFFF00" }
-                "Comment"      { "#888888" }
-                default        { "#DDDDDD" }
-            }
-            wrgb "  $($token.Kind): " -FC "#8888FF"
-            wrgb "$($token.Text)`n" -FC $tokColor
-        }
+#        # Парсинг
+#        $parsed = Test-ParserRule -ScriptText $definition
+#
+#        wrgb "🔍 Токены:`n" -FC "#FFAA00"
+#        foreach ($token in $parsed.Tokens) {
+#            $tokColor = switch ($token.Kind) {
+#                "Keyword"      { "#00FFFF" }
+#                "Identifier"   { $color }
+#                "StringLiteral"{ "#FF55FF" }
+#                "NumberLiteral"{ "#FFFF00" }
+#                "Comment"      { "#888888" }
+#                default        { "#DDDDDD" }
+#            }
+#            wrgb "  $($token.Kind): " -FC "#8888FF"
+#            wrgb "$($token.Text)`n" -FC $tokColor
+#        }
 
         # Экспорт AST
         $safeModule = $module -replace '[\\\/:*?"<>|]', '_'

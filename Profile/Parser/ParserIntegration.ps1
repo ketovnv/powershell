@@ -352,11 +352,11 @@ Write-Output $data
 #endregion
 
 # Финальная инициализация
-Write-GradientHeader -Title "PARSER SYSTEM READY" -StartColor "#00C851" -EndColor "#00FF00"
-
-wrgb "🎯 Все системы парсинга загружены и готовы к работе!" -FC "LimeGreen" -Style Bold -newline
-
-wrgb "`n📚 Доступные команды:" -FC "Cyan" -Style Bold -newline
+#Write-GradientHeader -Title "PARSER SYSTEM READY" -StartColor "#00C851" -EndColor "#00FF00"
+#
+#wrgb "🎯 Все системы парсинга загружены и готовы к работе!" -FC "LimeGreen" -Style Bold -newline
+#
+#wrgb "`n📚 Доступные команды:" -FC "Cyan" -Style Bold -newline
 
 $commands = @(
     @{ Cmd = "Write-Rainbow"; Desc = "Радужный текст с эффектами" }
@@ -367,17 +367,17 @@ $commands = @(
     @{ Cmd = "Show-MegaParserDemo"; Desc = "Полная демонстрация" }
 )
 
-foreach ($cmd in $commands) {
-    wrgb "  • " -FC "DarkGray"
-    wrgb $cmd.Cmd -FC "Yellow" -Style Bold
-    wrgb " - " -FC "DarkGray"
-    wrgb $cmd.Desc -FC "White" -newline
-}
-
-wrgb "`n💡 Совет: " -FC "Material_Orange"
-wrgb "Используйте " -FC "Gray"
-wrgb "Show-MegaParserDemo" -FC "Cyan" -Style Bold
-wrgb " для полной демонстрации!" -FC "Gray" -newline
+#foreach ($cmd in $commands) {
+#    wrgb "  • " -FC "DarkGray"
+#    wrgb $cmd.Cmd -FC "Yellow" -Style Bold
+#    wrgb " - " -FC "DarkGray"
+#    wrgb $cmd.Desc -FC "White" -newline
+#}
+#
+#wrgb "`n💡 Совет: " -FC "Material_Orange"
+#wrgb "Используйте " -FC "Gray"
+#wrgb "Show-MegaParserDemo" -FC "Cyan" -Style Bold
+#wrgb " для полной демонстрации!" -FC "Gray" -newline
 
 # Экспортируем все функции если это модуль
 if ($MyInvocation.MyCommand.Path -match '\.psm1$') {

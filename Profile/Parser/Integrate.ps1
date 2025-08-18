@@ -1028,10 +1028,10 @@ function Start-MegaDemo {
 #endregion
 
 # Финальная инициализация и информация
-wrgb "`n" -newline
-Write-GradientHeader -Title "🎯 PARSER SYSTEM FULLY LOADED 🎯" -StartColor "#00FF00" -EndColor "#00FFFF"
-
-wrgb "`n📚 Новые супер-команды:" -FC "Cyan" -Style Bold -newline
+#wrgb "`n" -newline
+#Write-GradientHeader -Title "🎯 PARSER SYSTEM FULLY LOADED 🎯" -StartColor "#00FF00" -EndColor "#00FFFF"
+#
+#wrgb "`n📚 Новые супер-команды:" -FC "Cyan" -Style Bold -newline
 
 $newCommands = @(
     @{ Cmd = "Out-SmartLog"; Desc = "AI-подобный анализ логов с рекомендациями" }
@@ -1040,20 +1040,20 @@ $newCommands = @(
     @{ Cmd = "Show-UltimateParserShowcase"; Desc = "Финальная мега-демонстрация" }
 )
 
-foreach ($cmd in $newCommands) {
-    wrgb "  • " -FC "DarkGray"
-    wrgb $cmd.Cmd -FC "Material_Yellow" -Style Bold
-    wrgb " - " -FC "DarkGray"
-    wrgb $cmd.Desc -FC "White" -newline
-}
-
-wrgb "`n🚀 Система готова к любым задачам парсинга!" -FC "LimeGreen" -Style Bold -newline
-wrgb "Попробуйте: " -FC "Gray"
-wrgb "Show-UltimateParserShowcase" -FC "Material_Pink" -Style @('Bold', 'Underline')
-wrgb " для полного погружения!" -FC "Gray" -newline
+#foreach ($cmd in $newCommands) {
+#    wrgb "  • " -FC "DarkGray"
+#    wrgb $cmd.Cmd -FC "Material_Yellow" -Style Bold
+#    wrgb " - " -FC "DarkGray"
+#    wrgb $cmd.Desc -FC "White" -newline
+#}
+#
+#wrgb "`n🚀 Система готова к любым задачам парсинга!" -FC "LimeGreen" -Style Bold -newline
+#wrgb "Попробуйте: " -FC "Gray"
+#wrgb "Show-UltimateParserShowcase" -FC "Material_Pink" -Style @('Bold', 'Underline')
+#wrgb " для полного погружения!" -FC "Gray" -newline
 
 # Экспорт всех функций
-if ($MyInvocation.MyCommand.Path -match '\.psm1$') {
-    Export-ModuleMember -Function * -Alias * -Variable *
-}
+#if ($MyInvocation.MyCommand.Path -match '\.psm1$') {
+#    Export-ModuleMember -Function * -Alias * -Variable *
+#}
 Trace-ImportProcess  $MyInvocation.MyCommand.Name.trim(".ps1")

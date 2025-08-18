@@ -446,6 +446,7 @@ function Out-ParsedHelp {
             PARAM = @{ FC = "Material_Cyan" }
             TYPE = @{ FC = "Material_Purple"; Effects = @('Italic') }
             REQUIRED = @{ FC = "Material_Red"; Effects = @('Bold') }
+            Error = @{ FC = "Material_Red"; Effects = @('Bold') }
         }
 
         $buffer = @()
@@ -471,6 +472,7 @@ function Out-ParsedHelp {
             "(?m)(?<=^[ \t]*)(?<SECTION>^[A-Z][A-Z \t\d\W]+$)"
             "(?<COMMAND>\b$commandEscaped\b)"
             "(?<PARAM>\B-\w+\b)"
+            "(?<Error>\B-\w+\b)"
             "(?<TYPE>\[[\w\[\]\.]+\])"
             "(?<REQUIRED>\[?(Required|Mandatory)\]?)"
         ) -join '|'
@@ -512,7 +514,7 @@ function Out-ParsedHelp {
 }
 
 # Улучшенная функция gh
-function gh {
+function hl {
     [CmdletBinding()]
     param(
         [Parameter(Position = 0)]
@@ -528,7 +530,7 @@ function gh {
     $help = Get-Help @PSBoundParameters
 
     # Конвертируем в строку и парсим
-    $help | Out-String | Out-ParsedHelp -CommandName $help.Name
+    $help | Out-String | Out-ParsedHelp -CommandName $help.Name | Out-ParsedText
 }
 #endregion
 
@@ -749,20 +751,20 @@ if ($MyInvocation.MyCommand.Path -match '\.psm1$') {
 }
 
 # Проверяем доступность wrgb функции
-if (Get-Command wrgb -ErrorAction SilentlyContinue) {
-    wrgb "`n🚀 " -FC "GoldRGB"
-    Write-GradientText -Text "Advanced Parser System v3.0" `
-                       -StartColor "#FF00FF" -EndColor "#00FFFF" `
-                       -NoNewline
-    wrgb " загружен!" -FC "GoldRGB" -newline
-
-    wrgb "Используйте " -FC "Gray"
-    wrgb "Show-ParserDemo" -FC "Cyan" -Style Bold
-    wrgb " для демонстрации" -FC "Gray" -newline
-} else {
-    Write-Host "`n🚀 Advanced Parser System v3.0 загружен!" -ForegroundColor Green
-    Write-Host "Используйте Show-ParserDemo для демонстрации" -ForegroundColor Cyan
-}
+#if (Get-Command wrgb -ErrorAction SilentlyContinue) {
+#    wrgb "`n🚀 " -FC "GoldRGB"
+#    Write-GradientText -Text "Advanced Parser System v3.0" `
+#                       -StartColor "#FF00FF" -EndColor "#00FFFF" `
+#                       -NoNewline
+#    wrgb " загружен!" -FC "GoldRGB" -newline
+#
+#    wrgb "Используйте " -FC "Gray"
+#    wrgb "Show-ParserDemo" -FC "Cyan" -Style Bold
+#    wrgb " для демонстрации" -FC "Gray" -newline
+#} else {
+#    Write-Host "`n🚀 Advanced Parser System v3.0 загружен!" -ForegroundColor Green
+#    Write-Host "Используйте Show-ParserDemo для демонстрации" -ForegroundColor Cyan
+#}
 
 
 

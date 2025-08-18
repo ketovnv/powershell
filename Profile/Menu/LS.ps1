@@ -518,12 +518,12 @@ function Format-FileItem
         wrgb "$icon "
 
         # Имя файла с градиентом
-            wrgb ("{0,-35}" -f $Item.Name.PadRight(35).Substring(0, 35))   -FC $nameColor
+            wrgb ("{0,-42}" -f $Item.Name.PadRight(42).Substring(0, 42))   -FC $nameColor
 
 
         # Размер
         wrgb " "
-        wrgb $sizeInfo.Text -FC $sizeInfo.Color
+        wrgb ("{0,-10}" -f $sizeInfo.Text) -FC $sizeInfo.Color
 
         # Дата
         wrgb "  "

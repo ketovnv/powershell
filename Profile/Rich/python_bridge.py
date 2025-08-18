@@ -19,6 +19,7 @@ class PowerShellBridge:
         spec = importlib.util.spec_from_file_location(path.stem, path)
         module = importlib.util.module_from_spec(spec)
         sys.modules[path.stem] = module
+
         spec.loader.exec_module(module)
 
         # Экспортируем функции

@@ -1,10 +1,21 @@
 """Power Theme for Rich and Pygments - standalone theme without dependencies"""
 
+import os
+import sys
 from rich.console import Console
 from rich.theme import Theme
-from pygments.style import Style
-from pygments.token import *
-import os
+
+# Принудительно устанавливаем UTF-8 для Windows
+if sys.platform == 'win32':
+    import subprocess
+    try:
+        subprocess.run(['chcp', '65001'], shell=True, capture_output=True)
+    except:
+        pass
+    os.environ['PYTHONIOENCODING'] = 'utf-8'
+    os.environ['PYTHONUTF8'] = '1'
+
+
 
 # Цветовая палитра
 COLORS = {
@@ -25,7 +36,7 @@ COLORS = {
 }
 
 # Rich Theme определение
-POWER_THEME = Theme({
+POWER_RICH_THEME = Theme({
     # Основные стили
     'default': COLORS['primary'],
     'bold': f"bold {COLORS['primary']}",
@@ -45,11 +56,11 @@ POWER_THEME = Theme({
     'json.comma': COLORS['secondary'],
     'json.colon': COLORS['secondary'],
     'json.key': f"bold {COLORS['primary']}",
-    'json.str': COLORS['accent'],
+    'json.str': COLORS['info'],
     'json.number': COLORS['secondary'],
     'json.bool_true': f"bold {COLORS['success']}",
-    'json.bool_false': f"bold {COLORS['warning']}",
-    'json.null': f"italic {COLORS['comment']}",
+    'json.bool_false': f"bold {COLORS['error']}",
+    'json.null': f"italic {COLORS['accent']}",
 
     # Таблицы
     'table.header': f"bold {COLORS['secondary_accent']}",
@@ -62,7 +73,7 @@ POWER_THEME = Theme({
     # Панели
     'panel.title': f"bold {COLORS['accent']}",
     'panel.border': f"{COLORS['primary']} on {COLORS['background']}",
-    'panel.border.style': f"bold {COLORS['info']}",
+    'panel.style': f"bold {COLORS['info']}",
     'panel.subtitle': f"italic {COLORS['info']}",
 
     # Деревья
@@ -119,10 +130,13 @@ POWER_THEME = Theme({
     'web3': f"bold {COLORS['accent']}",
 })
 
-
+from pygments.style import Style
+from pygments.token import *
 # Pygments Style - полностью независимый
 class PowerStyle(Style):
     """Кастомный стиль для подсветки синтаксиса"""
+    # ВАЖНО: добавляем aliases для стиля
+    aliases = ['power', 'powerstyle']
 
     name = 'power'
     background_color = COLORS['background']
@@ -232,72 +246,53 @@ class PowerStyle(Style):
         Generic.Underline: 'underline',
     }
 
+def register_power_style():
+    """Принудительно регистрирует Power Style в Pygments"""
+    try:
+        from pygments.styles import STYLE_MAP
 
-# Глобальная консоль с кастомной темой
-_console = None
+        current_module = __name__
+        STYLE_MAP['power'] = f'{current_module}:PowerStyle'
+        STYLE_MAP['powerstyle'] = f'{current_module}:PowerStyle'
 
+        print(f"[Power Style] Registered as: {current_module}:PowerStyle")
+
+        from pygments.styles import get_style_by_name
+        style = get_style_by_name('power')
+        print(f"[Power Style] Test load successful: {style}")
+
+        return True
+
+    except Exception as e:
+        print(f"[Power Style] Registration failed: {e}")
+        return False
+
+# СОЗДАЕМ ГЛОБАЛЬНУЮ КОНСОЛЬ
+console = Console(
+    theme=POWER_RICH_THEME,
+    force_terminal=True,
+    legacy_windows=False
+)
 
 def get_console():
-    """Get or create the global console with Power theme"""
-    global _console
-    if _console is None:
-        _console = Console(
-            theme=POWER_THEME,
-            force_terminal=True,
-            force_interactive=True,
-            width=120,
-            legacy_windows=False,
-            safe_box=True,
-            tab_size=4,
-            record=True,  # Для сохранения вывода
-            markup=True,
-            emoji=True,
-            highlight=True,
-            log_time=True,
-            log_path=True,
-        )
-    return _console
+    """Возвращает настроенную Rich консоль"""
+    global console
+    return console
 
-
-# Автоматическая инициализация при импорте
 def init_power_theme():
     """Initialize Power theme globally"""
-    import sys
-    import os
-
-    # Устанавливаем переменные окружения для цветов
     os.environ['PYTHONIOENCODING'] = 'utf-8'
     os.environ['FORCE_COLOR'] = '1'
+    os.environ['PYTHONUTF8'] = '1'
 
-    # Для Windows - включаем ANSI colors
-    if sys.platform == 'win32':
-        os.system('')  # Включает ANSI escape sequences
-
-    # Регистрируем стиль в Pygments
-    from pygments.styles import STYLE_MAP
-    STYLE_MAP['power'] = 'power_theme:PowerStyle'
-
-    # Настраиваем Rich глобально
-    from rich import reconfigure
-    reconfigure(
-        theme=POWER_THEME,
-        force_terminal=True,
-        width=120,
-        legacy_windows=False,
-        safe_box=True,
-        tab_size=4,
-        record=True,
-        markup=True,
-        emoji=True,
-        highlight=True,
-        log_time=True,
-        log_path=True,
-    )
-
+    register_power_style()
     return get_console()
 
+# Автоматически регистрируем при импорте
+register_power_style()
 
-# Удобные алиасы
-console = init_power_theme()
-print = console.print
-log = console.log
+# Экспортируемые символы
+__all__ = ['console', 'get_console', 'register_power_style', 'PowerStyle', 'POWER_RICH_THEME', 'init_power_theme']
+
+# Проверяем, что все функции существуют
+print(f"[Debug] Available functions: {__all__}")

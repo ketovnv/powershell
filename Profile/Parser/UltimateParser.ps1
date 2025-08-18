@@ -796,7 +796,7 @@ $results | ConvertTo-Json
 
     $liveDemo -split "`n" | Out-ParsedPowerShell -ShowLineNumbers
 
-    wrgb "`n✨ Все функции парсера готовы к использованию!" -FC "LimeGreen" -Style Bold -newline
+#    wrgb "`n✨ Все функции парсера готовы к использованию!" -FC "LimeGreen" -Style Bold -newline
 }
 
 # Алиасы
@@ -804,15 +804,15 @@ Set-Alias -Name pfile -Value Out-ParsedFile -Force
 Set-Alias -Name iparse -Value Start-InteractiveParser -Force
 Set-Alias -Name pexport -Value Export-ParsedContent -Force
 
-wrgb "`n🚀 Ultimate Parser Features загружены!" -FC "GoldRGB" -Style Bold -newline
-wrgb "Новые команды:" -FC "Cyan" -newline
-wrgb "  • " -FC "DarkGray"
-wrgb "Out-ParsedFile (pfile)" -FC "Yellow"
-wrgb " - парсинг файлов" -FC "Gray" -newline
-wrgb "  • " -FC "DarkGray"
-wrgb "Start-InteractiveParser (iparse)" -FC "Yellow"
-wrgb " - интерактивный режим" -FC "Gray" -newline
-wrgb "  • " -FC "DarkGray"
-wrgb "Show-UltimateParserDemo" -FC "Yellow"
-wrgb " - полная демонстрация" -FC "Gray" -newline
+#wrgb "`n🚀 Ultimate Parser Features загружены!" -FC "GoldRGB" -Style Bold -newline
+#wrgb "Новые команды:" -FC "Cyan" -newline
+#wrgb "  • " -FC "DarkGray"
+#wrgb "Out-ParsedFile (pfile)" -FC "Yellow"
+#wrgb " - парсинг файлов" -FC "Gray" -newline
+#wrgb "  • " -FC "DarkGray"
+#wrgb "Start-InteractiveParser (iparse)" -FC "Yellow"
+#wrgb " - интерактивный режим" -FC "Gray" -newline
+#wrgb "  • " -FC "DarkGray"
+#wrgb "Show-UltimateParserDemo" -FC "Yellow"
+#wrgb " - полная демонстрация" -FC "Gray" -newline
 Trace-ImportProcess  $MyInvocation.MyCommand.Name.trim(".ps1")

@@ -25,30 +25,8 @@ function Prognoz{
         }
     }
 
-    function Write-GradientFull {
-        param (
-            [string]$Text,
-            [int]$R1, [int]$G1, [int]$B1,
-            [int]$R2, [int]$G2, [int]$B2,
-            [int]$BR1, [int]$BG1, [int]$BB1,
-            [int]$BR2, [int]$BG2, [int]$BB2
-        )
-        $len = $Text.Length
-        for ($i = 0; $i -lt $len; $i++) {
-            $r  = [int]($R1 + ($R2 - $R1) * $i / ($len - 1))
-            $g  = [int]($G1 + ($G2 - $G1) * $i / ($len - 1))
-            $b  = [int]($B1 + ($B2 - $B1) * $i / ($len - 1))
-            $br = [int]($BR1 + ($BR2 - $BR1) * $i / ($len - 1))
-            $bg = [int]($BG1 + ($BG2 - $BG1) * $i / ($len - 1))
-            $bb = [int]($BB1 + ($BB2 - $BB1) * $i / ($len - 1))
-            $ansi = "`e[38;2;${r};${g};${b}m`e[48;2;${br};${bg};${bb}m"
-            Write-Host "$ansi$($Text[$i])" -NoNewline
-        }
-        Write-Host "`e[0m"
-    }
 
-
-    Write-GradientFull "┌──────────── Прогноз на 5 днів — Львів ────────────┐" 0 255 255 0 128 255 0 0 0 20 20 60
+    Write-GradientFull "       ──────────── Прогноз на 5 днів — Львів ────────────          " 0 255 255 0 128 255 0 0 0 20 20 60
 
     foreach ($day in $forecastList) {
         $dt = Get-Date($day.dt_txt) -Format "ddd dd.MM"
@@ -59,7 +37,7 @@ function Prognoz{
         $wind = $day.wind.speed
         $emoji = Weather-Emoji $desc
 
-        $line = "│ $dt  $emoji  $desc.PadRight(22)  $temp°C (відч. $feels°C), 💧 $hum%, 💨 $wind м/с │"
+        $line = "│ $dt  $emoji  $desc  $temp°C (відч. $feels°C), 💧 $hum%, 💨 $wind м/с │"
         Write-GradientFull $line 255 255 255 100 255 128 0 0 0 30 30 60
     }
 
@@ -67,7 +45,7 @@ function Prognoz{
 
 
 Prognoz
-return
+
 
 function Search-DDG {
     param([string]$Query = "PowerShell")
@@ -79,20 +57,20 @@ function Search-DDG {
 
     if ($resp.AbstractText) {
         Write-GradientFull "┌──────────── Інфо з DuckDuckGo " 0 255 128 0 100 255 0 0 0 30 30 60
-        Write-GradientFull "│     🔮 Запит: $Query" 255 255 255 200 255 128 0 0 0 30 30 60
+        wrgbn "│     🔮 Запит: $Query" -FC Material_Teal -BC Black
         Write-GradientFull "│     🤔 $($resp.AbstractText.PadRight(40))" 255 255 255 100 255 128 0 0 0 30 30 60
-        Write-GradientFull "│     📚               $($resp.AbstractURL)" 100 200 255 0 255 255 0 0 0 30 30 60
+        wgt "│     📚               $($resp.AbstractURL)" -StartColor "#3377DD" -EndColor "#99CCDD"
         Write-GradientFull "└──────────────────────────────────────────" 0 255 128 0 100 255 0 0 0 30 30 60
     } else {
         Write-Host "❌ Нічого не знайдено."
     }
 }
 
-Search-DDG "Ukraine"
+#Search-DDG "Ukraine"
 
 
 function Pogoda{
-    $apiKey = $key  # <-- сюда вставляешь свой ключ
+     $apiKey = $global:openWeatherKey
     $city = "Lviv,UA"
     $url = "https://api.openweathermap.org/data/2.5/weather?q=$city&appid=$apiKey&units=metric&lang=ua"
 
@@ -112,36 +90,36 @@ function Pogoda{
     }
 
     # Вивод з градієнтом
-    function Write-GradientFull {
-        param (
-            [string]$Text,
-            [int]$R1, [int]$G1, [int]$B1,
-            [int]$R2, [int]$G2, [int]$B2,
-            [int]$BR1, [int]$BG1, [int]$BB1,
-            [int]$BR2, [int]$BG2, [int]$BB2
-        )
-        $len = $Text.Length
-        for ($i = 0; $i -lt $len; $i++) {
-            $r  = [int]($R1  + ($R2  - $R1)  * $i / ($len - 1))
-            $g  = [int]($G1  + ($G2  - $G1)  * $i / ($len - 1))
-            $b  = [int]($B1  + ($B2  - $B1)  * $i / ($len - 1))
-            $br = [int]($BR1 + ($BR2 - $BR1) * $i / ($len - 1))
-            $bg = [int]($BG1 + ($BG2 - $BG1) * $i / ($len - 1))
-            $bb = [int]($BB1 + ($BB2 - $BB1) * $i / ($len - 1))
-            $ansi = "`e[38;2;${r};${g};${b}m`e[48;2;${br};${bg};${bb}m"
-            Write-Host "$ansi$($Text[$i])" -NoNewline
-        }
-        Write-Host "`e[0m"
-    }
+#    function Write-GradientFull {
+#        param (
+#            [string]$Text,
+#            [int]$R1, [int]$G1, [int]$B1,
+#            [int]$R2, [int]$G2, [int]$B2,
+#            [int]$BR1, [int]$BG1, [int]$BB1,
+#            [int]$BR2, [int]$BG2, [int]$BB2
+#        )
+#        $len = $Text.Length
+#        for ($i = 0; $i -lt $len; $i++) {
+#            $r  = [int]($R1  + ($R2  - $R1)  * $i / ($len - 1))
+#            $g  = [int]($G1  + ($G2  - $G1)  * $i / ($len - 1))
+#            $b  = [int]($B1  + ($B2  - $B1)  * $i / ($len - 1))
+#            $br = [int]($BR1 + ($BR2 - $BR1) * $i / ($len - 1))
+#            $bg = [int]($BG1 + ($BG2 - $BG1) * $i / ($len - 1))
+#            $bb = [int]($BB1 + ($BB2 - $BB1) * $i / ($len - 1))
+#            $ansi = "`e[38;2;${r};${g};${b}m`e[48;2;${br};${bg};${bb}m"
+#            Write-Host "$ansi$($Text[$i])" -NoNewline
+#        }
+#        Write-Host "`e[0m"
+#    }
 
 
 
     #    Clear-Host
     Write-GradientFull "┌────────────────────────────────────────────┐" 0 255 255 0 100 255 0 0 0 30 30 60
-    Write-GradientFull "│  ☁️  Прогноз погоди — Львів               │" 255 255 255 100 255 128 0 0 0 30 30 60
-    Write-GradientFull "│  $emoji  $weather.PadRight(30)│" 255 255 255 100 255 128 0 0 0 30 30 60
+    Write-GradientFull "│  ☁️  Прогноз погоди — Львів                 │" 255 255 255 100 255 128 0 0 0 30 30 60
+    Write-GradientFull "│  $emoji           $weather                   │" 255 255 255 100 255 128 0 0 0 30 30 60
     Write-GradientFull "│  🌡️  Температура: $temp°C (відчувається $feels°C) │" 255 255 255 100 255 128 0 0 0 30 30 60
-    Write-GradientFull "│  💧  Вологість: $humidity%                   │" 255 255 255 100 255 128 0 0 0 30 30 60
+    Write-GradientFull "│  💧  Вологість: $humidity%                        │" 255 255 255 100 255 128 0 0 0 30 30 60
     Write-GradientFull "│  💨  Вітер: $wind м/с                       │" 255 255 255 100 255 128 0 0 0 30 30 60
     Write-GradientFull "└────────────────────────────────────────────┘" 0 255 255 0 100 255 0 0 0 30 30 60
 }
@@ -152,7 +130,7 @@ function Get-CryptoInfo {
 
     $btc = $data.bitcoin
     $eth = $data.ethereum
-
+    wrgbn ""
     Write-GradientFull "┌──────────── Курси криптовалют ─────────────┐" 155 155 0 155 100 100 0 0 0 20 20 60
     Write-GradientFull "│ ₿ Bitcoin:   $($btc.uah)₴ | $($btc.usd)$  | €$($btc.eur) │" 55 155 255 255 150 50 0 0 0 30 30 60
     Write-GradientFull "│ Ξ Ethereum:   $($eth.uah)₴ | $($eth.usd)$ |€$($eth.eur) │" 255 255 155 255 150 50 0 0 0 30 30 60

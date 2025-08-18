@@ -206,7 +206,7 @@ for i in range(22):
     r = int(50 * (1 - ratio) + 100 * ratio)
     g = int(100 * (1 - ratio) + 255 * ratio)
     b = int(200 * (1 - ratio) + 150 * ratio)
-    console.print(f"[on #{r:02x}{g:02x}{b:02x}]{' ' * 78}[/]")
+#    console.print(f"[on #{r:02x}{g:02x}{b:02x}]{' ' * 78}[/]")
 "@
     }
 
@@ -342,9 +342,9 @@ function Show-PrettyObject
     {
         'Json' {
             @"
-
-
-print_json('''$json''')
+from rich.json import JSON
+json_obj = JSON.from_data($json)
+console.print(json_obj)
 "@
         }
         'Tree' {
@@ -378,7 +378,7 @@ def build_tree(node, tree):
     elif is_hex_color(node):
         tree.add(f'[#{node[1:]}]{node}[/]')
     else:
-        tree.add(f'[white]{node}[/]')
+        tree.add(f'[info]{node}[/]')
 
 root = Tree('[bold bright_yellow]Object[/]')
 build_tree(data, root)
@@ -400,7 +400,7 @@ def is_hex_color(value):
     return re.match(r'^#(?:[0-9a-fA-F]{3}){1,2}$', value) is not None
 data = json.loads('''$json''')
 if isinstance(data, dict):
-    table = Table(show_lines=False, show_edge=False,  style='#050711')
+    table = Table(show_header=False, show_lines=False, show_edge=False,  style='#050711')
 #    table.add_column('Key',  no_wrap=True)
 #    table.add_column('Value')
     for k, v in data.items():
@@ -412,7 +412,7 @@ if isinstance(data, dict):
             v_str = Text(v, style=f"#{v[1:]}")
             table.add_row(Text(k, style=f"#{v[1:]}"), v_str)
         else:
-            v_str = str(v)
+            v_str = Text(v, style="white")
             table.add_row(str(k), v_str)
     print(table)
 else:
@@ -447,7 +447,7 @@ for i, item in enumerate(kv):
     if i < len(kv) - 1:
         txt.append(', ')
 
-print(txt)
+rprint(txt)
 "@
         }
     }
