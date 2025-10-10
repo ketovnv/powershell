@@ -7,6 +7,10 @@
 # IDE directories
 /.idea/
 /.vscode/
+/.venv/
+/.claude/
+/OmpThemes/
+/PowerShell-Docs/
 
 # Help and documentation
 /Help/
@@ -28,3 +32,15 @@ omp.json
 /PowerShell-Docs/
 
 
+
+# Claude Config Manager Extension - Security Rules
+# Prevents accidental commit of private conversation data
+.claude/.chats/
+.claude/.chats/**
+.claude/settings.local.json
+
+# Team-sharable Claude Code files (tracked by git):
+# .claude/settings.json     # Team settings (official Claude Code)
+# .claude/commands/         # Team slash commands (official Claude Code)
+# .claude/.plans/           # Project documentation (extension-specific)
+node_modules

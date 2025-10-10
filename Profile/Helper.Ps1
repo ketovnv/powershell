@@ -1,5 +1,5 @@
-
 Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)) -start
+
 function Get-Help
 {
     [CmdletBinding(DefaultParameterSetName = 'AllUsersView')]
@@ -80,7 +80,7 @@ function Format-ColorizedHelp
         # Продвинутые паттерны для подсветки
 
         $patterns = @{
-            # Секции (с поддержкой разных языков)
+        # Секции (с поддержкой разных языков)
             Sections = @{
                 Pattern = '(?m)^(NAME|PowerShell|ИМЯ|SYNOPSIS|КРАТКОЕ ОПИСАНИЕ|SYNTAX|СИНТАКСИС|DESCRIPTION|ОПИСАНИЕ|PARAMETERS|ПАРАМЕТРЫ|EXAMPLES?|ПРИМЕРЫ?|INPUTS|ВХОДНЫЕ ДАННЫЕ|OUTPUTS|ВЫХОДНЫЕ ДАННЫЕ|NOTES|ПРИМЕЧАНИЯ|RELATED LINKS|СВЯЗАННЫЕ ССЫЛКИ)(.*)$'
                 Style = @{
@@ -175,10 +175,16 @@ function Format-ColorizedHelp
                     $finalLine = [regex]::Replace($finalLine, $pattern.Pattern, {
                         param($match)
                         $fcValue = $pattern.Style.FC
-                        $colorValue = if ($fcValue -and $global:RGB -and $global:RGB.ContainsKey($fcValue)) { 
-                            $global:RGB[$fcValue] 
-                        } else { 
-                            if ($fcValue) { $fcValue } else { "White" }
+                        $colorValue = if ($fcValue -and $global:RGB -and $global:RGB.ContainsKey($fcValue))
+                        {
+                            $global:RGB[$fcValue]
+                        }
+                        else
+                        {
+                            if ($fcValue)
+                            { $fcValue }
+                            else
+                            { "White" }
                         }
                         $color = Get-RGBColor $colorValue
                         $reset = $PSStyle.Reset
@@ -466,7 +472,7 @@ function Format-ItemsColored
                 }
                 ".log" {
                     $icon = "📋"; $color =
-    "Gray"
+                    "Gray"
                 }
                 ".json" {
                     $icon = "🔧"; $color = "Material_Green"
@@ -1008,25 +1014,27 @@ function Show-InterceptedCalls
         Показывает журнал перехваченных вызовов
     #>
 
-    if (-not $script:InterceptorConfig -or $script:InterceptorConfig.CallLog.Count -eq 0) {
-    Write-Status -Info "Нет записей о вызовах"
-    return
+    if (-not $script:InterceptorConfig -or $script:InterceptorConfig.CallLog.Count -eq 0)
+    {
+        Write-Status -Info "Нет записей о вызовах"
+        return
     }
 
     Write-GradientHeader -Title "INTERCEPTED CALLS LOG"
 
     $script:InterceptorConfig.CallLog | ForEach-Object {
-    wrgb "[$($_.Time.ToString('HH:mm:ss'))] " -FC "DarkGray"
-    wrgb $_.Command -FC "Material_Yellow" -Style Bold
+        wrgb "[$($_.Time.ToString('HH:mm:ss') )] " -FC "DarkGray"
+        wrgb $_.Command -FC "Material_Yellow" -Style Bold
 
-    if ($_.Parameters.Count -gt 0) {
-    wrgb " -" -FC "Material_Cyan"
-    $_.Parameters.GetEnumerator() | ForEach-Object {
-    wrgb "$($_.Key):" -FC "Material_Purple"
-    wrgb "$($_.Value) " -FC "White"
-    }
-    }
-    Write-Host ""
+        if ($_.Parameters.Count -gt 0)
+        {
+            wrgb " -" -FC "Material_Cyan"
+            $_.Parameters.GetEnumerator() | ForEach-Object {
+                wrgb "$( $_.Key ):" -FC "Material_Purple"
+                wrgb "$( $_.Value ) " -FC "White"
+            }
+        }
+        Write-Host ""
     }
 }
 
@@ -1499,18 +1507,20 @@ function Start-CommandMonitor
             $script:CommandMonitor.History += $entry
 
             # Обновляем статистику
-            if (-not $script:CommandMonitor.Statistics.ContainsKey($CommandName)) {
-            $script:CommandMonitor.Statistics[$CommandName] = @{
-            Count = 0
-            TotalTime = [TimeSpan]::Zero
-            Errors = 0
-            }
+            if (-not $script:CommandMonitor.Statistics.ContainsKey($CommandName))
+            {
+                $script:CommandMonitor.Statistics[$CommandName] = @{
+                    Count = 0
+                    TotalTime = [TimeSpan]::Zero
+                    Errors = 0
+                }
             }
 
             $script:CommandMonitor.Statistics[$CommandName].Count++
 
-            if ($ShowLiveStats) {
-            Write-Host "→ $CommandName" -ForegroundColor DarkGray
+            if ($ShowLiveStats)
+            {
+                Write-Host "→ $CommandName" -ForegroundColor DarkGray
             }
         }
     }
@@ -1546,53 +1556,56 @@ function Show-CommandStatistics
     Write-GradientHeader -Title "COMMAND USAGE STATISTICS"
 
     $stats = $script:CommandMonitor.Statistics.GetEnumerator() |
-    Sort-Object {
-    $_.Value.Count
-    } -Descending
+            Sort-Object {
+                $_.Value.Count
+            } -Descending
 
-    if ($Top10) {
-    $stats = $stats | Select-Object -First 10
+    if ($Top10)
+    {
+        $stats = $stats | Select-Object -First 10
     }
 
     wrgb "📊 Топ используемых команд:" -FC "Cyan" -Style Bold -newline
 
     $maxCount = ($stats | Measure-Object {
-    $_.Value.Count
+        $_.Value.Count
     } -Maximum).Maximum
 
-    foreach ($stat in $stats) {
-    $percentage = ($stat.Value.Count / $maxCount) * 100
-    $barLength = [Math]::Round($percentage / 5)
+    foreach ($stat in $stats)
+    {
+        $percentage = ($stat.Value.Count / $maxCount) * 100
+        $barLength = [Math]::Round($percentage / 5)
 
-    wrgb ("  " + $stat.Key.PadRight(30)) -FC "Material_Yellow"
+        wrgb ("  " + $stat.Key.PadRight(30)) -FC "Material_Yellow"
 
-    # График
-    for ($i = 0; $i -lt $barLength; $i++) {
-    wrgb "█" -FC (Get-ProgressGradientColor -Percent $percentage)
+        # График
+        for ($i = 0; $i -lt $barLength; $i++) {
+            wrgb "█" -FC (Get-ProgressGradientColor -Percent $percentage)
+        }
+
+        wrgb " $( $stat.Value.Count )" -FC "White" -Style Bold -newline
     }
 
-    wrgb " $($stat.Value.Count)" -FC "White" -Style Bold -newline
-    }
+    if ($GroupByVerb)
+    {
+        wrgb "`n📈 По глаголам:" -FC "Cyan" -Style Bold -newline
 
-    if ($GroupByVerb) {
-    wrgb "`n📈 По глаголам:" -FC "Cyan" -Style Bold -newline
+        $verbStats = $stats | ForEach-Object {
+            $verb = ($_.Key -split '-')[0]
+            @{
+                Verb = $verb; Count = $_.Value.Count
+            }
+        } | Group-Object Verb | ForEach-Object {
+            @{
+                Verb = $_.Name
+                Total = ($_.Group | Measure-Object Count -Sum).Sum
+            }
+        } | Sort-Object Total -Descending
 
-    $verbStats = $stats | ForEach-Object {
-    $verb = ($_.Key -split '-')[0]
-    @{
-    Verb = $verb; Count = $_.Value.Count
-    }
-    } | Group-Object Verb | ForEach-Object {
-    @{
-    Verb = $_.Name
-    Total = ($_.Group | Measure-Object Count -Sum).Sum
-    }
-    } | Sort-Object Total -Descending
-
-    $verbStats | ForEach-Object {
-    wrgb "  $($_.Verb): " -FC "Material_Purple"
-    wrgb $_.Total -FC "Yellow" -Style Bold -newline
-    }
+        $verbStats | ForEach-Object {
+            wrgb "  $( $_.Verb ): " -FC "Material_Purple"
+            wrgb $_.Total -FC "Yellow" -Style Bold -newline
+        }
     }
 }
 
@@ -2306,7 +2319,7 @@ function Set-Alias
 
 function Show-PracticalProxyExamples
 {
-#    Clear-Host
+    #    Clear-Host
 
     Write-GradientHeader -Title "PRACTICAL PROXY EXAMPLES" -StartColor "#00C851" -EndColor "#00FF00"
 
@@ -2352,13 +2365,6 @@ function Show-PracticalProxyExamples
 #endregion
 
 # Инициализация
-wrgb "`n💼 " -FC "GoldRGB"
-Write-GradientText "Practical Proxy Examples" -StartColor "#00C851" -EndColor "#00FF00" -NoNewline
-wrgb " загружены!" -FC "Material_LightGreen" -newline
-
-wrgb "Запустите: " -FC "Gray"
-wrgb "Show-PracticalProxyExamples" -FC "Material_Pink" -Style Bold
-wrgb " для демонстрации" -FC "Gray" -newline
 
 # Экспорт
 if ($MyInvocation.MyCommand.Path -match '\.psm1$')
@@ -2366,5 +2372,5 @@ if ($MyInvocation.MyCommand.Path -match '\.psm1$')
     Export-ModuleMember -Function * -Alias * -Variable *
 }
 
-Show-PracticalProxyExamples
+#Show-PracticalProxyExamples
 Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))

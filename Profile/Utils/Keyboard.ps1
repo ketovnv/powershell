@@ -1,6 +1,7 @@
 Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)) -start
 
-Function Switch-KeyboardLayout {
+Function Switch-KeyboardLayout
+{
     [CmdletBinding()]
     param (
         [Parameter(Mandatory)]
@@ -15,7 +16,8 @@ Function Switch-KeyboardLayout {
         "uk-UA" = "00000422"
     }
 
-    if (-not $layoutMap.ContainsKey($Culture)) {
+    if (-not $layoutMap.ContainsKey($Culture))
+    {
         Write-Warning "Неизвестная раскладка: $Culture"
         return
     }
@@ -23,7 +25,8 @@ Function Switch-KeyboardLayout {
     $klid = $layoutMap[$Culture]
 
     # Проверяем, не был ли тип уже добавлен
-    if (-not ([System.Management.Automation.PSTypeName]'KeyboardLayoutSwitcher').Type) {
+    if (-not ([System.Management.Automation.PSTypeName]'KeyboardLayoutSwitcher').Type)
+    {
         Add-Type @"
         using System;
         using System.Runtime.InteropServices;
@@ -85,18 +88,24 @@ Function Switch-KeyboardLayout {
 "@
     }
 
-    try {
+    try
+    {
         $success = [KeyboardLayoutSwitcher]::SwitchKeyboardLayout($klid)
 
-        if ($success) {
+        if ($success)
+        {
             Write-Verbose "✅ $Culture"
             Start-Sleep -Milliseconds 50
-        } else {
+        }
+        else
+        {
             Write-Error "Не удалось переключить раскладку на $Culture. Убедитесь, что раскладка установлена в системе."
         }
 
-    } catch {
-        Write-Error "Ошибка при переключении раскладки: $($_.Exception.Message)"
+    }
+    catch
+    {
+        Write-Error "Ошибка при переключении раскладки: $( $_.Exception.Message )"
     }
 }
 
@@ -109,6 +118,8 @@ function en
     Switch-KeyboardLayout en-Us
     wrgb "⌨️ En"  -FC"#1177BB"
 }
+
+Set-Alias -Name "йй" -Value en
 
 function ru
 {

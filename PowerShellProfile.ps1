@@ -1,7 +1,7 @@
 #function ultra { oh-my-posh init pwsh --config "C:\Users\ketov\Documents\PowerShell\ua-ultra.omp.yaml" | Invoke-Expression }
 #function ultraultra { oh-my-posh init pwsh --config "C:\Users\ketov\Documents\PowerShell\ultraultra.omp.yaml" | Invoke-Expression }
 #function gpt { oh-my-posh init pwsh --config "C:\Users\ketov\Documents\PowerShell\ua-gpt.omp.yaml" | Invoke-Expression }
-#function deb { oh-my-posh init pwsh --config "CC:\Users\ketov\Documents\PowerShell\free-ukraine-debug.omp.yaml" | Invoke-Expression }
+#function deb { oh-my-posh init pwsh --config "C:\Users\ketov\Documents\PowerShell\free-ukraine-debug.omp.yaml" | Invoke-Expression }
 #
 #function fr  { oh-my-posh init pwsh --config "C:\Users\ketov\Documents\PowerShell\OmpThemes\froczh.omp.json" | Invoke-Expression }
 #function grr  { oh-my-posh init pwsh --config "C:\Users\ketov\Documents\PowerShell\glowsticks.omp.yaml" | Invoke-Expression }
@@ -12,25 +12,36 @@
 $isRedirected = [Console]::IsOutputRedirected -or [Console]::IsInputRedirected
 $isNonInteractive = $env:TERM_PROGRAM -or $MyInvocation.Line -match "pwsh.*-c"
 
-if ($isRedirected -or $isNonInteractive) {
+
+
+if ($isRedirected -or $isNonInteractive)
+{
     # Пропускаем интерактивные настройки при запуске через внешние процессы
     $global:SkipInteractiveSetup = $true
 }
 
 # Применяем PSReadLine настройки только в интерактивном режиме
-if (-not $global:SkipInteractiveSetup) {
-    try {
+if (-not $global:SkipInteractiveSetup)
+{
+    try
+    {
         Set-PSReadLineOption -PredictionSource HistoryAndPlugin -ErrorAction SilentlyContinue
         Set-PSReadLineOption -PredictionViewStyle ListView -ErrorAction SilentlyContinue
-    } catch {
+    }
+    catch
+    {
         # Игнорируем ошибки PSReadLine в неинтерактивном режиме
     }
 
-    try {
-        if ($Host.UI.RawUI.CursorPosition) {
-            $Host.UI.RawUI.CursorPosition = @{X=0;Y=0}
+    try
+    {
+        if ($Host.UI.RawUI.CursorPosition)
+        {
+            $Host.UI.RawUI.CursorPosition = @{ X = 0; Y = 0 }
         }
-    } catch {
+    }
+    catch
+    {
         # Игнорируем ошибки позиции курсора
     }
 }
@@ -49,7 +60,6 @@ $global:profilePath = "${PSScriptRoot}\Profile\"
 # Переносим тяжелые функции в отложенную загрузку
 
 
-
 #$items = @("Файл", "Редактировать", "Просмотр", "Справка")
 #$gradientSettings = @{
 #    StartColor = "#FF0000"
@@ -59,12 +69,12 @@ $global:profilePath = "${PSScriptRoot}\Profile\"
 #}
 
 
-
 #Show-GradientMenu -MenuItems $items -Title "Главное меню" -GradientOptions $gradientSettings
 
 
 # ===== ФУНКЦИИ УВЕДОМЛЕНИЙ =====
-function Show-Notification {
+function Show-Notification
+{
     param(
         [string]$Title,
         [string]$Message,
@@ -72,7 +82,8 @@ function Show-Notification {
         [string]$Type = "Info"
     )
 
-    $icon = switch ($Type) {
+    $icon = switch ($Type)
+    {
         "Success" { "✅" }
         "Warning" { "⚠️" }
         "Error" { "❌" }
@@ -83,7 +94,8 @@ function Show-Notification {
     Write-Host "`n${icon} ${Title}: ${Message}"
 
     # Wezterm notification если доступен
-    if (Get-Command wezterm -ErrorAction SilentlyContinue) {
+    if (Get-Command wezterm -ErrorAction SilentlyContinue)
+    {
         wezterm cli send-text --no-paste "${icon} ${Title}: ${Message}"
     }
 }
@@ -91,15 +103,16 @@ function Show-Notification {
 
 
 
-
-
 # Проверяем наличие ThreadJob модуля
-if (-not (Get-Module -ListAvailable -Name ThreadJob)) {
+if (-not (Get-Module -ListAvailable -Name ThreadJob))
+{
     Write-Warning "ThreadJob module not found. Installing..."
-    try {
+    try
+    {
         Install-Module -Name ThreadJob -Force -Scope CurrentUser
     }
-    catch {
+    catch
+    {
         Write-Warning "Failed to install ThreadJob: $_"
     }
 }
@@ -129,67 +142,78 @@ if (-not (Get-Module -ListAvailable -Name ThreadJob)) {
 #}
 
 # Oh My Posh инициализация
-try {
-    if (Get-Command oh-my-posh -ErrorAction SilentlyContinue) {
+try
+{
+    if (Get-Command oh-my-posh -ErrorAction SilentlyContinue)
+    {
         #        $configPath = "C:\Program Files (x86)\oh-my-posh\themes\freeu.omp.json"
-        if (Test-Path $configPath) {
+        if (Test-Path $configPath)
+        {
             #            oh-my-posh init pwsh --config ~/custom.omp.json | Invoke-Expression
             oh-my-posh init pwsh --config $configPath | Invoke-Expression
         }
-        else {
+        else
+        {
             Write-Warning "Oh My Posh theme file not found: $configPath"
         }
     }
-    else {
+    else
+    {
         Write-Warning "Oh My Posh not found in PATH"
     }
 }
-catch {
+catch
+{
     Write-Warning "Failed to initialize Oh My Posh: $_"
 }
 
 Switch-KeyboardLayout en-Us
+Set-PSReadLineKeyHandler -Key Shift+Enter -Function AddLine
+Set-PSReadLineOption -EditMode Windows
+Set-PSReadLineOption -PredictionSource History
 
 #    Импорт оставшихся скриптов
-foreach ($script in  $global:scriptsAfter) {
+foreach ($script in  $global:scriptsAfter)
+{
     . "${global:profilePath}${script}.ps1"
 }
 
-#Trace-ImportProcess -finalInitialiazation
+oh-my-posh enable reload
+#Trace-ImportProcess -finalInitialization
 #
 # ==============================================
 # ОТЛОЖЕННАЯ ИНИЦИАЛИЗАЦИЯ
 # ==============================================
 
 # Таймер для отложенной загрузки менее критичных модулей
-$delayedInitTimer = New-Object System.Timers.Timer
-$delayedInitTimer.Interval = 3000  # 3 секунды после запуска
-$delayedInitTimer.Add_Elapsed({
-   try {
-       # Отложенная инициализация тяжелых функций
-       if (Test-Path "${PSScriptRoot}\Profile\Utils\Heavy-Functions.ps1") {
-           . "${PSScriptRoot}\Profile\Utils\Heavy-Functions.ps1"
-       }
-
-       # Проверяем статус фоновой загрузки
-       if ($global:BackgroundInitJob) {
-           $jobState = $global:BackgroundInitJob.State
-           if ($jobState -eq "Completed") {
-               Write-Host "✅ All background processes completed" -ForegroundColor Green
-           } elseif ($jobState -eq "Failed") {
-               Write-Warning "Background initialization failed"
-           }
-       }
-
-       Write-Host "⏰ Delayed initialization completed" -ForegroundColor Cyan
-   } catch {
-       Write-Warning "Delayed initialization error: $_"
-   } finally {
-       $delayedInitTimer.Stop()
-       $delayedInitTimer.Dispose()
-   }
-})
-$delayedInitTimer.Start()
+#$delayedInitTimer = New-Object System.Timers.Timer
+#$delayedInitTimer.Interval = 3000  # 3 секунды после запуска
+#$delayedInitTimer.Add_Elapsed({
+#   try {
+#       # Отложенная инициализация тяжелых функций
+#       if (Test-Path "${PSScriptRoot}\Profile\Utils\Heavy-Functions.ps1") {
+#           . "${PSScriptRoot}\Profile\Utils\Heavy-Functions.ps1"
+#       }
+#
+#       # Проверяем статус фоновой загрузки
+#       if ($global:BackgroundInitJob) {
+#           $jobState = $global:BackgroundInitJob.State
+#           if ($jobState -eq "Completed") {
+#               Write-Host "✅ All background processes completed" -ForegroundColor Green
+#           } elseif ($jobState -eq "Failed") {
+#               Write-Warning "Background initialization failed"
+#           }
+#       }
+#
+#       Write-Host "⏰ Delayed initialization completed" -ForegroundColor Cyan
+#   } catch {
+#       Write-Warning "Delayed initialization error: $_"
+#   } finally {
+#       $delayedInitTimer.Stop()
+#       $delayedInitTimer.Dispose()
+#   }
+#})
+#$delayedInitTimer.Start()
 #
 ## Очистка при выходе из PowerShell
 #Register-EngineEvent -SourceIdentifier "PowerShell.Exiting" -Action {

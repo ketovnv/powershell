@@ -228,12 +228,12 @@ function ConvertTo-SmartErrorView
             if ($InputObject.Exception.Message -match "The term ['`"](.+?)['`"] is not recognized")
             {
                 $commandName = $matches[1]
-                $output += wrgb "😈 "$commandName -FC Material_Orange -newline
+                $output += wrgb "😈 "$commandName -FC Material_Orange
             }
-            $output += wrgb  "👻 Неправильно набрана команда, "  -FC "Material_Yellow"
+            $output += wrgb  "   👻 Неправильно набрана команда, "  -FC "Material_Yellow"
             $output += wrgb  "попробуйте ещё раз 😊"  -FC "#1177CC" -newline
             $output
-            gh $commandName | d
+            #            gh $commandName | d
             RETURN
         }
 
@@ -255,13 +255,13 @@ function ConvertTo-SmartErrorView
         $detailsKeyColor = "OneDark_Green"
         $detailsValueColor = "Nord_FrostBlue"
 
-#                        foreach ($Key in  $details.keys)
-#                        {
-#                            wrgb "${Key} : "  -FC $detailsKeyColor
-#                            wrgb  $details[$Key] -FC $detailsValueColor -newline
-#                        }
-#                       debug $details
-    
+        #                        foreach ($Key in  $details.keys)
+        #                        {
+        #                            wrgb "${Key} : "  -FC $detailsKeyColor
+        #                            wrgb  $details[$Key] -FC $detailsValueColor -newline
+        #                        }
+        #                       debug $details
+
         $formattedMessage = $template.template
         foreach ($key in $details.Keys)
         {
@@ -271,7 +271,7 @@ function ConvertTo-SmartErrorView
         $formattedMessage = $formattedMessage -replace "\{Icon\}", $template.Icon
         $formattedMessage += wrgb  "`n  🔴 ОШИБКА: 🔴`n  "  -FC Material_Orange
         $formattedMessage += wrgbn $formattedMessage  -FC $template.Color
-        $formattedMessage += wrgbn  "  🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴🔴 🔴 🔴 "
+        #        $formattedMessage += wrgbn  "  🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴🔴 🔴 🔴 "
 
         # Категория
 
@@ -288,20 +288,20 @@ function ConvertTo-SmartErrorView
 
         if ($details.Directory)
         {
-            $formattedMessage += wrgb  "  📁 Директория:"  -FC  $detailsKeyColor 
+            $formattedMessage += wrgb  "  📁 Директория:"  -FC  $detailsKeyColor
             $formattedMessage += wrgbn $details.Directory -FC $detailsValueColor
         }
 
         if ($details.ScriptName)
         {
             $scriptName = Split-Path $details.ScriptName -Leaf
-            $formattedMessage += wrgb  "  📑 Файл:"  -FC  $detailsKeyColor 
+            $formattedMessage += wrgb  "  📑 Файл:"  -FC  $detailsKeyColor
             $formattedMessage += wrgbn $scriptName -FC $detailsValueColor
         }
 
         if ($details.Line)
         {
-            $formattedMessage += wrgb  "  📝️ Строка:"  -FC  $detailsKeyColor 
+            $formattedMessage += wrgb  "  📝️ Строка:"  -FC  $detailsKeyColor
             $formattedMessage += wrgb $details.Line -FC White  -newline
         }
 
@@ -318,7 +318,7 @@ function ConvertTo-SmartErrorView
 
         if ($template.Suggestion)
         {
-            $formattedMessage += wrgb  "  🧙‍♂️ Совет:"  -FC  $detailsKeyColor 
+            $formattedMessage += wrgb  "  🧙‍♂️ Совет:"  -FC  $detailsKeyColor
             $formattedMessage += wrgb $template.Suggestion -FC $detailsValueColor  -newline
         }
         $criticalErrors = @("UnauthorizedAccessException", "OutOfMemoryException", "StackOverflowException")
@@ -330,28 +330,28 @@ function ConvertTo-SmartErrorView
 
 
         wrgb "`n   "
-        $path= $details.FullPath ?? $details.ScriptName
-         return $path ? "🔴 ${path} 🔴" : "  🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 `n`n"
+        $path = $details.FullPath ?? $details.ScriptName
+        return $path ? "🔴 ${path} 🔴" : "  🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 `n`n"
         #      Проверяем критичность ошибки
 
         # Добавляем предложение по исправлению
 
         # Добавляем информацию о внутренних исключениях
-#        if ($ErrorViewConfig.ShowInnerExceptions -and $InputObject.Exception.InnerException)
-#        {
-#            $innerEx = $InputObject.Exception.InnerException
-#            $innerMessage = Translate-ErrorMessage -Message $innerEx.Message -ExceptionType $innerEx.GetType().Name
-#            $formattedMessage += "`n🔍 Внутренняя ошибка: $innerMessage"
-#        }
-#
-#        # Добавляем stack trace если нужно
-#        if ($ErrorViewConfig.ShowStackTrace -and $InputObject.Exception.StackTrace)
-#        {
-#            $formattedMessage += "`n📊 Stack Trace:`n$( $InputObject.Exception.StackTrace )"
-#        }
+        #        if ($ErrorViewConfig.ShowInnerExceptions -and $InputObject.Exception.InnerException)
+        #        {
+        #            $innerEx = $InputObject.Exception.InnerException
+        #            $innerMessage = Translate-ErrorMessage -Message $innerEx.Message -ExceptionType $innerEx.GetType().Name
+        #            $formattedMessage += "`n🔍 Внутренняя ошибка: $innerMessage"
+        #        }
+        #
+        #        # Добавляем stack trace если нужно
+        #        if ($ErrorViewConfig.ShowStackTrace -and $InputObject.Exception.StackTrace)
+        #        {
+        #            $formattedMessage += "`n📊 Stack Trace:`n$( $InputObject.Exception.StackTrace )"
+        #        }
 
         # Логируем ошибку
-#        Log-Error -ErrorRecord $InputObject -FormattedMessage $formattedMessage
+        #        Log-Error -ErrorRecord $InputObject -FormattedMessage $formattedMessage
 
 
         #        Console-Warn formattedMessage
@@ -369,9 +369,6 @@ function ConvertTo-SmartErrorView
         #            $output += wrgb "🆔  ID Ошибки: " -FC "#FF5555"
         #            $output += wrgb  $InputObject.FullyQualifiedErrorId -FC Material_Purple -newline
         #
-
-
-
 
 
     }

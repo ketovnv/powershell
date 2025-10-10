@@ -3,118 +3,6 @@ Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocatio
 $global:richFolder = "${global:profilePath}/Rich/"
 
 
-function gradd
-{
-    param(
-        [string]$text = "RICH GRADIENT",
-        [string]$color1 = "#ff0080",
-        [string]$color2 = "#7928ca",
-        [string]$justify = "center"
-    )
-
-    if (-not $FilePath)
-    {
-        # Если файл не указан, показываем пример
-        $py = @"
-from rich.console import Console, Group
-from rich.panel import Panel
-from rich.text import Text
-from rich.color import Color
-from rich.style import Style
-from time import sleep
-import math
-
-console = Console(width=70)
-
-def make_gradient_bg(width, height, color1, color2):
-    # Возвращает список строк с фоновым градиентом
-    bg_lines = []
-    for y in range(height):
-        ratio = y / max(height-1, 1)
-        r1, g1, b1 = Color.parse(color1).triplet
-        r2, g2, b2 = Color.parse(color2).triplet
-        r = int(r1 + (r2 - r1) * ratio)
-        g = int(g1 + (g2 - g1) * ratio)
-        b = int(b1 + (b2 - b1) * ratio)
-        bg_lines.append(f"[on #{r:02x}{g:02x}{b:02x}]{' ' * width}[/]")
-    return "\n".join(bg_lines)
-
-def make_blur_bg(width, height, colors):
-    # Делает "размытый" фон: несколько полупрозрачных слоев разных оттенков
-    bg = [[" "]*width for _ in range(height)]
-    for y in range(height):
-        for x in range(width):
-            # Эмулируем размытие: хаотично смешиваем цвета
-            ratio = (math.sin(x/width*math.pi + y/height*math.pi)+1)/2
-            c1 = Color.parse(colors[0]).triplet
-            c2 = Color.parse(colors[1]).triplet
-            c3 = Color.parse(colors[2]).triplet
-            r = int(c1[0]*(1-ratio) + c2[0]*ratio*0.7 + c3[0]*ratio*0.3)
-            g = int(c1[1]*(1-ratio) + c2[1]*ratio*0.7 + c3[1]*ratio*0.3)
-            b = int(c1[2]*(1-ratio) + c2[2]*ratio*0.7 + c3[2]*ratio*0.3)
-            bg[y][x] = f"[on #{r:02x}{g:02x}{b:02x}] [/]"
-
-    return "\n".join("".join(row) for row in bg)
-
-def gradient_text(text, color1, color2):
-    length = len(text)
-    out = Text()
-    for i, char in enumerate(text):
-        ratio = i / max(length-1, 1)
-        r1, g1, b1 = Color.parse(color1).triplet
-        r2, g2, b2 = Color.parse(color2).triplet
-        r = int(r1 + (r2 - r1) * ratio)
-        g = int(g1 + (g2 - g1) * ratio)
-        b = int(b1 + (b2 - b1) * ratio)
-        style = Style(color=f"#{r:02x}{g:02x}{b:02x}", bold=True)
-        out.append(char, style=style)
-    return out
-
-def gradient_border(i, total, colors):
-    # Создает стиль рамки на основе прогресса и цветов
-    ratio = i / max(total-1, 1)
-    c1 = Color.parse(colors[0]).triplet
-    c2 = Color.parse(colors[1]).triplet
-    r = int(c1[0] + (c2[0] - c1[0]) * ratio)
-    g = int(c1[1] + (c2[1] - c1[1]) * ratio)
-    b = int(c1[2] + (c2[2] - c1[2]) * ratio)
-    return f"#{r:02x}{g:02x}{b:02x}"
-
-def main_demo():
-    width, height = 62, 18
-    blur_colors = ["#c471f5", "#fa71cd", "#48c6ef"]
-    border_colors = ["#43cea2", "#185a9d"]
-    text_colors = ["#ffe53b", "#ff2525"]
-    panel_text = gradient_text("✨ RICH: Вау-эффект прямо в консоли! ✨", *text_colors)
-
-    for tick in range(30):  # анимация: 30 кадров
-        bg = make_blur_bg(width, height, blur_colors)
-        # динамический border: градиент гуляет по цветам
-        border_style = gradient_border(tick % height, height, border_colors)
-        # панель с прозрачным фоном, на фоне blur-bg
-        panel = Panel(
-            Group(panel_text, "\n" + " " * ((width-len(panel_text.plain))//2) + "Тут градиент, blur и цветная рамка!"),
-            width=width-2,
-            border_style=border_style,
-            padding=(3, 4),
-            style="on #ffffff10"  # легкая белая «дымка» поверх blur
-        )
-        # Выводим "размытый" фон + панель поверх
-        console.clear()
-        console.print(bg)
-        console.print("\n" * 2)
-        console.print(panel, justify="center")
-        sleep(0.13)
-
-if __name__ == "__main__":
-    main_demo()
-"@
-    }
-
-    python -c $py
-}
-
-
 
 function grad
 {
@@ -161,7 +49,7 @@ function ggrad
     $colors = $global:RAINBOWGRADIENT
     $colors_json = $colors| ConvertTo-Json -Compress
     if (-not $FilePath)
-    {   
+    {
         $py = @"
 from rich.console import Console
 from rich.panel import Panel
@@ -195,7 +83,7 @@ def gradient_text(text, color1, color2):
     return result
 
 title = gradient_text(" Градиентная панель ", "#2288EE", "#fee140")
-content="Powershell"
+content='$text'
 gradient_content = gradient_simple(content, gradient_colors)
 panel = Panel(gradient_content, title=title, expand=True,
 border_style="bold white on #050922")
@@ -213,269 +101,547 @@ for i in range(22):
     python -c $py
 }
 
-function Show-PrettyObject
-{
+function Show-PrettyObject {
+    [CmdletBinding()]
     param(
-        [Parameter(Mandatory = $true, ValueFromPipeline)]
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
         $InputObject,
 
         [int]$Depth = 5,
-        [ValidateSet('KeyValue', 'Tree', 'Table', 'Json')]
+
+        [ValidateSet('Json','Tree','Table','KeyValue')]
         [string]$View = 'Json',
-        [switch]$valuesIsColors
+
+        [switch]$ValuesIsColors
     )
 
-    # Вспомогательная функция рекурсивного key=value
-    function Convert-ToKeyValueString
-    {
-        param(
-            [Parameter(Mandatory = $true)]
-            $Obj,
+    begin {
+        $bag = @()
 
-            [int]$Depth = 5,
-            [string]$KeyPath = '',
-            [string]$Separator = ', '
-        )
+        function Convert-ToKeyValueString {
+            param(
+                [Parameter(Mandatory = $true)] $Obj,
+                [int]$Depth = 5,
+                [string]$KeyPath = '',
+                [string]$Separator = ', '
+            )
+            if ($null -eq $Obj) { return ($KeyPath ? "$KeyPath=<null>" : "Value=<null>") }
+            if ($Depth -le 0)   { return ($KeyPath ? "$KeyPath=<max depth>" : "<max depth>") }
+            if ($Obj -is [string]) { return ($KeyPath ? "$KeyPath=$Obj" : "Value=$Obj") }
 
-        if ($null -eq $Obj)
-        {
-            if ($KeyPath -ne '')
-            {
-                return "$KeyPath=<null>"
-            }
-            else
-            {
-                return "Value=<null>"
-            }
-        }
-
-        if ($Depth -le 0)
-        {
-            if ($KeyPath -ne '')
-            {
-                return "$KeyPath=<max depth>"
-            }
-            else
-            {
-                return "<max depth>"
-            }
-        }
-
-        if ($Obj -is [string])
-        {
-            if ($KeyPath -ne '')
-            {
-                return "$KeyPath=$Obj"
-            }
-            else
-            {
-                return "Value=$Obj"
-            }
-        }
-
-        if ($Obj -is [System.Collections.IDictionary])
-        {
-            $out = @()
-            foreach ($k in $Obj.Keys)
-            {
-                $newPath = if ($KeyPath)
-                {
-                    "$KeyPath.$k"
+            if ($Obj -is [System.Collections.IDictionary]) {
+                $out = @()
+                foreach ($k in $Obj.Keys) {
+                    $newPath = ($KeyPath ? "$KeyPath.$k" : "$k")
+                    $out += Convert-ToKeyValueString -Obj $Obj[$k] -Depth ($Depth - 1) -KeyPath $newPath -Separator $Separator
                 }
-                else
-                {
-                    "$k"
-                }
-                $out += Convert-ToKeyValueString -Obj $Obj[$k] -Depth ($Depth - 1) -KeyPath $newPath -Separator $Separator
+                return ($out -join $Separator)
             }
-            return $out -join $Separator
-        }
 
-        if ($Obj -is [System.Collections.IEnumerable])
-        {
-            $out = @()
-            $i = 0
-            foreach ($elem in $Obj)
-            {
-                $newPath = if ($KeyPath)
-                {
-                    "$KeyPath`[$i`]"
+            if ($Obj -is [System.Collections.IEnumerable] -and -not ($Obj -is [string])) {
+                $out = @(); $i = 0
+                foreach ($elem in $Obj) {
+                    $newPath = ($KeyPath ? "$KeyPath`[$i`]" : "[$i]")
+                    $out += Convert-ToKeyValueString -Obj $elem -Depth ($Depth - 1) -KeyPath $newPath -Separator $Separator
+                    $i++
                 }
-                else
-                {
-                    "[$i]"
-                }
-                $out += Convert-ToKeyValueString -Obj $elem -Depth ($Depth - 1) -KeyPath $newPath -Separator $Separator
-                $i++
+                return ($out -join $Separator)
             }
-            return $out -join $Separator
-        }
 
-        if ($Obj -is [object] -and $Obj.PSObject.Properties.Count -gt 0)
-        {
-            $ht = @{ }
-            foreach ($p in $Obj.PSObject.Properties)
-            {
-                $ht[$p.Name] = $p.Value
+            if ($Obj -is [object] -and $Obj.PSObject.Properties.Count -gt 0) {
+                $ht = @{}
+                foreach ($p in $Obj.PSObject.Properties) { $ht[$p.Name] = $p.Value }
+                return Convert-ToKeyValueString -Obj $ht -Depth ($Depth - 1) -KeyPath $KeyPath -Separator $Separator
             }
-            return Convert-ToKeyValueString -Obj $ht -Depth ($Depth - 1) -KeyPath $KeyPath -Separator $Separator
+
+            return ($KeyPath ? "$KeyPath=$Obj" : "Value=$Obj")
         }
 
-        if ($KeyPath -ne '')
-        {
-            return "$KeyPath=$Obj"
-        }
-        else
-        {
-            return "Value=$Obj"
-        }
-    }
-
-    # Основная логика функции
-    # Генерация key=value строки (для KeyValue view)
-    $kvStr = Convert-ToKeyValueString -Obj $InputObject -Depth $Depth
-
-    # Генерация JSON
-    $json = $InputObject | ConvertTo-Json -Depth $Depth -Compress
-
-    $pyScript = switch ($View)
-    {
-        'Json' {
-            @"
+        $script:pyJson = @'
+from rich.console import Console
 from rich.json import JSON
-json_obj = JSON.from_data($json)
-console.print(json_obj)
-"@
-        }
-        'Tree' {
-            @"
-from rich.tree import Tree
-import json
-import re
-def is_hex_color(value):
-    """Проверяет, является ли строка HEX-цветом (#RGB или #RRGGBB)."""
-    if not isinstance(value, str):
-        return False
-    return re.match(r'^#(?:[0-9a-fA-F]{3}){1,2}$', value) is not None
+import sys
+console = Console()
+data = sys.stdin.read().strip()
+console.print(JSON(data))
+'@
 
-data = json.loads('''$json''')
+        $script:pyTree = @'
+from rich.console import Console
+from rich.tree import Tree
+import json, sys, re
+console = Console()
+
+def parse_hex_mode(argv):
+    for a in argv[1:]:
+        s = str(a).strip().lower()
+        if s in ('--',):  # служебный разделитель — пропускаем
+            continue
+        if s in ('1','true','yes','on'):  return True
+        if s in ('0','false','no','off'): return False
+    return False
+
+hex_mode = parse_hex_mode(sys.argv)
+data = json.loads(sys.stdin.read())
+
+def is_hex_color(value):
+    if not hex_mode: return False
+    return isinstance(value, str) and re.match(r'^#(?:[0-9a-fA-F]{3}){1,2}$', value) is not None
 
 def build_tree(node, tree):
     if isinstance(node, dict):
         for k, v in node.items():
-            branch = tree.add(f'[bold]{k}[/]:')
-            build_tree(v, branch)
+            build_tree(v, tree.add(f'[bold medium_purple]{k}[/]:'))
     elif isinstance(node, list):
         for i, v in enumerate(node):
-            branch = tree.add(f'[hot_pink][{i}][/]')
-            build_tree(v, branch)
+            build_tree(v, tree.add(f'[medium_purple2][{i}][/]' ))
     elif node is None:
         tree.add('[red]<null>[/]')
     elif isinstance(node, bool):
         tree.add(f'[yellow]{node}[/]')
     elif isinstance(node, (int, float)):
-        tree.add(f'[light_yellow3]{node}[/]')
+        tree.add(f'[light_cyan1]{node}[/]')
     elif is_hex_color(node):
-        tree.add(f'[#{node[1:]}]{node}[/]')
+        tree.add(f'[#{value[1:]}]{value}[/]')
     else:
         tree.add(f'[info]{node}[/]')
 
-root = Tree('[bold bright_yellow]Object[/]')
+root = Tree('[bold purple3]Object[/]')
 build_tree(data, root)
 console.print(root)
-"@
-        }
-        'Table' {
-            @"
+'@
+
+        $script:pyTable = @'
 from rich import print
 from rich.table import Table
 from rich.text import Text
-import json
-import re
+import json, sys, re
+
+def parse_hex_mode(argv):
+    for a in argv[1:]:
+        s = str(a).strip().lower()
+        if s in ('--',):  # служебный разделитель — пропускаем
+            continue
+        if s in ('1','true','yes','on'):  return True
+        if s in ('0','false','no','off'): return False
+    return False
+
+hex_mode = parse_hex_mode(sys.argv)
+data = json.loads(sys.stdin.read())
 
 def is_hex_color(value):
-    """Проверяет, является ли строка HEX-цветом (#RGB или #RRGGBB)."""
-    if not isinstance(value, str):
-        return False
-    return re.match(r'^#(?:[0-9a-fA-F]{3}){1,2}$', value) is not None
-data = json.loads('''$json''')
-if isinstance(data, dict):
-    table = Table(show_header=False, show_lines=False, show_edge=False,  style='#050711')
-#    table.add_column('Key',  no_wrap=True)
-#    table.add_column('Value')
-    for k, v in data.items():
+    if not hex_mode: return False
+    return isinstance(value, str) and re.match(r'^#(?:[0-9a-fA-F]{3}){1,2}$', value) is not None
+
+def render_kv_table(d: dict):
+    table = Table(show_header=False, show_lines=False, show_edge=False, style='#050711')
+    for k, v in d.items():
         if isinstance(v, (dict, list)):
-            v_str = json.dumps(v)
-        elif v is None:
-            v_str = '<null>'
-        elif  is_hex_color(v):
-            v_str = Text(v, style=f"#{v[1:]}")
-            table.add_row(Text(k, style=f"#{v[1:]}"), v_str)
-        else:
-            v_str = Text(v, style="white")
+            v_str = Text(json.dumps(v, ensure_ascii=False))
             table.add_row(str(k), v_str)
-    print(table)
+        elif v is None:
+            table.add_row(str(k), Text('<null>', style='red'))
+        elif isinstance(v, bool):
+            table.add_row(str(k), Text(str(v), style='yellow'))
+        elif isinstance(v, (int,float)):
+            table.add_row(str(k), Text(str(v), style='light_yellow3'))
+        elif is_hex_color(v):
+            table.add_row(Text(str(k), style=f"#{v[1:]}"), Text(v, style=f"#{v[1:]}"))
+        else:
+            table.add_row(str(k), Text(str(v), style="white"))
+    return table
+
+if isinstance(data, dict):
+    print(render_kv_table(data))
+elif isinstance(data, list):
+    for i, item in enumerate(data):
+        print(Text.assemble((str(i))))
+        if isinstance(item, dict):
+            print(render_kv_table(item))
+        else:
+            print(Text(str(item), style="white"))
 else:
-    print('[red]Not a dictionary[/]')
-"@
-        }
-        'KeyValue' {
-            @"
+    print('[red]Not a dictionary or list[/]')
+'@
+
+        $script:pyKeyValue = @'
 from rich import print
 from rich.text import Text
+import sys
 
-kv = '''$kvStr'''.split(', ')
+lines = sys.stdin.read().splitlines()
 
-txt = Text()
-for i, item in enumerate(kv):
-    if '=' in item:
-        key, val = item.split('=', 1)
-        txt.append(key, style='bold cornflower_blue')
-        txt.append('=')
-        # Цвет для значений по типу
-        if val.lower() in ('true', 'false'):
-            txt.append(val, style='yellow')
-        elif val.isdigit():
-            txt.append(val, style='light_yellow3')
-        elif val == '<null>':
-            txt.append(val, style='red')
+def colorize_pair(pair: str):
+    t = Text()
+    if "=" in pair:
+        k, v = pair.split("=", 1)
+        t.append(k, style="bold cornflower_blue")
+        t.append("=")
+        lv = v.lower()
+        if lv in ("true","false"):
+            t.append(v, style="yellow")
+        elif lv == "<null>":
+            t.append(v, style="red")
+        elif v.replace(".","",1).isdigit():
+            t.append(v, style="white")
         else:
-            txt.append(val, style='white')
+            t.append(v)
     else:
-        txt.append(item, style='white')
+        t.append(pair)
+    return t
 
-    if i < len(kv) - 1:
-        txt.append(', ')
-
-rprint(txt)
-"@
-        }
+for line in lines:
+    parts = [p for p in (s.strip() for s in line.split(",")) if p]
+    out = Text()
+    for i, p in enumerate(parts):
+        out.append(colorize_pair(p))
+        if i < len(parts)-1:
+            out.append(", ")
+    print(out)
+'@
     }
 
-    # Запускаем Python с rich
-    python -c $pyScript
+    process { $bag += ,$InputObject }
+
+    end {
+        if ($View -eq 'KeyValue') {
+            $kvLines = foreach ($o in $bag) {
+                Convert-ToKeyValueString -Obj $o -Depth $Depth
+            }
+            $payload = ($kvLines -join "`n")
+            $payload | python -c $script:pyKeyValue
+            return
+        }
+
+        $json = $bag | ConvertTo-Json -Depth $Depth -Compress
+        $flag = if ($ValuesIsColors) { '1' } else { '0' }
+
+        switch ($View) {
+            'Json'  { $json | python -c $script:pyJson }
+            'Tree'  { $json | python -c $script:pyTree  -- $flag }
+            'Table' { $json | python -c $script:pyTable -- $flag }
+        }
+    }
 }
 
 
-function spt
-{
-    Show-PrettyObject @args  -View Table
+
+
+#function Show-PrettyObject
+#{
+#    param(
+#        [Parameter(Mandatory = $true, ValueFromPipeline)]
+#        $InputObject,
+#
+#        [int]$Depth = 5,
+#        [ValidateSet('KeyValue', 'Tree', 'Table', 'Json')]
+#        [string]$View = 'Json',
+#        [switch]$valuesIsColors
+#    )
+#
+#    # Вспомогательная функция рекурсивного key=value
+#    function Convert-ToKeyValueString
+#    {
+#        param(
+#            [Parameter(Mandatory = $true)]
+#            $Obj,
+#
+#            [int]$Depth = 5,
+#            [string]$KeyPath = '',
+#            [string]$Separator = ', '
+#        )
+#
+#        if ($null -eq $Obj)
+#        {
+#            if ($KeyPath -ne '')
+#            {
+#                return "$KeyPath=<null>"
+#            }
+#            else
+#            {
+#                return "Value=<null>"
+#            }
+#        }
+#
+#        if ($Depth -le 0)
+#        {
+#            if ($KeyPath -ne '')
+#            {
+#                return "$KeyPath=<max depth>"
+#            }
+#            else
+#            {
+#                return "<max depth>"
+#            }
+#        }
+#
+#        if ($Obj -is [string])
+#        {
+#            if ($KeyPath -ne '')
+#            {
+#                return "$KeyPath=$Obj"
+#            }
+#            else
+#            {
+#                return "Value=$Obj"
+#            }
+#        }
+#
+#        if ($Obj -is [System.Collections.IDictionary])
+#        {
+#            $out = @()
+#            foreach ($k in $Obj.Keys)
+#            {
+#                $newPath = if ($KeyPath)
+#                {
+#                    "$KeyPath.$k"
+#                }
+#                else
+#                {
+#                    "$k"
+#                }
+#                $out += Convert-ToKeyValueString -Obj $Obj[$k] -Depth ($Depth - 1) -KeyPath $newPath -Separator $Separator
+#            }
+#            return $out -join $Separator
+#        }
+#
+#        if ($Obj -is [System.Collections.IEnumerable])
+#        {
+#            $out = @()
+#            $i = 0
+#            foreach ($elem in $Obj)
+#            {
+#                $newPath = if ($KeyPath)
+#                {
+#                    "$KeyPath`[$i`]"
+#                }
+#                else
+#                {
+#                    "[$i]"
+#                }
+#                $out += Convert-ToKeyValueString -Obj $elem -Depth ($Depth - 1) -KeyPath $newPath -Separator $Separator
+#                $i++
+#            }
+#            return $out -join $Separator
+#        }
+#
+#        if ($Obj -is [object] -and $Obj.PSObject.Properties.Count -gt 0)
+#        {
+#            $ht = @{ }
+#            foreach ($p in $Obj.PSObject.Properties)
+#            {
+#                $ht[$p.Name] = $p.Value
+#            }
+#            return Convert-ToKeyValueString -Obj $ht -Depth ($Depth - 1) -KeyPath $KeyPath -Separator $Separator
+#        }
+#
+#        if ($KeyPath -ne '')
+#        {
+#            return "$KeyPath=$Obj"
+#        }
+#        else
+#        {
+#            return "Value=$Obj"
+#        }
+#    }
+#
+#    # Основная логика функции
+#    # Генерация key=value строки (для KeyValue view)
+#    $kvStr = Convert-ToKeyValueString -Obj $InputObject -Depth $Depth
+#
+#    # Генерация JSON
+#    $json = $InputObject | ConvertTo-Json -Depth $Depth -Compress
+#
+#    $pyScript = switch ($View)
+#    {
+#        'Json' {
+#            @"
+#from rich.console import Console
+#console=Console()
+#from rich.json import JSON
+#json_obj = JSON.from_data($json)
+#console.print(json_obj)
+#"@
+#        }
+#        'Tree' {
+#            @"
+#from rich.tree import Tree
+#import json
+#import re
+#def is_hex_color(value):
+#    """Проверяет, является ли строка HEX-цветом (#RGB или #RRGGBB)."""
+#    if not isinstance(value, str):
+#        return False
+#    return re.match(r'^#(?:[0-9a-fA-F]{3}){1,2}$', value) is not None
+#
+#data = json.loads('''$json''')
+#
+#def build_tree(node, tree):
+#    if isinstance(node, dict):
+#        for k, v in node.items():
+#            branch = tree.add(f'[bold]{k}[/]:')
+#            build_tree(v, branch)
+#    elif isinstance(node, list):
+#        for i, v in enumerate(node):
+#            branch = tree.add(f'[hot_pink][{i}][/]')
+#            build_tree(v, branch)
+#    elif node is None:
+#        tree.add('[red]<null>[/]')
+#    elif isinstance(node, bool):
+#        tree.add(f'[yellow]{node}[/]')
+#    elif isinstance(node, (int, float)):
+#        tree.add(f'[light_yellow3]{node}[/]')
+#    elif is_hex_color(node):
+#        tree.add(f'[#{node[1:]}]{node}[/]')
+#    else:
+#        tree.add(f'[info]{node}[/]')
+#
+#root = Tree('[bold bright_yellow]Object[/]')
+#build_tree(data, root)
+#console.print(root)
+#"@
+#        }
+#        'Table' {
+#            @"
+#from rich import print
+#from rich.table import Table
+#from rich.text import Text
+#import json
+#import re
+#
+#def is_hex_color(value):
+#    """Проверяет, является ли строка HEX-цветом (#RGB или #RRGGBB)."""
+#    if not isinstance(value, str):
+#        return False
+#    return re.match(r'^#(?:[0-9a-fA-F]{3}){1,2}$', value) is not None
+#data = json.loads('''$json''')
+#if isinstance(data, dict):
+#    table = Table(show_header=False, show_lines=False, show_edge=False,  style='#050711')
+##    table.add_column('Key',  no_wrap=True)
+##    table.add_column('Value')
+#    for k, v in data.items():
+#        if isinstance(v, (dict, list)):
+#            v_str = json.dumps(v)
+#        elif v is None:
+#            v_str = '<null>'
+#        elif  is_hex_color(v):
+#            v_str = Text(v, style=f"#{v[1:]}")
+#            table.add_row(Text(k, style=f"#{v[1:]}"), v_str)
+#        else:
+#            v_str = Text(v, style="white")
+#            table.add_row(str(k), v_str)
+#    print(table)
+#else:
+#    print('[red]Not a dictionary[/]')
+#"@
+#        }
+#        'KeyValue' {
+#            @"
+#from rich import print
+#from rich.text import Text
+#
+#kv = '''$kvStr'''.split(', ')
+#
+#txt = Text()
+#for i, item in enumerate(kv):
+#    if '=' in item:
+#        key, val = item.split('=', 1)
+#        txt.append(key, style='bold cornflower_blue')
+#        txt.append('=')
+#        # Цвет для значений по типу
+#        if val.lower() in ('true', 'false'):
+#            txt.append(val, style='yellow')
+#        elif val.isdigit():
+#            txt.append(val, style='light_yellow3')
+#        elif val == '<null>':
+#            txt.append(val, style='red')
+#        else:
+#            txt.append(val, style='white')
+#    else:
+#        txt.append(item, style='white')
+#
+#    if i < len(kv) - 1:
+#        txt.append(', ')
+#
+#rprint(txt)
+#"@
+#        }
+#    }
+#
+#    # Запускаем Python с rich
+#    python -c $pyScript
+#}
+
+
+
+function _TryParse-JsonFromPipeline {
+    param([object[]]$Chunk)
+    if ($Chunk.Count -gt 0 -and ($Chunk[0] -is [string])) {
+        $text = ($Chunk -join "`n").Trim()
+        if ($text.StartsWith('{') -or $text.StartsWith('[')) {
+            try { return ($text | ConvertFrom-Json) } catch { }
+        }
+    }
+    return ,$Chunk  # вернуть как массив объектов
 }
 
-function spj
-{
-    Show-PrettyObject @args  -View Json
+
+function spj {
+    [CmdletBinding()]
+    param(
+        [Parameter(ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)] $InputObject,
+        [int]$Depth = 5
+    )
+    begin { $buf=@() }
+    process { $buf += ,$PSItem }
+    end {
+        $obj = _TryParse-JsonFromPipeline $buf
+        $obj | Show-PrettyObject -View Json -Depth $Depth
+    }
 }
 
-function sptr
-{
-    Show-PrettyObject @args  -View Tree
+function spt {
+    [CmdletBinding()]
+    param(
+        [Parameter(ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)] $InputObject,
+        [int]$Depth = 5, [switch]$Hex
+    )
+    begin { $buf=@() }
+    process { $buf += ,$PSItem }
+    end {
+        $obj = _TryParse-JsonFromPipeline $buf
+        $obj | Show-PrettyObject -View Tree -Depth $Depth -ValuesIsColors:$Hex
+    }
 }
 
-function spkv
-{
-    Show-PrettyObject @args  -View KeyValue
+function sptb {
+    [CmdletBinding()]
+    param(
+        [Parameter(ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)] $InputObject,
+        [int]$Depth = 5, [switch]$Hex
+    )
+    begin { $buf=@() }
+    process { $buf += ,$PSItem }
+    end {
+        $obj = _TryParse-JsonFromPipeline $buf
+        $obj | Show-PrettyObject -View Table -Depth $Depth -ValuesIsColors:$Hex
+    }
 }
+
+function spkv {
+    [CmdletBinding()]
+    param(
+        [Parameter(ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)] $InputObject,
+        [int]$Depth = 5
+    )
+    begin { $buf=@() }
+    process { $buf += ,$PSItem }
+    end {
+        $obj = _TryParse-JsonFromPipeline $buf
+        $obj | Show-PrettyObject -View KeyValue -Depth $Depth
+    }
+}
+
 
 
 $global:data = @{

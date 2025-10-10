@@ -488,7 +488,8 @@ Set-Alias -Name wgt -Value Write-GradientText -Scope Global -Force
 Set-Alias -Name wrgbl -Value WriteRGBLine -Force
 Set-Alias -Name nthp -Value NumberToHexPair -Force
 
-function wrgbn{
+function wrgbn
+{
     wrgb  -newline @args
 }
 
@@ -537,6 +538,8 @@ Set-Alias -Name menu -Value Show-MainMenu
 Set-Alias -Name mm -Value Show-MainMenu
 Set-Alias -Name br -Value bunRun
 Set-Alias -Name es -Value Everything64.exe -Force
+Set-Alias -Name dd -Value "./devops dev"
+
 Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))
 
 Set-Alias -Name p -Value python -Force
@@ -546,7 +549,16 @@ function  cath
     pygmentize -O style=monokai @args
 }
 
-function lessh{ pygmentize -O style=monokai @args | less -M -R }
+function lessh
+{
+    pygmentize -O style=monokai @args | less -M -R
+}
+
+
+function pg
+{
+    PSQL  @args
+}
 
 
 
@@ -568,6 +580,6 @@ function gF
     }
     else
     {
-        Get-ChildItem Function: | Where-Object { $all -or (-not $_.Source) } | Select-Object Name
+        Get-ChildItem Function: | Where-Object { $all -or (-not $_.Source) } | Select-Object Name |Format-Wide  -column 4
     }
 }

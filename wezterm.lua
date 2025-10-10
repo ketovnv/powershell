@@ -1,13 +1,41 @@
 local wezterm = require("wezterm");
 local config = wezterm.config_builder();
 local act = wezterm.action;
+config.unix_domains = {
+    {
+        name = 'wsl',
+        serve_command = { 'wsl', 'wezterm-mux-server', '--daemonize' },
+    },
+}
+
+
+local function prompt_and_new_session(domain)
+    return wezterm.action.PromptInputLine {
+        description = "New tmux session name",
+        action = wezterm.action_callback(function(window, pane, line)
+            if not line or line == "" then return end
+            window:perform_action(
+                wezterm.action.SpawnCommandInNewTab {
+                    args = {
+                        "wsl", "-d", "Ubuntu", "-u", "root", "--",
+                        "tmux", "new", "-s", line -- каждое слово отдельно
+                    },
+                },
+                pane
+            )
+        end),
+    }
+end
+
+
+
 wezterm.on("gui-startup", function(cmd)
     local _tab, _pane, window = wezterm.mux.spawn_window(cmd or {});
     local gui_window = window:gui_window();
     local dimensions = gui_window:get_dimensions();
     local main_screen = (wezterm.gui.screens()).main;
-    local x = 32;
-    local y = 10;
+    local x = 100;
+    local y = 50;
     gui_window:set_position(x, y);
 end);
 local themes = {
@@ -82,9 +110,13 @@ wezterm.on("update-status", function(window, pane)
     cwd_path = cwd_path:gsub("*crypta*", "💲");
     cwd_path = cwd_path:gsub("^%s*(.-)%s*$", "%1");
     local left_status = string.format("💻");
+    local wsl_domains = {
+        { name = "WSL:Ubuntu", distribution = "Ubuntu" }
+    };
     local time = wezterm.strftime("%H:%M");
     local date = wezterm.strftime("%d %B");
     local right_status = string.format("  📅 %s 🕐 %s ", date, time);
+
     window:set_left_status(wezterm.format({
         {
             Background = {
@@ -119,16 +151,17 @@ end);
 config.window_frame = {
     font = require('wezterm').font 'Roboto',
     font_size = 12,
-    --	inactive_titlebar_bg = "#353535",
-    --	active_titlebar_bg = "#000000",
-    --	inactive_titlebar_fg = "#cccccc",
-    --	active_titlebar_fg = "#ffffbb",
-    --	inactive_titlebar_border_bottom = "#333333",
-    --	active_titlebar_border_bottom = "#000000",
-    --	button_fg = "#cccccc",
-    --	button_bg = "#000000",
-    --	button_hover_fg = "#ffffff",
+    --  inactive_titlebar_bg = "#353535",
+    --  active_titlebar_bg = "#000000",
+    --  inactive_titlebar_fg = "#cccccc",
+    --  active_titlebar_fg = "#ffffbb",
+    --  inactive_titlebar_border_bottom = "#333333",
+    --  active_titlebar_border_bottom = "#000000",
+    --  button_fg = "#cccccc",
+    --  button_bg = "#000000",
+    --  button_hover_fg = "#ffffff",
 };
+
 wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_width)
     local title = tab.tab_title;
     if not title or title == "" then
@@ -138,7 +171,7 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
     title = title:gsub(".*powershell%.exe.*", "PS");
     title = title:gsub(".*zsh.*", "Zsh");
     title = title:gsub(".*bash.*", "Bash");
-   	local icon = tab.is_active and "🚀" or "🥷";
+    local icon = tab.is_active and "🚀" or "🥷";
     title = title:gsub("^%s*(.-)%s*$", "%1");
     if #title > 20 then
         title = title:sub(1, 17) .. "...";
@@ -183,6 +216,17 @@ config.keys = {
         action = act.SpawnTab("CurrentPaneDomain")
     },
     {
+        key = "Enter",
+        mods = "SHIFT",
+        action = wezterm.action { SendString = "\x1b\r" }
+    },
+    {
+        key = 'L',
+        mods = 'CTRL',
+        action = act.ShowLauncher,
+    },
+
+    {
         key = "PageUp",
         mods = "SHIFT",
         action = act.ScrollByPage(-1)
@@ -200,17 +244,6 @@ config.keys = {
         })
     },
     {
-        key = "k",
-        mods = "LEADER",
-        action = wezterm.action.SpawnCommandInNewTab({
-            args = {
-                "wsl",
-                "kitty",
-                "--start-as=fullscreen"
-            }
-        })
-    },
-    {
         key = "m",
         mods = "LEADER",
         action = wezterm.action.SpawnCommandInNewTab({
@@ -220,17 +253,7 @@ config.keys = {
         })
     },
     {
-        key = "n",
-        mods = "CTRL",
-        action = wezterm.action.SpawnCommandInNewTab({
-            args = {
-                "pwsh.exe",
-                "-NoLogo"
-            }
-        })
-    },
-     {
-        key = "F12",      
+        key = "F12",
         action = wezterm.action.SpawnCommandInNewTab({
             args = {
                 "pwsh.exe",
@@ -243,7 +266,29 @@ config.keys = {
         mods = "CTRL",
         action = wezterm.action.SpawnCommandInNewTab({
             args = {
-                "wsl.exe",
+                "wsl",
+                "-u",
+                "root"
+            }
+        })
+    },
+    {
+        key = "щ",
+        mods = "CTRL",
+        action = wezterm.action.SpawnCommandInNewTab({
+            args = {
+                "wsl",
+                "-u",
+                "root"
+            }
+        })
+    },
+    {
+        key = "k",
+        mods = "ALT",
+        action = wezterm.action.SpawnCommandInNewTab({
+            args = {
+                "wsl",
                 "-d",
                 "kali-linux",
                 "--",
@@ -253,14 +298,28 @@ config.keys = {
         })
     },
     {
-        key = "r",
-        mods = "LEADER",
+        key = "щ",
+        mods = "ALT",
         action = wezterm.action.SpawnCommandInNewTab({
             args = {
                 "wsl",
-                "far2l"
+                "-d",
+                "kali-linux",
+                "--",
+                "kitty",
+                "--start-as=fullscreen"
             }
         })
+    },
+    {
+        key = "u",
+        mods = "CTRL",
+        action = prompt_and_new_session("WSL:Ubuntu")
+    },
+    {
+        key = "г",
+        mods = "CTRL",
+        action = prompt_and_new_session("WSL:Ubuntu")
     },
     {
         key = "t",
@@ -295,7 +354,7 @@ config.keys = {
         mods = "CTRL",
         action = act.PasteFrom("Clipboard")
     },
-     {
+    {
         key = "F1",
         action = act.CopyTo("Clipboard")
     },
@@ -351,7 +410,7 @@ config.keys = {
         })
     },
     {
-        key = "u",
+        key = "b",
         mods = "CTRL",
         action = wezterm.action_callback(function(window, pane)
             local overrides = window:get_config_overrides() or {};
@@ -369,7 +428,20 @@ config.keys = {
         action = act.ActivateCommandPalette
     },
     {
+        key = "F10",
+        action = act.ActivateCommandPalette
+    },
+    {
+        key = "F4",
+        action = act.ActivateCommandPalette
+    },
+    {
         key = "0",
+        mods = "CTRL",
+        action = act.ShowDebugOverlay
+    },
+    {
+        key = "щ",
         mods = "CTRL",
         action = act.ShowDebugOverlay
     },
@@ -400,6 +472,11 @@ config.keys = {
         action = act.CloseCurrentTab({ confirm = false })
     },
     {
+        key = "ц",
+        mods = "CTRL",
+        action = act.CloseCurrentTab({ confirm = false })
+    },
+    {
         key = "Tab",
         mods = "CTRL",
         action = act.ActivateTabRelative(1)
@@ -423,7 +500,7 @@ for i = 1, 9 do
         action = act.ActivateTab(i - 1)
     });
 end;
-config.initial_cols = 117;
+config.initial_cols = 120;
 config.initial_rows = 25;
 config.scrollback_lines = 10000;
 config.enable_scroll_bar = true;
@@ -431,7 +508,7 @@ config.default_prog = {
     "pwsh.exe",
     "-NoLogo"
 };
-config.default_cwd = "C:/projects/crypta";
+config.default_cwd = "C:/projects/infil-erp";
 config.front_end = "WebGpu";
 config.webgpu_power_preference = "HighPerformance";
 config.animation_fps = 144;
@@ -459,23 +536,23 @@ config.freetype_load_target = "Light";
 config.freetype_render_target = "Light";
 config.anti_alias_custom_block_glyphs = true;
 config.display_pixel_geometry = "RGB";
-config.line_height = 1.2;
+config.line_height = 1.15;
 config.foreground_text_hsb = {
     hue = 1,
     saturation = 1.25,
     brightness = 1.1
 };
-config.font_size = 26;
+config.font_size = 20;
 config.colors = {
     foreground = "#F1F2AB",
     cursor_bg = "#CCff00",
     cursor_fg = "#000000",
-    cursor_border = "#CCff00",
-    selection_bg = "#122025",
-    selection_fg = "#FFF010",
+    cursor_border = "#FFaa22",
+    selection_bg = "#122035",
+    selection_fg = "#FFbb55",
     split = "#113972",
     tab_bar = {
-        background = "rgba(55,55,77,.5)",
+        background = "rgba(22,22,33,1)",
         active_tab = {
             bg_color = "#000000",
             fg_color = "#FFF577",
@@ -487,7 +564,7 @@ config.colors = {
         },
         inactive_tab_hover = {
             bg_color = "#000000",
-            fg_color = "#7aa2f7"
+            fg_color = "#7aa2FF"
         },
         new_tab = {
             bg_color = "#000000",
@@ -497,51 +574,102 @@ config.colors = {
             bg_color = "#000000",
             fg_color = "#FFFFFF"
         }
-    }
+    },
+    scrollbar_thumb = '#222222',
+    -- The color of the split lines between panes
+    ansi = {
+        'black',
+        'maroon',
+        'green',
+        'olive',
+        'navy',
+        'purple',
+        'teal',
+        'silver',
+    },
+    brights = {
+        'grey',
+        'red',
+        'lime',
+        'yellow',
+        'blue',
+        'fuchsia',
+        'aqua',
+        'white',
+    },
+    -- Arbitrary colors of the palette in the range from 16 to 255
+    indexed = { [136] = '#af8700' },
+    -- Since: 20220319-142410-0fcdea07
+    -- When the IME, a dead key or a leader key are being processed and are effectively
+    -- holding input pending the result of input composition, change the cursor
+    -- to this color to give a visual cue about the compose state.
+    compose_cursor = 'orange',
+    -- Colors for copy_mode and quick_select
+    -- available since: 20220807-113146-c2fee766
+    -- In copy_mode, the color of the active text is:
+    -- 1. copy_mode_active_highlight_* if additional text was selected using the mouse
+    -- 2. selection_* otherwise
+    copy_mode_active_highlight_bg = { Color = '#000000' },
+    -- use `AnsiColor` to specify one of the ansi color palette values
+    -- (index 0-15) using one of the names "Black", "Maroon", "Green",
+    --  "Olive", "Navy", "Purple", "Teal", "Silver", "Grey", "Red", "Lime",
+    -- "Yellow", "Blue", "Fuchsia", "Aqua" or "White".
+    copy_mode_active_highlight_fg = { AnsiColor = 'Black' },
+    copy_mode_inactive_highlight_bg = { Color = '#52ad70' },
+    copy_mode_inactive_highlight_fg = { AnsiColor = 'White' },
+    quick_select_label_bg = { Color = 'peru' },
+    quick_select_label_fg = { Color = '#ffffff' },
+    quick_select_match_bg = { AnsiColor = 'Navy' },
+    quick_select_match_fg = { Color = '#ffffff' },
+    -- input_selector_label_bg = { AnsiColor = 'Black' }, -- (*Since: Nightly Builds Only*)
+    -- input_selector_label_fg = { Color = '#ffffff' },   -- (*Since: Nightly Builds Only*)
+    -- launcher_label_bg = { AnsiColor = 'Black' },       -- (*Since: Nightly Builds Only*)
+    -- launcher_label_fg = { Color = '#ffffff' },         -- (*Since: Nightly Builds Only*)
 };
---config.window_background_gradient = {
---	colors = {
---		"#000000",
---		"#000000",
---		"#000000",
---		"#000000",
---		"#000000",
---		"#000000",
---		"#000000",
---		"#000000",
---		"#000000",
---		"#000000",
---		"#000000",
---		"#000000",
---		"#000503",
---		"#000504",
---		"#000000",
---		"#030708",
---		"#050607",
---		"#000000",
---		"#091520",
---		"#000305",
---		"#000000",
---		"#000203",
---		"#000305",
---		"#000000",
---		"#091216"
---	},
---	orientation = {
---		Linear = {
---			angle = -75,
---			interpolation = "CatmullRom",
---			blend = "Oklab"
---		}
---	}
---};
---config.window_background_opacity = 0.85;
+-- config.window_background_gradient = {
+    -- colors = {
+        -- "#000000",
+        -- "#000000",
+        -- "#000000",
+        -- "#000000",
+        -- "#000000",
+        -- "#000000",
+        -- "#000000",
+        -- "#000000",
+        -- "#000000",
+        -- "#000000",
+        -- "#000000",
+        -- "#000000",
+        -- "#000503",
+        -- "#000504",
+        -- "#000000",
+        -- "#030708",
+        -- "#050607",
+        -- "#000000",
+        -- "#091520",
+        -- "#000305",
+        -- "#000000",
+        -- "#000203",
+        -- "#000305",
+        -- "#000000",
+        -- "#091216"
+--     },
+--     orientation = {
+--         Linear = {
+--             angle = -75,
+--             interpolation = "CatmullRom",
+--             blend = "Oklab"
+--         }
+--     }
+-- };
+-- config.window_background_opacity = 0.85;
 config.window_background_opacity = 0
 config.win32_system_backdrop = 'Mica'
 --config.win32_acrylic_accent_color = "#000000";
 config.hide_tab_bar_if_only_one_tab = true;
+
 config.window_decorations = "INTEGRATED_BUTTONS|RESIZE";
-config.integrated_title_button_style = "Gnome";
+
 config.window_padding = {
     left = 1,
     right = 1,
@@ -563,11 +691,7 @@ config.default_cursor_style = "BlinkingBar";
 config.cursor_blink_rate = 1000;
 config.cursor_blink_ease_in = "Constant";
 config.cursor_blink_ease_out = "Constant";
-config.hyperlink_rules = wezterm.default_hyperlink_rules();
-table.insert(config.hyperlink_rules, {
-    regex = "\\b0x[a-fA-F0-9]{40}\\b",
-    format = "https://etherscan.io/address/$0"
-});
+
 config.launch_menu = {
     {
         label = "📦 Bun Shell",
@@ -601,22 +725,21 @@ config.launch_menu = {
         label = "😺 Kitty",
         args = {
             "wsl.exe",
-            "--cd",
-            "~",
-            "-e",
-            "bash",
-            "-c",
-            "kitty"
-        }
-    },
-    {
-        label = "🐧 Kali Linux",
-        args = {
-            "wsl.exe",
             "-d",
             "kali-linux",
             "--",
-            "zsh"
+            "kitty",
+            "--start-as=fullscreen"
+        }
+    },
+    {
+        label = "🐧 Ubunty Linux",
+        args = {
+            "wsl.exe",
+            "-d",
+            "ubuntu",
+            "-u",
+            "root"
         }
     },
     {
@@ -629,12 +752,26 @@ config.launch_menu = {
         }
     },
     {
-        label = "⚙️ Wezterm Config (Notepad++)",
+        label = "⚙️ Wezterm Config (Sublime Text)",
         args = {
-            "notepad++.exe",
-            "~/.wezterm.lua"
+            "pwsh.exe",
+            "-NoExit",
+            "-Command",
+            "subl ~/.wezterm.lua"
+        }
+    },
+    {
+        label = "⚙️ Wezterm Config (Zed)",
+        args = {
+            "pwsh.exe",
+            "-NoExit",
+            "-Command",
+            "zed C:/Users/ketov/.wezterm.lua"
         }
     }
 };
+
+
+
 --config.color_scheme = "AdventureTime";
 return config;

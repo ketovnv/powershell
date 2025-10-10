@@ -6,7 +6,7 @@ version = 3
 [var]
 Hello = "hello"
 UpstreamIcon = "world"
-console_title_template= "{{.Folder}}{{if .Root}} :: root{{end}} :: {{.Shell}}"
+console_title_template = "{{.Folder}}{{if .Root}} :: root{{end}} :: {{.Shell}}"
 
 
 [palette]
@@ -28,24 +28,25 @@ yellow = "#FFD700"
 blue = "#1177DD"
 
 
+[secondary_prompt]
+template = '❯❯❯❯❯❯ '
+foreground = 'p:lemon'
+background = 'transparent'
 
-#
-#[secondary_prompt]
-#template = '❯❯❯❯❯❯ '
-#foreground = 'p:lemon'
-#background = 'transparent'
-#
-#[transient_prompt]
-#template = '🇺🇦 ❯❯❯❯❯❯❯ '
-#foreground = 'p:bright-blue'
-#background = 'transparent'
+[transient_prompt]
+template = '  🇺🇦 ❯❯❯❯❯❯❯'
+foreground = 'p:green'
+background = 'transparent'
+
+[debug_prompt]
+background = "transparent"
+foreground = "#ffffff"
+template = "Debugging "
 
 [[blocks]]
 type = 'prompt'
 alignment = 'left'
 newline = true
-
-
 [[blocks.segments]]
 foreground = 'p:yellow'
 template = "\ue0c5"
@@ -70,10 +71,9 @@ style = 'powerline'
 [blocks.segments.properties]
 user_icon = ' '
 
-
 [[blocks.segments]]
 type = 'sysinfo'
-template= "   "
+template = "   "
 foreground = "p:lightblue"
 foreground_templates = [
     "{{if gt .PhysicalPercentUsed 88}}p:red{{end}}",
@@ -82,9 +82,9 @@ foreground_templates = [
     "{{if gt .PhysicalPercentUsed 55}}p:lemon{{end}}"
 ]
 style = 'powerline'
+
 [blocks.segments.properties]
 cache_duration = 'none'
-
 
 [[blocks.segments]]
 template = "<p:yellow>{{round .PhysicalPercentUsed .Precision }}</><p:blue>%</> "
@@ -124,7 +124,6 @@ template = ' {{ if gt .Code 0 }} {{ reason .Code }} ✗ {{.Meaning}}🙁 {{ else
 type = 'status'
 style = 'plain'
 
-
 [blocks.segments.properties]
 always_enabled = true
 cache_duration = 'none'
@@ -132,15 +131,15 @@ cache_duration = 'none'
 [[blocks]]
 type = 'prompt'
 alignment = 'right'
-
 [[blocks.segments]]
-template = '🌍 {{.IP}}'
+template = '🌍  {{.IP}}   '
 type = 'ipify'
 foreground = 'p:blue'
 style = 'powerline'
 
 [blocks.segments.properties]
 http_timeout = 1000
+
 [blocks.segments.cache]
 duration = '2m0s'
 strategy = 'folder'
@@ -178,7 +177,6 @@ strategy = 'folder'
 type = 'prompt'
 alignment = 'left'
 newline = true
-
 [[blocks.segments]]
 template = '❯❯'
 foreground = 'p:lightblue'
@@ -192,8 +190,9 @@ style = 'powerline'
 type = 'sysinfo'
 
 [[blocks.segments]]
-powerline_symbol = "❯❯ "
-template = '{{ if .Writable }} ⌨️{{ else }} 🔒{{ end }} ❯❯{{.Path }}'
+#powerline_symbol = "  "
+#template = '{{ if .Writable }} ⌨️{{ else }} 🔒{{ end }} ❯❯{{.Path }}'
+template = '{{.Path }}'
 foreground = 'p:lightblue'
 type = 'path'
 style = 'diamond'
@@ -207,17 +206,19 @@ mixed_threshold = 8
 style = 'full'
 
 [blocks.segments.properties.mapped_locations]
-'~\Documents' = '📝'
-'~\Documents\Powershell' = '🔮 🦉 🔮'
-'~\Downloads' = '⬇️'
-'C:\Projects' = '🏭'
-'C:\Projects\crypta' = ' 💲' 
-'C:\Projects\crypta\src-tauri' = '🦀'
-
+'~\Documents' = ' 📝 '
+'~\Documents\Powershell' = ' 🔮 🦉 🔮 '
+'~\Downloads' = ' ⬇️ '
+'C:\Projects' = ' 🏭 '
+'C:\Projects\crypta' = ' 💲 '
+'C:\Projects\infil-erp' = ' 👑 '
+'C:\Projects\infil-erp\apps\backend' = ' 🏗️ '
+'C:\Projects\apps\frontend' = ' 💎 '
+'C:\Projects\crypta\src-tauri' = ' 🦀 '
 
 [[blocks.segments]]
 style = 'powerline'
-template = '❯❯ '
+template = '❯❯'
 foreground = 'p:lightblue'
 foreground_templates = [
     "{{if gt .PhysicalPercentUsed 88}}p:red{{end}}",
@@ -226,7 +227,6 @@ foreground_templates = [
     "{{if gt .PhysicalPercentUsed 55}}p:lemon{{end}}"
 ]
 type = 'sysinfo'
-
 
 [blocks.segments.properties]
 cache_duration = 'none'
@@ -243,14 +243,14 @@ type = 'rprompt'
 alignment = 'right'
 newline = false
 [[blocks.segments]]
-template = '🕒 {{ .CurrentDate | date .Format }}'
-foreground = '#FFFF99'
+template = '🕰️ {{ .CurrentDate | date .Format }}'
+foreground = '#FFFFEE'
 type = 'time'
 style = 'plain'
 
 [blocks.segments.properties]
 cache_duration = 'none'
-time_format = '15:04'
+time_format = '15:04 '
 
 
 [[blocks.segments]]
@@ -274,13 +274,31 @@ template = '{{ if .Error }}{{ .Error }}{{ else }}{{ .Full }}🧄{{ end }}'
 type = 'prompt'
 alignment = 'left'
 newline = true
-segments=[]
+segments = []
+
+
+blocks = []
+tooltips_action = "replace"
+
+[[tooltips]]
+type = "git"
+tips = ["git", "g"]
+style = "diamond"
+foreground = "#193549"
+background = "#fffb38"
+leading_diamond = ""
+trailing_diamond = ""
+template = "{{ .HEAD }}{{ if .Staging.Changed }}  {{ .Staging.String }}{{ end }}{{ if and (.Working.Changed) (.Staging.Changed) }} |{{ end }}{{ if .Working.Changed }}  {{ .Working.String }}{{ end }}"
+
+[tooltips.properties]
+fetch_status = true
+fetch_upstream_icon = true
 
 [[blocks]]
 type = 'prompt'
 alignment = 'left'
 newline = true
-segments=[]
+segments = []
 
 [valid_line]
 background = "transparent"

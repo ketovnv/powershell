@@ -1,56 +1,79 @@
 Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)) -start
 
 #region Утилитарные функции
-# function Test-ColorSupport
-# {
-#     <#
-#     .SYNOPSIS
-#         Проверяет поддержку цветов в текущем окружении
-#     #>
-#     return $null -ne $PSStyle
-# }
+
+
+
+function ConvertFrom-RGBToHex
+{
+    param(
+        [Parameter(ParameterSetName = 'Components')]
+        [ValidateRange(0, 255)][int]$R,
+
+        [Parameter(ParameterSetName = 'Components')]
+        [ValidateRange(0, 255)][int]$G,
+
+        [Parameter(ParameterSetName = 'Components')]
+        [ValidateRange(0, 255)][int]$B,
+
+        [Parameter(ParameterSetName = 'Object')]
+        [ValidateNotNull()]
+        [object]$RGB
+    )
+
+    if ($PSCmdlet.ParameterSetName -eq 'Object')
+    {
+        $R = $RGB.R
+        $G = $RGB.G
+        $B = $RGB.B
+    }
+
+    return '#{0:X2}{1:X2}{2:X2}' -f $R, $G, $B
+}
 
 function ConvertTo-RGBComponents
 {
-    <#
-    .SYNOPSIS
-        Конвертирует HEX цвет в RGB компоненты
-    
-    .PARAMETER HexColor
-        HEX цвет (например, #FF0000 или FF0000)
-    #>
-    param([string]$HexColor)
+    param(
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [string]$HexColor
+    )
 
-    if ( [string]::IsNullOrEmpty($HexColor))
+    # Проверка кеша
+    $cacheKey = $HexColor.ToUpper()
+    if ($script:ColorSystemConfig.Cache.Enabled -and
+            $script:ColorSystemConfig.Cache.ColorConversions.ContainsKey($cacheKey))
     {
-        throw "Цвет не может быть пустым"
+        return $script:ColorSystemConfig.Cache.ColorConversions[$cacheKey]
     }
 
     $hex = $HexColor.TrimStart('#')
 
-    # Поддержка сокращенного формата (#RGB -> #RRGGBB)
+    # Поддержка 3-символьного формата
     if ($hex.Length -eq 3)
     {
-        $hex = $hex[0] + $hex[0] + $hex[1] + $hex[1] + $hex[2] + $hex[2]
+        $hex = ($hex[0] * 2) + ($hex[1] * 2) + ($hex[2] * 2)
     }
 
-    if ($hex.Length -ne 6)
+    # Валидация
+    if ($hex -notmatch '^[0-9A-Fa-f]{6}$')
     {
-        throw "Неверный формат HEX цвета: $HexColor"
+        throw "Invalid hex color format: $HexColor"
     }
 
-    try
-    {
-        return @{
-            R = [Convert]::ToInt32($hex.Substring(0, 2), 16)
-            G = [Convert]::ToInt32($hex.Substring(2, 2), 16)
-            B = [Convert]::ToInt32($hex.Substring(4, 2), 16)
-        }
+    $result = @{
+        R = [Convert]::ToInt32($hex.Substring(0, 2), 16)
+        G = [Convert]::ToInt32($hex.Substring(2, 2), 16)
+        B = [Convert]::ToInt32($hex.Substring(4, 2), 16)
     }
-    catch
+
+    # Сохранение в кеш
+    if ($script:ColorSystemConfig.Cache.Enabled)
     {
-        throw "Ошибка при конвертации цвета $HexColor : $_"
+        $script:ColorSystemConfig.Cache.ColorConversions[$cacheKey] = $result
     }
+
+    return $result
 }
 
 # function ConvertFrom-RGBToHex
@@ -336,140 +359,214 @@ function Write-RGB
 
 function Get-GradientColor
 {
-    <#
-    .SYNOPSIS
-        Создает градиентные цвета для элементов меню
-
-    .DESCRIPTION
-        Функция генерирует цвета в шестнадцатеричном формате для создания градиентных эффектов
-        в меню PowerShell. Поддерживает различные типы градиентов и настройки цветовых переходов.
-
-    .PARAMETER Index
-        Текущий индекс элемента меню (начиная с 0)
-
-    .PARAMETER TotalItems
-        Общее количество элементов в меню
-
-    .PARAMETER StartColor
-        Начальный цвет градиента в шестнадцатеричном формате (например, "#FF0000")
-
-    .PARAMETER EndColor
-        Конечный цвет градиента в шестнадцатеричном формате (например, "#0000FF")
-
-    .PARAMETER GradientType
-        Тип градиента: Linear, Exponential, Sine, Custom
-
-    .PARAMETER RedCoefficient
-        Коэффициент изменения красного канала (по умолчанию 1.0)
-
-    .PARAMETER GreenCoefficient
-        Коэффициент изменения зеленого канала (по умолчанию 1.0)
-
-    .PARAMETER BlueCoefficient
-        Коэффициент изменения синего канала (по умолчанию 1.0)
-
-    .PARAMETER CustomFunction
-        Пользовательская функция для расчета градиента (скрипт-блок)
-
-    .PARAMETER Reverse
-        Обратить направление градиента
-
-    .EXAMPLE
-        Get-GradientColor -Index 0 -TotalItems 5 -StartColor "#FF0000" -EndColor "#0000FF"
-        Возвращает первый цвет в градиенте от красного к синему
-
-    .EXAMPLE
-        Get-GradientColor -Index 2 -TotalItems 10 -StartColor "#00FF00" -EndColor "#FF00FF" -GradientType Exponential
-        Возвращает цвет с экспоненциальным градиентом
-
-    .EXAMPLE
-        Get-GradientColor -Index 3 -TotalItems 8 -StartColor "#FFFF00" -EndColor "#FF0080" -RedCoefficient 0.5 -BlueCoefficient 2.0
-        Возвращает цвет с пользовательскими коэффициентами для каналов
-    #>
-
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory)]
         [int]$Index,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory)]
         [int]$TotalItems,
 
-        [Parameter(Mandatory = $false)]
-        [string]$StartColor = "#01BB01",
+        [string]$StartColor = '#FF0000',
+        [string]$EndColor = '#0000FF',
 
-        [Parameter(Mandatory = $false)]
-        [string]$EndColor = "#FF9955",
+        [ValidateSet('Linear', 'Exponential', 'Sine', 'Cosine', 'Quadratic')]
+        [string]$GradientType = 'Linear',
 
-        [Parameter(Mandatory = $false)]
-        [ValidateSet("Linear", "Exponential", "Sine", "Custom")]
-        [string]$GradientType = "Linear",
-
-        [Parameter(Mandatory = $false)]
-        [double]$RedCoefficient = 1.0,
-
-        [Parameter(Mandatory = $false)]
-        [double]$GreenCoefficient = 1.0,
-
-        [Parameter(Mandatory = $false)]
-        [double]$BlueCoefficient = 1.0,
-
-        [Parameter(Mandatory = $false)]
-        [scriptblock]$CustomFunction = $null,
-
-        [Parameter(Mandatory = $false)]
-        [switch]$Reverse,
-
-        [Parameter(Mandatory = $false)]
-        [int]$Saturation = 100,
-
-        [Parameter(Mandatory = $false)]
-        [int]$Brightness = 100
+        [switch]$UseCache
     )
 
-
-
-
-
-    # Реверс если нужно
-    if ($Reverse)
+    # Генерация ключа кеша
+    if ($UseCache)
     {
-        $temp = $StartColor
-        $StartColor = $EndColor
-        $EndColor = $temp
+        $cacheKey = "$Index|$TotalItems|$StartColor|$EndColor|$GradientType"
+        if ( $script:ColorSystemConfig.Cache.GradientColors.ContainsKey($cacheKey))
+        {
+            return $script:ColorSystemConfig.Cache.GradientColors[$cacheKey]
+        }
+    }
+
+    # Оптимизация для крайних случаев
+    if ($TotalItems -le 1)
+    { return $StartColor }
+    if ($Index -eq 0)
+    { return $StartColor }
+    if ($Index -eq $TotalItems - 1)
+    { return $EndColor }
+
+    # Расчет позиции
+    $position = switch ($GradientType)
+    {
+        'Linear' { $Index / ($TotalItems - 1) }
+        'Exponential' { [Math]::Pow($Index / ($TotalItems - 1), 2) }
+        'Sine' { [Math]::Sin($Index / ($TotalItems - 1) * [Math]::PI / 2) }
+        'Cosine' { 1 - [Math]::Cos($Index / ($TotalItems - 1) * [Math]::PI / 2) }
+        'Quadratic' {
+            $t = $Index / ($TotalItems - 1)
+            if ($t -lt 0.5)
+            { 2 * $t * $t }
+            else
+            { 1 - [Math]::Pow(-2 * $t + 2, 2) / 2 }
+        }
     }
 
     # Конвертация цветов
-    $startRGB = ConvertFrom-HexToRGB $StartColor
-    $endRGB = ConvertFrom-HexToRGB $EndColor
+    $startRGB = ConvertTo-RGBComponents $StartColor
+    $endRGB = ConvertTo-RGBComponents $EndColor
 
-    # Расчет позиции в градиенте
-    $position = Get-GradientPosition -Index $Index -Total $TotalItems -Type $GradientType -CustomFunc $CustomFunction
+    # Интерполяция
+    $r = [int]($startRGB.R + ($endRGB.R - $startRGB.R) * $position)
+    $g = [int]($startRGB.G + ($endRGB.G - $startRGB.G) * $position)
+    $b = [int]($startRGB.B + ($endRGB.B - $startRGB.B) * $position)
 
-    # Применение коэффициентов к каналам
-    $redDiff = ($endRGB.R - $startRGB.R) * $position * $RedCoefficient
-    $greenDiff = ($endRGB.G - $startRGB.G) * $position * $GreenCoefficient
-    $blueDiff = ($endRGB.B - $startRGB.B) * $position * $BlueCoefficient
+    $result = ConvertFrom-RGBToHex -R $r -G $g -B $b
 
-    # Расчет итоговых значений RGB
-    $finalR = [int]($startRGB.R + $redDiff)
-    $finalG = [int]($startRGB.G + $greenDiff)
-    $finalB = [int]($startRGB.B + $blueDiff)
-
-    # Применение насыщенности и яркости
-    if ($Saturation -ne 100 -or $Brightness -ne 100)
+    # Сохранение в кеш
+    if ($UseCache)
     {
-        $satFactor = $Saturation / 100.0
-        $brightFactor = $Brightness / 100.0
-
-        # Простая коррекция насыщенности и яркости
-        $gray = ($finalR + $finalG + $finalB) / 3
-        $finalR = [int](($finalR - $gray) * $satFactor + $gray) * $brightFactor
-        $finalG = [int](($finalG - $gray) * $satFactor + $gray) * $brightFactor
-        $finalB = [int](($finalB - $gray) * $satFactor + $gray) * $brightFactor
+        $script:ColorSystemConfig.Cache.GradientColors[$cacheKey] = $result
     }
 
+    return $result
 }
+
+
+#function Get-GradientColor
+#{
+#    <#
+#    .SYNOPSIS
+#        Создает градиентные цвета для элементов меню
+#
+#    .DESCRIPTION
+#        Функция генерирует цвета в шестнадцатеричном формате для создания градиентных эффектов
+#        в меню PowerShell. Поддерживает различные типы градиентов и настройки цветовых переходов.
+#
+#    .PARAMETER Index
+#        Текущий индекс элемента меню (начиная с 0)
+#
+#    .PARAMETER TotalItems
+#        Общее количество элементов в меню
+#
+#    .PARAMETER StartColor
+#        Начальный цвет градиента в шестнадцатеричном формате (например, "#FF0000")
+#
+#    .PARAMETER EndColor
+#        Конечный цвет градиента в шестнадцатеричном формате (например, "#0000FF")
+#
+#    .PARAMETER GradientType
+#        Тип градиента: Linear, Exponential, Sine, Custom
+#
+#    .PARAMETER RedCoefficient
+#        Коэффициент изменения красного канала (по умолчанию 1.0)
+#
+#    .PARAMETER GreenCoefficient
+#        Коэффициент изменения зеленого канала (по умолчанию 1.0)
+#
+#    .PARAMETER BlueCoefficient
+#        Коэффициент изменения синего канала (по умолчанию 1.0)
+#
+#    .PARAMETER CustomFunction
+#        Пользовательская функция для расчета градиента (скрипт-блок)
+#
+#    .PARAMETER Reverse
+#        Обратить направление градиента
+#
+#    .EXAMPLE
+#        Get-GradientColor -Index 0 -TotalItems 5 -StartColor "#FF0000" -EndColor "#0000FF"
+#        Возвращает первый цвет в градиенте от красного к синему
+#
+#    .EXAMPLE
+#        Get-GradientColor -Index 2 -TotalItems 10 -StartColor "#00FF00" -EndColor "#FF00FF" -GradientType Exponential
+#        Возвращает цвет с экспоненциальным градиентом
+#
+#    .EXAMPLE
+#        Get-GradientColor -Index 3 -TotalItems 8 -StartColor "#FFFF00" -EndColor "#FF0080" -RedCoefficient 0.5 -BlueCoefficient 2.0
+#        Возвращает цвет с пользовательскими коэффициентами для каналов
+#    #>
+#
+#    [CmdletBinding()]
+#    param(
+#        [Parameter(Mandatory = $true)]
+#        [int]$Index,
+#
+#        [Parameter(Mandatory = $true)]
+#        [int]$TotalItems,
+#
+#        [Parameter(Mandatory = $false)]
+#        [string]$StartColor = "#01BB01",
+#
+#        [Parameter(Mandatory = $false)]
+#        [string]$EndColor = "#FF9955",
+#
+#        [Parameter(Mandatory = $false)]
+#        [ValidateSet("Linear", "Exponential", "Sine", "Custom")]
+#        [string]$GradientType = "Linear",
+#
+#        [Parameter(Mandatory = $false)]
+#        [double]$RedCoefficient = 1.0,
+#
+#        [Parameter(Mandatory = $false)]
+#        [double]$GreenCoefficient = 1.0,
+#
+#        [Parameter(Mandatory = $false)]
+#        [double]$BlueCoefficient = 1.0,
+#
+#        [Parameter(Mandatory = $false)]
+#        [scriptblock]$CustomFunction = $null,
+#
+#        [Parameter(Mandatory = $false)]
+#        [switch]$Reverse,
+#
+#        [Parameter(Mandatory = $false)]
+#        [int]$Saturation = 100,
+#
+#        [Parameter(Mandatory = $false)]
+#        [int]$Brightness = 100
+#    )
+#
+#
+#
+#
+#
+#    # Реверс если нужно
+#    if ($Reverse)
+#    {
+#        $temp = $StartColor
+#        $StartColor = $EndColor
+#        $EndColor = $temp
+#    }
+#
+#    # Конвертация цветов
+#    $startRGB = ConvertFrom-HexToRGB $StartColor
+#    $endRGB = ConvertFrom-HexToRGB $EndColor
+#
+#    # Расчет позиции в градиенте
+#    $position = Get-GradientPosition -Index $Index -Total $TotalItems -Type $GradientType -CustomFunc $CustomFunction
+#
+#    # Применение коэффициентов к каналам
+#    $redDiff = ($endRGB.R - $startRGB.R) * $position * $RedCoefficient
+#    $greenDiff = ($endRGB.G - $startRGB.G) * $position * $GreenCoefficient
+#    $blueDiff = ($endRGB.B - $startRGB.B) * $position * $BlueCoefficient
+#
+#    # Расчет итоговых значений RGB
+#    $finalR = [int]($startRGB.R + $redDiff)
+#    $finalG = [int]($startRGB.G + $greenDiff)
+#    $finalB = [int]($startRGB.B + $blueDiff)
+#
+#    # Применение насыщенности и яркости
+#    if ($Saturation -ne 100 -or $Brightness -ne 100)
+#    {
+#        $satFactor = $Saturation / 100.0
+#        $brightFactor = $Brightness / 100.0
+#
+#        # Простая коррекция насыщенности и яркости
+#        $gray = ($finalR + $finalG + $finalB) / 3
+#        $finalR = [int](($finalR - $gray) * $satFactor + $gray) * $brightFactor
+#        $finalG = [int](($finalG - $gray) * $satFactor + $gray) * $brightFactor
+#        $finalB = [int](($finalB - $gray) * $satFactor + $gray) * $brightFactor
+#    }
+#
+#}
 
 function Get-MenuGradientColor
 {
@@ -611,7 +708,7 @@ function Write-GradientFull
     )
 
 
-   $textElements = [System.Globalization.StringInfo]::GetTextElementEnumerator($Text)
+    $textElements = [System.Globalization.StringInfo]::GetTextElementEnumerator($Text)
     $elements = @()
     while ( $textElements.MoveNext())
     {
@@ -620,8 +717,8 @@ function Write-GradientFull
 
     $length = $elements.Count
 
-    for ($i = 0; $i -lt  $length; $i++) {
-        $r = [int]($R1 + ($R2 - $R1) * $i / ( $length- 1))
+    for ($i = 0; $i -lt $length; $i++) {
+        $r = [int]($R1 + ($R2 - $R1) * $i / ( $length - 1))
         $g = [int]($G1 + ($G2 - $G1) * $i / ($length - 1))
         $b = [int]($B1 + ($B2 - $B1) * $i / ( $length - 1))
 
@@ -1283,7 +1380,7 @@ function Write-Status
 
     if ($returnRow)
     {
-        return "${Icon} ${Message}"
+        return "${icon} ${Message}"
     }
     else
     {
@@ -1459,7 +1556,7 @@ function Write-Rainbow
 
                     Start-Sleep -Milliseconds $Speed
                 }
-                  [Console]::Write("`r" + (" " * $originalText.Length) + "`r")
+                [Console]::Write("`r" + (" " * $originalText.Length) + "`r")
             }
 
             # Финальный вывод
@@ -1502,7 +1599,7 @@ function Write-Rainbow
                 $chars = $Text.ToCharArray()
                 $length = $chars.Length
 
-         for ($i = 0; $i -lt $length; $i++) {
+                for ($i = 0; $i -lt $length; $i++) {
                     $progress = $i / [Math]::Max(1, ($length - 1))
                     $paletteProgress = $progress * ($colors.Count - 1)
                     $colorIndex = [Math]::Floor($paletteProgress)
@@ -1517,11 +1614,11 @@ function Write-Rainbow
             }
 
             "Wave" {
-                $colors=$global:RAINBOWGRADIENT
+                $colors = $global:RAINBOWGRADIENT
                 # Волновой режим
                 $chars = $Text.ToCharArray()
                 for ($i = 0; $i -lt $chars.Length; $i++) {
-                   $waveValue = [Math]::Sin($i * $WaveFrequency) * 0.5 + 0.5
+                    $waveValue = [Math]::Sin($i * $WaveFrequency) * 0.5 + 0.5
                     $colorIndex = [int]($waveValue * ($colors.Count - 1))
                     Write-RGB $chars[$i] -FC $colors[$colorIndex] -Style $styles
                 }
@@ -1532,9 +1629,3 @@ function Write-Rainbow
 }
 
 Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))
-
-
-
-
-
-

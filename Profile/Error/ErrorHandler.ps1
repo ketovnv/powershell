@@ -285,8 +285,8 @@ function Enable-GlobalErrorHandler
 {
     # Устанавливаем умный обработчик ошибок по умолчанию
     $global:ErrorView = "Smart"
-    wrgb "✅  Включен глобальный обработчик ошибок: " -FC TealRGB
-    wrgb  $global:ErrorView -BC GoldRGB -FC BlackRGB -Style Bold -newline
+    #    wrgb "✅  Включен глобальный обработчик ошибок: " -FC TealRGB
+    #    wrgb  $global:ErrorView -BC GoldRGB -FC BlackRGB -Style Bold -newline
 }
 
 function Disable-GlobalErrorHandler

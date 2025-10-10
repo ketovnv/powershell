@@ -1,12 +1,8 @@
 Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)) -start
-#
-
-
-
 
 function Show-Welcome
 {
-#        Clear-Host
+    #        Clear-Host
     #    wrgb "Type " -FC Material_Grey
     #    wrgb "Show-MainMenu" -FC NeonPinkRGB
     #    wrgb " or " -FC Material_Grey
@@ -15,14 +11,14 @@ function Show-Welcome
 
     # Анимированный заголовок
     $title = "POWERSHELL PROFILE "
-#           wgt $title -StartColor  UkraineBlueRGB  -EndColor 'UkraineYellowRGB'
-#        spj  $global:RGB
-        for ($i = 0; $i -lt $title.Length; $i++) {
+    #           wgt $title -StartColor  UkraineBlueRGB  -EndColor 'UkraineYellowRGB'
+    #        spj  $global:RGB
+    for ($i = 0; $i -lt $title.Length; $i++) {
 
-#            $color =Get-GradientColor  $title[$i]  -Index $i   -TotalItems $title.Length  -StartColor $global:RGB['UkraineBlueRGB']    -EndColor  $global:RGB['UkraineYellowRGB']
-#            wrgb $title[$i] -FC $color
-#            Start-Sleep -Milliseconds 30
-        }
+        #            $color =Get-GradientColor  $title[$i]  -Index $i   -TotalItems $title.Length  -StartColor $global:RGB['UkraineBlueRGB']    -EndColor  $global:RGB['UkraineYellowRGB']
+        #            wrgb $title[$i] -FC $color
+        #            Start-Sleep -Milliseconds 30
+    }
     #    wrgb " 🇺🇦 🇺🇦 🇺🇦 🇺🇦 🇺🇦"   -FC UkraineBlueRGB -newline
     #    wrgb " 🇺🇦 🇺🇦 🇺🇦 🇺🇦 🇺🇦"  -FC UkraineYellowRGB -newline
     #    pres --ukraine
@@ -42,8 +38,6 @@ function Show-Welcome
     Write-Host "                ⏰ " -NoNewline
     wrgb (Get-Date -Format "HH:mm") -FC WhiteRGB -newline
 
-
-
     # Статистика
     #    $processCount = (Get-Process).Count
     #    wrgb "⚙️  Processes: " -FC OrangeRGB
@@ -52,17 +46,17 @@ function Show-Welcome
     #    wrgb "══════════════════════════════════════════════════════════" -FC UkraineBlueRGB -newline
     #    wrgb "❀ ☘ ✿ ☘ ❀ ☘ ✿ ☘ ❀ ☘ ✿ ☘ ❀ ☘ ✿ ☘ ❀ ☘ ✿ ☘ ❀ ☘ ✿ ☘ ❀ ☘ ✿ ☘ ❀" -FC UkraineYellowRGB -newline
 
-    if ($env:WT_SESSION)
-    {
-        pres --hearts
-    }
-    else
-    {
-        pres --hearts
-    }
+     if (!$env:WEZTERM_CONFIG_DIR)
+     {
+        wrgbn "💙💛💙💛💙💛💙💛💙💛💙💛💙💛💙💛💙💛💙💛💙💛💙💛💙💛💙💛💙💛💙💛💙💛💙💛💙💛💙💛💙💛💙💛💙💛💙💛"
+     }
+     else
+     {
+        wrgbn  "🇺🇦🇺🇦🇺🇦🇺🇦🇺🇦🇺🇦🇺🇦🇺🇦🇺🇦🇺🇦🇺🇦🇺🇦🇺🇦🇺🇦🇺🇦🇺🇦🇺🇦🇺🇦🇺🇦🇺🇦🇺🇦🇺🇦🇺🇦🇺🇦🇺🇦🇺🇦🇺🇦🇺🇦🇺🇦🇺🇦"
+     }
 
 
-    wrgb ""  -newline
+    # wrgb ""  -newline
     #     @"
     # CPU: $( (Get-Counter "\Процессор(_Total)\% загруженности процессора").CounterSamples.CookedValue )%
     # RAM: $([math]::Round((Get-Counter "\Память\Доступно МБ").CounterSamples.CookedValue / 1024, 1) ) GB

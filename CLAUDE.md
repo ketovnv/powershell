@@ -32,7 +32,7 @@ All modules use standardized import tracking with success/failure monitoring.
 ```powershell
 # Check module loading status
 Test-InitScripts                    # (alias: chs)
-Trace-ImportProcess -finalInitialiazation
+Trace-ImportProcess -finalInitialization
 
 # View current status of all systems
 Show-OmpSegments                    # (alias: omps) - Show Oh My Posh segments
@@ -124,3 +124,21 @@ Advanced error system with:
 - **Fast Startup**: Core functionality available immediately
 
 When modifying this profile system, always consider the module loading order and use the Trace-ImportProcess pattern for new components.
+
+# PROJECT_PLAN Integration
+# Added by Claude Config Manager Extension
+
+When working on this project, always refer to and maintain the project plan located at `.claude/.plans/PROJECT_PLAN.md`.
+
+**Instructions for Claude Code:**
+1. **Read the project plan first** - Always check `.claude/.plans/PROJECT_PLAN.md` when starting work to understand the project context, architecture, and current priorities.
+2. **Update the project plan regularly** - When making significant changes, discoveries, or completing major features, update the relevant sections in PROJECT_PLAN.md to keep it current.
+3. **Use it for context** - Reference the project plan when making architectural decisions, understanding dependencies, or explaining code to ensure consistency with project goals.
+
+**Plan Mode Integration:**
+- **When entering plan mode**: Read the current PROJECT_PLAN.md to understand existing context and priorities
+- **During plan mode**: Build upon and refine the existing project plan structure
+- **When exiting plan mode**: ALWAYS update PROJECT_PLAN.md with your new plan details, replacing or enhancing the relevant sections (Architecture, TODO, Development Workflow, etc.)
+- **Plan persistence**: The PROJECT_PLAN.md serves as the permanent repository for all planning work - plan mode should treat it as the single source of truth
+
+This ensures better code quality and maintains project knowledge continuity across different Claude Code sessions and plan mode iterations.

@@ -1,0 +1,225 @@
+{
+  "theme": "Nord",
+  "rules": [
+    {
+      "name": "CodeFence",
+      "hex": "#888888",
+      "pattern": "^\\s*```",
+      "priority": 100
+    },
+    {
+      "name": "H1_Gradient",
+      "gradient": {
+        "from": "#56CCF2",
+        "to": "#2F80ED",
+        "bold": true
+      },
+      "pattern": "^#\\s+",
+      "priority": 85
+    },
+    {
+      "name": "H2_Gradient", 
+      "gradient": {
+        "from": "#6EE7F9",
+        "to": "#3B82F6",
+        "bold": true
+      },
+      "pattern": "^##\\s+",
+      "priority": 80
+    },
+    {
+      "name": "H3_Simple",
+      "hex": "#A78BFA",
+      "pattern": "^###\\s+",
+      "priority": 75
+    },
+    {
+      "name": "SectionBugs",
+      "hex": "#FF4D4F", 
+      "pattern": "(?i)^###\\s*(bugs|errors|ошибки|баги)\\b",
+      "priority": 90
+    },
+    {
+      "name": "SectionWarnings",
+      "hex": "#FFC53D",
+      "pattern": "(?i)^###\\s*(warnings|предупреждения|замечания)\\b", 
+      "priority": 90
+    },
+    {
+      "name": "SectionPerf",
+      "hex": "#36CFC9",
+      "pattern": "(?i)^###\\s*(performance|производительность|оптимизация)\\b",
+      "priority": 90
+    },
+    {
+      "name": "SectionSecurity",
+      "hex": "#FF4DFF",
+      "pattern": "(?i)^###\\s*(security|безопасность)\\b",
+      "priority": 90
+    },
+    {
+      "name": "Error",
+      "hex": "#FF4D4F",
+      "pattern": "(?i)\\b(error|failed|exception|fatal|ошибка)\\b",
+      "priority": 60
+    },
+    {
+      "name": "Warning",
+      "hex": "#FFC53D", 
+      "pattern": "(?i)\\b(warn|warning|risk|предупреждение|риск)\\b",
+      "priority": 55
+    },
+    {
+      "name": "Success",
+      "hex": "#4CAF50",
+      "pattern": "(?i)\\b(success|passed|ok|done|успех)\\b",
+      "priority": 50
+    },
+    {
+      "name": "TechReact",
+      "hex": "#61DAFB",
+      "pattern": "(?i)\\b(react|jsx|tsx)\\b",
+      "priority": 40
+    },
+    {
+      "name": "TechVite",
+      "hex": "#646CFF", 
+      "pattern": "(?i)\\bvite\\b",
+      "priority": 40
+    },
+    {
+      "name": "TechBun",
+      "hex": "#FBF0DF",
+      "pattern": "(?i)\\bbunx?\\b",
+      "priority": 40
+    },
+    {
+      "name": "TechTauri", 
+      "hex": "#24C8DB",
+      "pattern": "(?i)\\btauri\\b",
+      "priority": 40
+    },
+    {
+      "name": "TechRust",
+      "hex": "#DEA584",
+      "pattern": "(?i)\\brust\\b", 
+      "priority": 40
+    },
+    {
+      "name": "NumberedList",
+      "gradient": {
+        "from": "#FFD166",
+        "to": "#99FFFF",
+        "bold": true
+      },
+      "pattern": "^\\s*\\d+\\.\\s+",
+      "priority": 20
+    },
+    {
+      "name": "BulletList",
+      "gradient": {
+        "from": "#FFD199", 
+        "to": "#99FFAA",
+        "bold": true
+      },
+      "pattern": "^\\s*[-*•–]\\s+",
+      "priority": 15
+    }
+  ],
+  "inlineRules": [
+    {
+      "name": "InlineCode",
+      "hex": "#A1A1AA",
+      "bold": true,
+      "pattern": "`[^`\\r\\n]+`"
+    },
+    {
+      "name": "CLI_Commands",
+      "hex": "#22D3EE",
+      "pattern": "(?i)\\b(npm|pnpm|yarn|bunx?)\\s+[\\w:-]+"
+    },
+    {
+      "name": "Performance_Keywords",
+      "hex": "#36CFC9",
+      "pattern": "(?i)\\b(optimization|performance|latency|throughput|cache|optimize|оптимизация)\\b"
+    },
+    {
+      "name": "Security_Keywords", 
+      "hex": "#FF4DFF",
+      "pattern": "(?i)\\b(security|xss|csrf|ssrf|sqli|rce|authz|authn|безопасн)\\b"
+    },
+    {
+      "name": "Todo_Fixme",
+      "gradient": {
+        "from": "#FFD166",
+        "to": "#EF476F", 
+        "bold": true
+      },
+      "pattern": "(?i)\\b(todo|fixme|hack|temp)\\b"
+    }
+  ],
+  "md": {
+    "stripMarkers": true,
+    "inline": {
+      "code": {
+        "hex": "#A1A1AA",
+        "bold": true
+      },
+      "bold": {
+        "gradient": {
+          "from": "#FFD166",
+          "to": "#FF7A59",
+          "bold": true
+        }
+      },
+      "italic": {
+        "hex": "#40A9FF"
+      },
+      "strike": {
+        "hex": "#9AA0A6"
+      }
+    },
+    "heading": {
+      "h1": {
+        "gradient": {
+          "from": "#56CCF2", 
+          "to": "#2F80ED",
+          "bold": true
+        }
+      },
+      "h2": {
+        "gradient": {
+          "from": "#6EE7F9",
+          "to": "#3B82F6",
+          "bold": true
+        }
+      },
+      "h3": {
+        "hex": "#A78BFA"
+      }
+    },
+    "blockquote": {
+      "hex": "#9AA0A6"
+    }
+  },
+  "themes": {
+    "Nord": {
+      "Red": "#BF616A",
+      "Yellow": "#EBCB8B", 
+      "Green": "#A3BE8C",
+      "Blue": "#81A1C1",
+      "Cyan": "#88C0D0",
+      "Magenta": "#B48EAD",
+      "Gray": "#4C566A"
+    },
+    "Dracula": {
+      "Red": "#FF5555",
+      "Yellow": "#F1FA8C",
+      "Green": "#50FA7B", 
+      "Blue": "#8BE9FD",
+      "Cyan": "#8BE9FD",
+      "Magenta": "#FF79C6",
+      "Gray": "#6272A4"
+    }
+  }
+}

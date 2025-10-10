@@ -527,11 +527,11 @@ def ukraine_support_wt():
 
     flag_text = Text();
     flag_text.append(ukr_icon * 30, style="bold");
-    console.print(flag_text)
-    console.print(Panel.fit(
-        ukr_icon + "[bold blue] Слава Українi! [/bold blue]" + ukr_icon,
-        border_style="yellow"
-    ))
+    # console.print(flag_text)
+    # console.print(Panel.fit(
+    #     ukr_icon + "[bold blue] Слава Українi! [/bold blue]" + ukr_icon,
+    #     border_style="yellow"
+    # ))
     console.print(flag_text)
     console.print("")
 
