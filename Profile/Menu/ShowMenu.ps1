@@ -1,4 +1,4 @@
- Trace-ImportProcess  $MyInvocation.MyCommand.Name.trim(".ps1") -start
+ Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)) -start
 
  function Show-GradientPalettes
 {
@@ -126,7 +126,8 @@ function Show-Menu
         StartColor = "#01BB01"
         EndColor = "#0099cc"
         GradientType = "Linear"
-    }
+    },
+        [switch]$ShowDescriptions
 
     )
 
@@ -146,7 +147,14 @@ function Show-Menu
             Write-RGB "[" -FC NeonMaterial_LightGreen
             Write-RGB $num -FC $numberColor
             Write-RGB "] " -FC NeonMaterial_LightGreen
-            Write-RGB $MenuItems[$i].Text -FC $hexColor -newline
+            Write-RGB $MenuItems[$i].Text -FC $hexColor
+
+            # Добавляем описание если оно есть и включено
+            if ($ShowDescriptions -and $MenuItems[$i].Description) {
+                Write-RGB " - $($MenuItems[$i].Description)" -FC Material_Grey
+            }
+
+            Write-RGB "" -newline
             Start-Sleep -Milliseconds 50
         }
 

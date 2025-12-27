@@ -1,6 +1,6 @@
 
 
-Trace-ImportProcess  $MyInvocation.MyCommand.Name.trim(".ps1") -start
+Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)) -start
 function Run-Application {
     $menuItems = @(
         @{ Text = "💻 WebStorm 2025.2"; Data = @{ Path = "webstorm64" } },

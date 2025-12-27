@@ -1,4 +1,4 @@
-Trace-ImportProcess  $MyInvocation.MyCommand.Name.trim(".ps1") -start
+Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)) -start
 
 function Get-FormattedFileSize
 {
@@ -176,28 +176,28 @@ function Show-DirectoryListing
     <#
     .SYNOPSIS
     Отображает содержимое директории с расширенным форматированием
-    
+
     .PARAMETER Path
     Путь к директории
-    
+
     .PARAMETER ShowHidden
     Показывать скрытые файлы
-    
+
     .PARAMETER SortBy
     Критерий сортировки: Name, Size, Date, Type
-    
+
     .PARAMETER GroupBy
     Группировка: None, Type, Extension, Date
-    
+
     .PARAMETER Filter
     Фильтр файлов
-    
+
     .PARAMETER Recurse
     Рекурсивный просмотр
-    
+
     .PARAMETER MaxDepth
     Максимальная глубина рекурсии
-    
+
     .PARAMETER GradientStyle
     Стиль градиента для заголовка
     #>

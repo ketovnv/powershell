@@ -79,6 +79,10 @@ function gh
 }
 
 
+function termux {
+    ssh -p 8022 192.168.0.178
+}
+
 function ruDate
 {
     param(
@@ -177,6 +181,25 @@ function grepz
         --preview-window=up:60%:wrap
 }
 
+# ---- RIPGREP ----
+function rgf
+{
+    param([string]$pattern)
+    if (!$pattern)
+    {
+        $pattern = Write-Rainbow "Введи патерн для пошуку"
+        return
+    }
+    rg --no-heading --line-number --color always $pattern |
+    fzf --ansi --delimiter : `
+--preview "bat --color=always --highlight-line {2} {1}" `
+--preview-window=up:60%:wrap
+    | ForEach-Object {
+        $file, $line = ($_ -split ":")[0..1]
+        micro "$file" +$line
+    }
+}
+
 function goto
 {
     param(
@@ -257,7 +280,55 @@ function gotoKaliRoot
 ## 📜 Алиасы
 Set-Alias -Name ls -Value PowerColorLS
 
-Set-Alias -Name g -Value git
+function pg {
+    param(
+        [Parameter(Position=0)]
+        [ValidateSet('start', 'stop', 'restart', 'status', 'backup', 'users', 'logs',
+                     'start-service', 'stop-service', 'restart-service',
+                     'install-service', 'remove-service', 'help')]
+        [string]$Action = 'help',
+        [Alias("service", "useService")]
+
+        [switch]$UseService
+    )
+
+    # Обработка обратной совместимости с -UseService
+    if ($UseService) {
+        switch ($Action) {
+            'start'   { Start-PostgreSQLService }
+            'stop'    { Stop-PostgreSQLService }
+            'restart' { Restart-PostgreSQLService }
+            default   { PSQL $Action }
+        }
+    } else {
+        PSQL $Action
+    }
+}
+
+function rd {
+    param(
+        [Parameter(Position=0)]
+        [ValidateSet('start', 'stop', 'restart', 'status', 'info', 'logs', 'clear',
+                     'start-service', 'stop-service', 'restart-service',
+                     'install-service', 'remove-service', 'help')]
+        [string]$Action = 'help',
+        [Alias("service", "useService")]
+        [switch]$UseService
+    )
+
+    # Обработка обратной совместимости с -UseService
+    if ($UseService) {
+        switch ($Action) {
+            'start'   { Start-RedisService }
+            'stop'    { Stop-RedisService }
+            'restart' { Restart-RedisService }
+            default   { RDS $Action }
+        }
+    } else {
+        RDS $Action
+    }
+}
+
 Set-Alias -Name touch -Value New-Item
 Set-Alias -Name which -Value Get-Command
 
@@ -269,7 +340,9 @@ Set-Alias nue New-UsageExamples
 Set-Alias re reloadProfile
 
 Set-Alias v view
+Set-Alias t tldr
 Set-Alias fz fsearch
+Set-Alias f rgf
 Set-Alias gr grepz
 
 
@@ -425,20 +498,6 @@ function serverPython
 Set-Alias m micro
 
 
-# ---- RIPGREP ----
-function rgf
-{
-    param([string]$pattern)
-    if (!$pattern)
-    {
-        $pattern = Read-Host "Введи патерн для пошуку"
-    }
-    rg --no-heading --line-number --color always $pattern | fzf --ansi | ForEach-Object {
-        $file, $line = ($_ -split ":")[0..1]
-        micro "$file" +$line
-    }
-}
-
 # ---- BAT ----
 Set-Alias cat bat
 function batf
@@ -534,8 +593,8 @@ function oklch
 }
 
 # ===== АЛИАС ДЛЯ БЫСТРОГО ДОСТУПА К МЕНЮ =====
-Set-Alias -Name menu -Value Show-MainMenu
-Set-Alias -Name mm -Value Show-MainMenu
+Set-Alias -Name menu -Value Show-ModernMainMenu
+Set-Alias -Name mm -Value Show-ModernMainMenu
 Set-Alias -Name br -Value bunRun
 Set-Alias -Name es -Value Everything64.exe -Force
 Set-Alias -Name dd -Value "./devops dev"
@@ -543,6 +602,32 @@ Set-Alias -Name dd -Value "./devops dev"
 Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))
 
 Set-Alias -Name p -Value python -Force
+
+# ===== БЫСТРЫЕ АЛИАСЫ ДЛЯ КАТЕГОРИЙ МЕНЮ =====
+Set-Alias -Name fm -Value Show-FileManagerMenu
+Set-Alias -Name nt -Value Show-NetworkToolsMenu
+Set-Alias -Name sm -Value Show-SystemMonitorMenu
+Set-Alias -Name dt -Value Show-DevToolsMenu
+Set-Alias -Name ql -Value Show-QuickLaunchMenu
+Set-Alias -Name ps -Value Show-ProfileSettingsMenu
+Set-Alias -Name cs -Value Show-ColorSystemDemo
+Set-Alias -Name db -Value Show-DatabaseMenu
+Set-Alias -Name hd -Value Show-HelpDiagnosticsMenu
+
+# ===== АЛИАСЫ ДЛЯ ФАЙЛОВЫХ МЕНЕДЖЕРОВ И РЕДАКТОРОВ =====
+Set-Alias -Name monster-Value markdownmonster -ErrorAction SilentlyContinue
+Set-Alias -Name cursor -Value cursor -ErrorAction SilentlyContinue
+Set-Alias -Name deepchat -Value deepchat -ErrorAction SilentlyContinue
+Set-Alias -Name lh -Value lobehub -ErrorAction SilentlyContinue
+Set-Alias -Name alacritty -Value alacritty -ErrorAction SilentlyContinue
+
+# ===== АЛИАСЫ ДЛЯ НОВЫХ КОМАНД =====
+Set-Alias -Name bun-help -Value Show-BunHelp
+Set-Alias -Name show-colors -Value Show-AllColors
+Set-Alias -Name show-emojis -Value Show-AllEmojis
+
+# ===== АЛИАСЫ ДЛЯ БАЗ ДАННЫХ =====
+# Функции pg и rd уже объявлены выше
 
 function  cath
 {
@@ -554,11 +639,6 @@ function lessh
     pygmentize -O style=monokai @args | less -M -R
 }
 
-
-function pg
-{
-    PSQL  @args
-}
 
 
 
@@ -583,3 +663,10 @@ function gF
         Get-ChildItem Function: | Where-Object { $all -or (-not $_.Source) } | Select-Object Name |Format-Wide  -column 4
     }
 }
+
+$env:RUST_BACKTRACE='full'
+$env:GEMINI_API_KEY='AIzaSyD10YloUN7Et9sOViWgibb48Uy1kHn6iuU'
+
+$env:ANDROID_HOME = "C:\ProgramData\AndroidSDK"
+$env:ANDROID_SDK_ROOT = "C:\ProgramData\AndroidSDK"
+$env:PATH += ";C:\ProgramData\AndroidSDK\platform-tools;C:\ProgramData\AndroidSDK\emulator"

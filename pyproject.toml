@@ -3,17 +3,16 @@ name = "powershell"
 version = "0.1.0"
 description = "Powershell + Python"
 authors = [
-    {name = "ketov",email = "ketovnv@gmail.com"}
+    {name = "ketov", email = "ketovnv@gmail.com"}
 ]
 readme = "README.md"
 requires-python = ">=3.13"
-typer = ">=0.16"
-rich = ">=14.0"
 dependencies = [
-
+    "typer>=0.16",
+    "rich>=14.0"
 ]
 
-[projects.scripts]
+[project.scripts]
 ps-scan = "ps_tools.cli:app"
 
 [tool.black]

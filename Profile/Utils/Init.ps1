@@ -63,23 +63,26 @@ $scriptsBefore = @(
     # 'Utils\resourses\emoji',
     'Utils\resourses\EmojiSystem',
 #     # 'Utils\resourses\EmojiTest',
+    'Utils\ColorSystem',
+    'Utils\ColorManager',
     'Utils\Colors',
     'Utils\NiceColors',
+    'Utils\MenuBehavior',
     'Utils\Aliases',
 #     # 'Utils\MCPFetch',
-    'Utils\ColorSystem',
     'Error\ErrorHandler',
 #     # 'Utils\GPT',
 #     #    'ErrorTest',
-    'Utils\Keyboard',
 #     #    'Utils\ProgressBar'
 #     #    'Rich\RichInit',
 #     #    'Rich\GlobalPython',
-    'Rich\RichColors',
-    'Utils\PostgreSQL'
+    'Rich\RichColors'
+    # 'Utils\PostgreSQL',
+    # 'Utils\BunCLI'
 #    'Rich\RichTheme',
 #    'Rich\Rich'
 #    'Rich\files\PythonDiagnostics'
+
 )
 
 foreach ($script in $scriptsBefore)
@@ -89,12 +92,14 @@ foreach ($script in $scriptsBefore)
 
 $global:scriptsAfter = @(
     'Menu\LS',
-       'Menu\NetworkSystem',
-       'Menu\MenuItem',
-       'Menu\AppsBrowsersMenu',
-    'Menu\Welcome'
-   'Menu\ShowMenu',
-   'Menu\Weather'
+        'Menu\NetworkSystem',
+        'Menu\MenuItem',
+        'Menu\AppsBrowsersMenu',
+     'Menu\Welcome'
+    'Menu\ShowMenu',
+    'Menu\Weather',
+    'Menu\SitesMenu',
+     'Utils\Keyboard'
 #  'Utils\Rainbow'
 #    'Parser\NiceParser',
 #    'Parser\UltimateParser',
@@ -127,17 +132,18 @@ foreach ($module in $modules)
     {
         Write-Host "[!] Модуль $module отсутствует. Установите: Install-Module $module" -ForegroundColor    Red
     }
+
 }
 
 # ===== РАСШИРЕННЫЕ НАСТРОЙКИ PSREADLINE =====
 # Проверяем, не пропускаем ли мы интерактивные настройки
-if (-not $global:SkipInteractiveSetup)
-{
+
+
     try
     {
         # Проверяем поддержку виртуального терминала перед настройкой PSReadLine
-        if ([Environment]::UserInteractive -and $Host.Name -eq 'ConsoleHost' -and ![Console]::IsOutputRedirected)
-        {
+
+
             Set-PSReadLineOption -PredictionSource HistoryAndPlugin -ErrorAction Stop
             Set-PSReadLineOption -PredictionViewStyle ListView -ErrorAction Stop
             Set-PSReadLineOption -HistorySearchCursorMovesToEnd -ErrorAction SilentlyContinue
@@ -154,7 +160,6 @@ if (-not $global:SkipInteractiveSetup)
             Set-PSReadLineKeyHandler -Key Ctrl+d -Function DeleteChar
             Set-PSReadLineKeyHandler -Key Ctrl+w -Function BackwardDeleteWord
             Set-PSReadLineKeyHandler -Key Alt+d -Function DeleteWord
-
             # RGB цветовая схема для PSReadLine
             Set-PSReadLineOption -Colors @{
                 Command = $PSStyle.Foreground.FromRgb(0, 255, 157)
@@ -172,28 +177,25 @@ if (-not $global:SkipInteractiveSetup)
                 ListPrediction = $PSStyle.Foreground.FromRgb(185, 185, 185)
                 ContinuationPrompt = $PSStyle.Foreground.FromRgb(100, 255, 0)
             }
-        }
+
     }
     catch [System.ArgumentException]
     {
         # Предиктивные функции не поддерживаются - это нормально для неинтерактивного режима
-        Write-Verbose "Predictive features not supported: $( $_.Exception.Message )"
+        wrgb  "Predictive features not supported: $( $_.Exception.Message )"  -FC "#FFBB11"
     }
     catch [System.IO.IOException]
     {
         # Проблемы с дескриптором - пропускаем PSReadLine
-        Write-Verbose "Terminal descriptor issue, skipping PSReadLine: $( $_.Exception.Message )"
+         wrgb  "Terminal descriptor issue, skipping PSReadLine: $( $_.Exception.Message )"  -FC "#FFBB11"
     }
     catch
     {
         # Другие ошибки PSReadLine
-        Write-Verbose "PSReadLine configuration failed: $( $_.Exception.Message )"
+        wrgb  "PSReadLine configuration failed: $( $_.Exception.Message )"  -FC "#FFBB11"
     }
-}
-else
-{
-    Write-Verbose "Interactive setup skipped - running in non-interactive mode"
-}
+
+
 
 if (-not (Get-Command Test-InitScripts -ErrorAction SilentlyContinue))
 { Write-Host 'Test-InitScripts Error' }

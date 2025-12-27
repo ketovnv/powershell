@@ -167,15 +167,60 @@ catch
     Write-Warning "Failed to initialize Oh My Posh: $_"
 }
 
-Switch-KeyboardLayout en-Us
-Set-PSReadLineKeyHandler -Key Shift+Enter -Function AddLine
-Set-PSReadLineOption -EditMode Windows
-Set-PSReadLineOption -PredictionSource History
 
 #    Импорт оставшихся скриптов
 foreach ($script in  $global:scriptsAfter)
 {
     . "${global:profilePath}${script}.ps1"
+}
+# Загружаем mcfly
+# Перемещено ниже, чтобы настройки PSReadLine не сбрасывали биндинги
+# . "$HOME\.mcfly.ps1"
+
+# клавиши
+Switch-KeyboardLayout en-Us
+Set-PSReadLineKeyHandler -Key Shift+Enter -Function AddLine
+Set-PSReadLineOption -EditMode Windows
+
+# Загружаем mcfly (после настройки EditMode)
+. "$HOME\.mcfly.ps1"
+
+
+
+Set-PSReadLineKeyHandler -Chord 'Ctrl+n' -ScriptBlock {
+    [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
+}
+
+
+ Set-PSReadLineKeyHandler -Chord 'Ctrl+g' -ScriptBlock {
+    [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
+    [Microsoft.PowerShell.PSConsoleReadLine]::Insert('git status')
+    [Microsoft.PowerShell.PSConsoleReadLine]::AcceptLine()
+}
+#
+Set-PSReadLineKeyHandler -Chord 'Ctrl+b' -ScriptBlock {
+    [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
+    [Microsoft.PowerShell.PSConsoleReadLine]::Insert('bun run dev')
+    [Microsoft.PowerShell.PSConsoleReadLine]::AcceptLine()
+}
+
+Set-PSReadLineKeyHandler -Chord 'Alt+t' -ScriptBlock {
+    $line = $null
+    $cursor = $null
+    [Microsoft.PowerShell.PSConsoleReadLine]::GetBufferState([ref]$line, [ref]$cursor)
+    [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
+    [Microsoft.PowerShell.PSConsoleReadLine]::Insert("Measure-Command { $line } | Select-Object TotalMilliseconds")
+}
+
+# Загружаем современное меню
+. "${global:profilePath}Menu\ModernMainMenu.ps1"
+
+# Отложенная инициализация системы поведения меню
+Write-Verbose "🔄 Запуск отложенной инициализации системы поведения меню..."
+if (Get-Command Initialize-MenuBehaviorSystemDelayed -ErrorAction SilentlyContinue) {
+    Initialize-MenuBehaviorSystemDelayed
+} else {
+    Write-Host "❌ Функция Initialize-MenuBehaviorSystemDelayed не найдена" -ForegroundColor Red
 }
 
 oh-my-posh enable reload
@@ -272,6 +317,6 @@ oh-my-posh enable reload
 # ZRINZTarsj//rs8OCOhYmDT5MO54J995HnH+tFY=
 # SIG # End signature block
 
-##f45873b3-b655-43a6-b217-97c00aa0db58 PowerToys CommandNotFound module
-#Import-Module -Name Microsoft.WinGet.CommandNotFound
-##f45873b3-b655-43a6-b217-97c00aa0db58
+#f45873b3-b655-43a6-b217-97c00aa0db58 PowerToys CommandNotFound module
+# Import-Module -Name Microsoft.WinGet.CommandNotFound
+#f45873b3-b655-43a6-b217-97c00aa0db58

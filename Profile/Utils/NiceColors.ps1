@@ -39,6 +39,19 @@ function ConvertTo-RGBComponents
         [string]$HexColor
     )
 
+    # Проверка инициализации кеша
+    if (-not $script:ColorSystemConfig) {
+        # Инициализация по умолчанию если ColorSystem не загружен
+        $script:ColorSystemConfig = @{
+            Cache = @{
+                Enabled = $true
+                ColorConversions = @{}
+                FileColors = @{}
+                GradientColors = @{}
+            }
+        }
+    }
+
     # Проверка кеша
     $cacheKey = $HexColor.ToUpper()
     if ($script:ColorSystemConfig.Cache.Enabled -and
@@ -52,7 +65,7 @@ function ConvertTo-RGBComponents
     # Поддержка 3-символьного формата
     if ($hex.Length -eq 3)
     {
-        $hex = ($hex[0] * 2) + ($hex[1] * 2) + ($hex[2] * 2)
+        $hex = "$($hex[0])$($hex[0])$($hex[1])$($hex[1])$($hex[2])$($hex[2])"
     }
 
     # Валидация
@@ -166,29 +179,30 @@ function Get-RGBBackgroundColor
 #endregion
 
 #region Инициализация цветовых палитр
-# Объединяем все цвета
-$allHexColors = $additionalColors + $newHexColors
-$allRgbColors = $colorsRGB
+# Объединяем все цвета (используем глобальные переменные из Colors.ps1)
+if ($global:additionalColors -and $global:newHexColors) {
+    $allHexColors = $global:additionalColors + $global:newHexColors
 
-# Добавляем в глобальную палитру
-foreach ($color in $allHexColors.GetEnumerator())
-{
-    if (-not $global:RGB.ContainsKey($color.Key))
-    {
-        $global:RGB[$color.Key] = ConvertTo-RGBComponents -HexColor $color.Value
+    # Добавляем в глобальную палитру
+    foreach ($color in $allHexColors.GetEnumerator()) {
+        if ($color.Value -is [string] -and -not $global:RGB.ContainsKey($color.Key)) {
+            $global:RGB[$color.Key] = ConvertTo-RGBComponents -HexColor $color.Value
+        }
     }
 }
 
-foreach ($color in $allRgbColors.GetEnumerator())
-{
-    if (-not $global:RGB.ContainsKey($color.Key))
-    {
-        $global:RGB[$color.Key] = $color.Value
+if ($global:colorsRGB) {
+    foreach ($color in $global:colorsRGB.GetEnumerator()) {
+        if (-not $global:RGB.ContainsKey($color.Key)) {
+            $global:RGB[$color.Key] = $color.Value
+        }
     }
 }
 #endregion
-$global:RainbowGradient = $RAINBOWGRADIENT
-$global:RainbowGradientVariant = $RAINBOWGRADIENT2
+
+# Копируем градиенты в глобальную область
+if ($global:RAINBOWGRADIENT) { $global:RainbowGradient = $global:RAINBOWGRADIENT }
+if ($global:RAINBOWGRADIENT2) { $global:RainbowGradientVariant = $global:RAINBOWGRADIENT2 }
 #region Основная функция Write-RGB (улучшенная)
 
 function Write-RGB
@@ -243,6 +257,11 @@ function Write-RGB
     )
 
     begin {
+        # Инициализация глобальной палитры цветов если не существует
+        if (-not $global:RGB) {
+            $global:RGB = @{}
+        }
+
         if (-not (Test-ColorSupport))
         {
             Write-Warning "PSStyle не поддерживается в данной версии PowerShell"
@@ -267,6 +286,10 @@ function Write-RGB
         $fullText = $Text -join ' '
 
         # Обработка параметров совместимости
+        # Ensure $Style is always an array
+        if ($Style -is [string]) {
+            $Style = @($Style)
+        }
 
         if ($Bold -and $Style -notcontains 'Bold')
         {
@@ -303,7 +326,7 @@ function Write-RGB
         {
             $output += $PSStyle.Foreground.$FC
         }
-        elseif ($global:RGB.ContainsKey($FC))
+        elseif ($global:RGB -and $global:RGB.ContainsKey($FC))
         {
             $output += Get-RGBColor $global:RGB[$FC]
         }
@@ -315,7 +338,7 @@ function Write-RGB
         {
             # Пытаемся найти без суффикса RGB
             $baseName = $FC -replace 'RGB$', ''
-            if ( $global:RGB.ContainsKey($baseName))
+            if ($global:RGB -and $global:RGB.ContainsKey($baseName))
             {
                 $output += Get-RGBColor $global:RGB[$baseName]
             }
@@ -333,7 +356,7 @@ function Write-RGB
             {
                 $output += $PSStyle.Background.$BC
             }
-            elseif ($global:RGB.ContainsKey($BC))
+            elseif ($global:RGB -and $global:RGB.ContainsKey($BC))
             {
                 $output += Get-RGBBackgroundColor $global:RGB[$BC]
             }
@@ -375,6 +398,18 @@ function Get-GradientColor
 
         [switch]$UseCache
     )
+
+    # Проверка инициализации конфига
+    if (-not $script:ColorSystemConfig) {
+        $script:ColorSystemConfig = @{
+            Cache = @{
+                Enabled = $true
+                ColorConversions = @{}
+                FileColors = @{}
+                GradientColors = @{}
+            }
+        }
+    }
 
     # Генерация ключа кеша
     if ($UseCache)
@@ -716,15 +751,19 @@ function Write-GradientFull
     }
 
     $length = $elements.Count
+    if ($length -eq 0) { return }
+
+    # Защита от деления на ноль
+    $divisor = [Math]::Max(1, $length - 1)
 
     for ($i = 0; $i -lt $length; $i++) {
-        $r = [int]($R1 + ($R2 - $R1) * $i / ( $length - 1))
-        $g = [int]($G1 + ($G2 - $G1) * $i / ($length - 1))
-        $b = [int]($B1 + ($B2 - $B1) * $i / ( $length - 1))
+        $r = [int]($R1 + ($R2 - $R1) * $i / $divisor)
+        $g = [int]($G1 + ($G2 - $G1) * $i / $divisor)
+        $b = [int]($B1 + ($B2 - $B1) * $i / $divisor)
 
-        $br = [int]($BR1 + ($BR2 - $BR1) * $i / ( $length - 1))
-        $bg = [int]($BG1 + ($BG2 - $BG1) * $i / ( $length - 1))
-        $bb = [int]($BB1 + ($BB2 - $BB1) * $i / ( $length - 1))
+        $br = [int]($BR1 + ($BR2 - $BR1) * $i / $divisor)
+        $bg = [int]($BG1 + ($BG2 - $BG1) * $i / $divisor)
+        $bb = [int]($BB1 + ($BB2 - $BB1) * $i / $divisor)
 
         $ansi = "`e[38;2;${r};${g};${b}m`e[48;2;${br};${bg};${bb}m"
         Write-Host "$ansi$( $elements[$i] )" -NoNewline
@@ -831,7 +870,7 @@ function Get-ConsoleColor
 {
     param([string]$HexColor)
 
-    $rgb = ConvertFrom-HexToRGB $HexColor
+    $rgb = ConvertTo-RGBComponents -HexColor $HexColor
 
     # Простая логика выбора ближайшего консольного цвета
     $colors = @{
@@ -945,21 +984,13 @@ function Test-GradientDemo
 
     $gradientTypes = @("Linear", "Exponential", "Sine", "Cosine")
     $colorPairs = @(
-        @{
-            Start = "#FF0000"; End = "#0000FF"; Name = "Красный → Синий"
-        },
-        @{
-            Start = "#FFFF00"; End = "#FF00FF"; Name = "Желтый → Пурпурный"
-        },
-        @{
-            Start = "#00FF00"; End = "#FF8000"; Name = "Зеленый → Оранжевый"
-        }
-        @{
-            Start = "#00FF00"; End = "#FF8000"; Name = "Зеленый → Оранжевый"
-        }
+        @{ Start = "#FF0000"; End = "#0000FF"; Name = "Красный → Синий" },
+        @{ Start = "#FFFF00"; End = "#FF00FF"; Name = "Желтый → Пурпурный" },
+        @{ Start = "#00FF00"; End = "#FF8000"; Name = "Зеленый → Оранжевый" },
+        @{ Start = "#00FFFF"; End = "#FF0080"; Name = "Голубой → Розовый" }
     )
 
-    foreach ($colorPair in ( $colorPairs | Sort-Object))
+    foreach ($colorPair in $colorPairs)
     {
         Write-GradientText  $colorPair.Name  -StartColor $colorPair.Start -EndColor $colorPair.End
         Write-GradientLine -Length 50 -Char "█" -StartColor $colorPair.Start -EndColor $colorPair.End
@@ -1627,5 +1658,180 @@ function Write-Rainbow
         }
     }
 }
+
+
+function Out-Color {
+    [CmdletBinding()]
+    param(
+        [Parameter(ValueFromPipeline = $true)]
+        $InputObject,
+
+        [switch]$NoHeader,
+        [switch]$Compact,
+        [int]$MaxColumns = 6
+    )
+
+    begin {
+        $items = @()
+
+        $colors = @{
+            Header    = 'Magenta'
+            String    = 'Blue'
+            Number    = 'Yellow'
+            Date      = 'Green'
+            Bool      = 'Red'
+            Null      = 'DarkGray'
+            Path      = 'Blue'
+            Default   = 'White'
+            Arrow     = 'DarkGray'
+            Key       = 'Blue'
+            Value     = 'Yellow'
+        }
+
+        # Пары свойств для компактного вывода (key -> value)
+        $knownPairs = @(
+            @('Name', 'Definition'),      # Get-Alias
+            @('Name', 'Value'),           # Get-Variable, env:
+            @('Key', 'Value'),            # Hashtable
+            @('Name', 'Path'),            # Get-Command
+            @('Alias', 'Command')
+        )
+    }
+
+    process {
+        $items += $InputObject
+    }
+
+    end {
+        if ($items.Count -eq 0) { return }
+
+        $firstItem = $items[0]
+        $allProps = $firstItem.PSObject.Properties |
+            Where-Object { $_.MemberType -match 'Property|NoteProperty|ScriptProperty' } |
+            ForEach-Object { $_.Name }
+
+        # Проверяем, есть ли известная пара для компактного вывода
+        $pairFound = $null
+        foreach ($pair in $knownPairs) {
+            if ($allProps -contains $pair[0] -and $allProps -contains $pair[1]) {
+                $pairFound = $pair
+                break
+            }
+        }
+
+        # Компактный вывод для пар key -> value
+        if ($pairFound -or $Compact) {
+            $keyProp = if ($pairFound) { $pairFound[0] } else { $allProps[0] }
+            $valProp = if ($pairFound) { $pairFound[1] } else { $allProps[1] }
+
+            # Вычисляем ширину для выравнивания
+            $maxKeyLen = ($items | ForEach-Object { "$($_.$keyProp)".Length } | Measure-Object -Maximum).Maximum
+
+            foreach ($item in $items) {
+                $key = "$($item.$keyProp)"
+                $val = "$($item.$valProp)"
+
+                Write-Host $key.PadRight($maxKeyLen + 1) -ForegroundColor $colors.Key -NoNewline
+                Write-Host " -> " -ForegroundColor $colors.Arrow -NoNewline
+                Write-Host $val -ForegroundColor $colors.Value
+            }
+            return
+        }
+
+        # Табличный вывод
+        $props = $allProps | Select-Object -First $MaxColumns
+
+        if (-not $props) {
+            foreach ($item in $items) {
+                $color = Get-ValueColor $item $colors
+                Write-Host $item -ForegroundColor $color
+            }
+            return
+        }
+
+        # Ширина колонок
+        $widths = @{}
+        foreach ($prop in $props) {
+            $maxLen = $prop.Length
+            foreach ($item in $items) {
+                $val = "$($item.$prop)"
+                if ($val.Length -gt $maxLen) { $maxLen = $val.Length }
+            }
+            $widths[$prop] = [Math]::Min($maxLen + 2, 40)
+        }
+
+        # Заголовок
+        if (-not $NoHeader) {
+            foreach ($prop in $props) {
+                Write-Host ($prop.PadRight($widths[$prop])) -ForegroundColor $colors.Header -NoNewline
+            }
+            Write-Host ""
+            foreach ($prop in $props) {
+                Write-Host (("-" * ($widths[$prop] - 1)) + " ") -ForegroundColor DarkGray -NoNewline
+            }
+            Write-Host ""
+        }
+
+        # Данные
+        $rowNum = 0
+        foreach ($item in $items) {
+            foreach ($prop in $props) {
+                $val = $item.$prop
+                $str = if ($null -eq $val) { "<null>" } else { "$val" }
+
+                if ($str.Length -gt $widths[$prop] - 1) {
+                    $str = $str.Substring(0, $widths[$prop] - 4) + "..."
+                }
+                $str = $str.PadRight($widths[$prop])
+
+                $color = Get-ValueColor $val $colors
+                Write-Host $str -ForegroundColor $color -NoNewline
+            }
+            Write-Host ""
+            $rowNum++
+        }
+    }
+}
+
+function Get-ValueColor($val, $colors) {
+    if ($null -eq $val) { return $colors.Null }
+
+    $type = $val.GetType().Name
+
+    switch -Regex ($type) {
+        'Int|Double|Decimal|Float|Long|Short|Byte' { return $colors.Number }
+        'DateTime' { return $colors.Date }
+        'Boolean' { return $colors.Bool }
+        'String' {
+            if ($val -match '^[A-Z]:\\|^/|^~/' ) { return $colors.Path }
+            return $colors.String
+        }
+        default { return $colors.Default }
+    }
+}
+
+Set-Alias -Name oc -Value Out-Color
+
+function Get-ValueColor($val, $colors) {
+    if ($null -eq $val) { return $colors.Null }
+
+    $type = $val.GetType().Name
+
+    switch -Regex ($type) {
+        'Int|Double|Decimal|Float|Long|Short|Byte' { return $colors.Number }
+        'DateTime' { return $colors.Date }
+        'Boolean' { return $colors.Bool }
+        'String' {
+            if ($val -match '^[A-Z]:\\|^/|^~/' ) { return $colors.Path }
+            return $colors.String
+        }
+        default { return $colors.Default }
+    }
+}
+
+# Алиас
+Set-Alias -Name oc -Value Out-Color
+
+
 
 Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))

@@ -1,0 +1,35 @@
+{
+  "theme": "Nord",
+  "rules": [
+    { "name": "CodeFence",     "hex": "#888888", "pattern": "^\\s*```", "priority": 100 },
+    { "name": "SectionBugs",   "hex": "#FF4D4F", "pattern": "^(?i)###\\s*(баги|ошибки|bugs?)\\b", "priority": 90 },
+    { "name": "SectionSmells", "hex": "#FFC53D", "pattern": "^(?i)###\\s*(запахи\\s*кода|code\\s*smells?)\\b", "priority": 90 },
+    { "name": "SectionPerf",   "hex": "#36CFC9", "pattern": "^(?i)###\\s*(риски\\s*производительности|performance)\\b", "priority": 90 },
+    { "name": "SectionSec",    "hex": "#FF4DFF", "pattern": "^(?i)###\\s*(безопасность|security)\\b", "priority": 90 },
+
+    { "name": "H1", "gradient": { "from": "#56CCF2", "to": "#2F80ED", "bold": true }, "pattern": "^#\\s+",   "priority": 80 },
+    { "name": "H2", "gradient": { "from": "#6EE7F9", "to": "#3B82F6", "bold": true }, "pattern": "^##\\s+",  "priority": 75 },
+    { "name": "H3", "rgbName": "Dracula_Purple", "pattern": "^###\\s+", "priority": 70 },
+
+    { "name": "Error",   "hex": "#FF4D4F", "pattern": "(?i)\\b(error|ошибка|failed|exception|fatal)\\b", "priority": 60 },
+    { "name": "Warning", "hex": "#FFC53D", "pattern": "(?i)\\b(warn|warning|предупреждение|замечание|risk|риск)\\b", "priority": 55 },
+    { "name": "Success", "hex": "#4CAF50", "pattern": "(?i)\\b(success|успех|passed|ok|done)\\b", "priority": 50 },
+
+    { "name": "ReactLine",    "hex": "#61DAFB", "pattern": "(?i)\\breact(?:\\.js)?\\b", "priority": 40 },
+    { "name": "ViteLine",     "hex": "#646CFF", "pattern": "(?i)\\bvite\\b", "priority": 40 },
+    { "name": "BunLine",      "hex": "#FBF0DF", "pattern": "(?i)\\bbun(x)?\\b", "priority": 40 },
+    { "name": "TauriLine",    "hex": "#24C8DB", "pattern": "(?i)\\btauri\\b", "priority": 40 },
+    { "name": "RustLine",     "hex": "#DEA584", "pattern": "(?i)\\brust\\b", "priority": 40 },
+
+    { "name": "OrderedList",  "gradient": { "from": "#FFD166", "to": "#99FFFF", "bold": true }, "pattern": "^\\s*\\d+\\.\\s+", "priority": -10 },
+    { "name": "Bullet",       "gradient": { "from": "#FFD199", "to": "#99FFAA", "bold": true }, "pattern": "^\\s*[-*•—]\\s+", "priority": -10 }
+  ],
+
+  "inlineRules": [
+    { "name": "InlineCode", "hex": "#A1A1AA", "bold": true, "pattern": "`[^`\\r\\n]+`" },
+    { "name": "CLI",        "hex": "#22D3EE", "pattern": "(?i)\\b(npm|pnpm|yarn)\\s+((run|exec)\\s+)?[\\w:-]+|\\bbunx?\\b" },
+    { "name": "PerfKW",     "rgbName": "ElectricBlue", "pattern": "(?i)\\b(оптимизац|perf|latency|throughput|re-?render|cache|gc)\\b" },
+    { "name": "SecurityKW", "rgbName": "Cyber_Green",  "pattern": "(?i)\\b(безопасн|security|xss|csrf|ssrf|sqli|rce|authz|authn)\\b" },
+    { "name": "TodoFixme",  "gradient": { "from": "#FFD166", "to": "#EF476F", "bold": true }, "pattern": "(?i)\\b(todo|fixme)\\b" }
+  ]
+}

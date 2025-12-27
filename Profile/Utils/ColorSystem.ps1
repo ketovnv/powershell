@@ -81,7 +81,7 @@ function ConvertTo-RGBComponents {
 
     # Поддержка 3-символьного формата
     if ($hex.Length -eq 3) {
-        $hex = ($hex[0] * 2) + ($hex[1] * 2) + ($hex[2] * 2)
+        $hex = "$($hex[0])$($hex[0])$($hex[1])$($hex[1])$($hex[2])$($hex[2])"
     }
 
     # Валидация

@@ -1,13 +1,13 @@
-"$schema" = "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json"
+# Oh My Posh Theme Configuration
+# Fixed TOML syntax - removed invalid $schema and fixed section structure
+
 final_space = true
 version = 3
-
 
 [var]
 Hello = "hello"
 UpstreamIcon = "world"
 console_title_template = "{{.Folder}}{{if .Root}} :: root{{end}} :: {{.Shell}}"
-
 
 [palette]
 primary-blue = "#0057B7"
@@ -26,7 +26,6 @@ white = "#FFFFFF"
 orange = "#ff7e03"
 yellow = "#FFD700"
 blue = "#1177DD"
-
 
 [secondary_prompt]
 template = '❯❯❯❯❯❯ '
@@ -47,6 +46,7 @@ template = "Debugging "
 type = 'prompt'
 alignment = 'left'
 newline = true
+
 [[blocks.segments]]
 foreground = 'p:yellow'
 template = "\ue0c5"
@@ -94,18 +94,7 @@ style = 'powerline'
 [blocks.segments.properties]
 cache_duration = 'none'
 
-#[[blocks.segments]]
-#template = '🇺🇦'
-#foreground = 'p:primary-blue'
-#type = 'text'
-#style = 'plain'
-
-#[blocks.segments.properties]
-#cache_duration = 'none'
-
-
 [[blocks.segments]]
-#template = ' {{ if gt .Formatted 50 }}🔥{{ else if gt .Value 25 }}⚡{{ else }}❄️{{ end }} CPU: {{ .FormattedMs }}% '
 foreground = 'p:yellow'
 background = 'p:darkblue'
 type = 'executiontime'
@@ -131,6 +120,7 @@ cache_duration = 'none'
 [[blocks]]
 type = 'prompt'
 alignment = 'right'
+
 [[blocks.segments]]
 template = '🌍  {{.IP}}   '
 type = 'ipify'
@@ -144,39 +134,11 @@ http_timeout = 1000
 duration = '2m0s'
 strategy = 'folder'
 
-
-
-# Custom segments using environment variables
-#[[blocks.segments]]
-#template = '{{ .Env.OMP_WEATHER }}'
-#foreground = 'p:yellow'
-#type = 'text'
-#style = 'plain'
-#
-#[[blocks.segments]]
-#template = '{{ .Env.OMP_NETWORK }}'
-#foreground = 'p:green'
-#type = 'text'
-#style = 'plain'
-#
-#[[blocks.segments]]
-#template = '{{ .Env.OMP_SYSTEM_HEALTH }}'
-#foreground = 'p:lightblue'
-#type = 'text'
-#style = 'plain'
-#
-#[[blocks.segments]]
-#template = '{{ .Env.OMP_DISK_USAGE }}'
-#foreground = 'p:orange'
-#type = 'text'
-#style = 'plain'
-
-
-
 [[blocks]]
 type = 'prompt'
 alignment = 'left'
 newline = true
+
 [[blocks.segments]]
 template = '❯❯'
 foreground = 'p:lightblue'
@@ -190,8 +152,6 @@ style = 'powerline'
 type = 'sysinfo'
 
 [[blocks.segments]]
-#powerline_symbol = "  "
-#template = '{{ if .Writable }} ⌨️{{ else }} 🔒{{ end }} ❯❯{{.Path }}'
 template = '{{.Path }}'
 foreground = 'p:lightblue'
 type = 'path'
@@ -200,7 +160,7 @@ style = 'diamond'
 [blocks.segments.properties]
 cache_duration = 'none'
 folder_icon = '📁'
-home_icon = '🏰'
+home_icon = '👑🏰👑'
 max_depth = 3
 mixed_threshold = 8
 style = 'full'
@@ -211,9 +171,9 @@ style = 'full'
 '~\Downloads' = ' ⬇️ '
 'C:\Projects' = ' 🏭 '
 'C:\Projects\crypta' = ' 💲 '
-'C:\Projects\infil-erp' = ' 👑 '
-'C:\Projects\infil-erp\apps\backend' = ' 🏗️ '
-'C:\Projects\apps\frontend' = ' 💎 '
+'C:\Projects\CaaS' = ' ⚗️ '
+'C:\Projects\CaaS\backend' = ' 🏗️ '
+'C:\Projects\CaaS\frontend' = ' 💎 '
 'C:\Projects\crypta\src-tauri' = ' 🦀 '
 
 [[blocks.segments]]
@@ -231,17 +191,11 @@ type = 'sysinfo'
 [blocks.segments.properties]
 cache_duration = 'none'
 
-#[blocks.segments]
-#style = 'powerline'
-#template="{{.Output}}"
-#
-#[blocks.segments.properties]
-#command = "1+1"
-
 [[blocks]]
 type = 'rprompt'
 alignment = 'right'
 newline = false
+
 [[blocks.segments]]
 template = '🕰️ {{ .CurrentDate | date .Format }}'
 foreground = '#FFFFEE'
@@ -252,20 +206,16 @@ style = 'plain'
 cache_duration = 'none'
 time_format = '15:04 '
 
-
 [[blocks.segments]]
 type = "react"
 style = "powerline"
-#powerline_symbol = ""
 background = "p:primary-yellow"
 foreground = "p:primary-blue"
 template = '{{ .Full }}⚛️ '
 
-
 [[blocks.segments]]
 type = "bun"
 style = "powerline"
-#powerline_symbol = ""
 background = "p:primary-blue"
 foreground = "p:primary-yellow"
 template = '{{ if .Error }}{{ .Error }}{{ else }}{{ .Full }}🧄{{ end }}'
@@ -275,10 +225,6 @@ type = 'prompt'
 alignment = 'left'
 newline = true
 segments = []
-
-
-blocks = []
-tooltips_action = "replace"
 
 [[tooltips]]
 type = "git"
@@ -303,15 +249,9 @@ segments = []
 [valid_line]
 background = "transparent"
 foreground = "#ffffff"
-template = "<#e0def4,#286983> </><#286983,transparent></> "
+template = "<#e0def4,#286983> </><#286983,transparent></>"
 
 [error_line]
 background = "transparent"
 foreground = "#ffffff"
-template = "<#eb6f92,#286983> </><#286983,transparent></> "
-
-
-[[error.line]]
-background = 'transparent'
-foreground = 'p:red'
-template = "<#eb6f92,#286983> </><#286983,transparent></> "
+template = "<#eb6f92,#286983> </><#286983,transparent></>"

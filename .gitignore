@@ -1,4 +1,4 @@
-### PowerShell template
+## PowerShell template
 # Exclude packaged modules
 *.zip
 # Exclude .NET assemblies from source
@@ -8,10 +8,12 @@
 /.idea/
 /.vscode/
 /.venv/
+/.zed/
 /.claude/
 /OmpThemes/
 /PowerShell-Docs/
-
+/src/
+/Tests/
 # Help and documentation
 /Help/
 
@@ -44,3 +46,15 @@ omp.json
 # .claude/commands/         # Team slash commands (official Claude Code)
 # .claude/.plans/           # Project documentation (extension-specific)
 node_modules
+/bun.lock
+/Profile/Utils/Test
+/Profile/Utils/Test copy.ps1
+/Profile/Utils/Test-ColorFinal copy.ps1
+/Profile/Utils/Test-ColorFix copy.ps1
+/Profile/Utils/Test-ColorLoad copy.ps1
+/Profile/Utils/Test-ColorSystem copy.ps1
+/Profile/Utils/Test-ConsoleBehavior copy.ps1
+/Profile/Utils/Test-MenuBehavior copy.ps1
+/Profile/Utils/Test-MenuColors copy.ps1
+/Profile/Utils/Test-RGBColors copy.ps1
+/Profile/Utils/TestProfile copy.ps1

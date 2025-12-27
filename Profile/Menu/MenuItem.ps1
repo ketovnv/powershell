@@ -1,4 +1,4 @@
-Trace-ImportProcess  $MyInvocation.MyCommand.Name.trim(".ps1") -start
+Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)) -start
 
 function Show-DevToolsMenu {
     $menuItems = @(
@@ -53,6 +53,8 @@ function Show-DevToolsMenu {
             Set-Location $projectDir
             wrgb "🚀 Запуск Bun dev server..." -FC LimeRGB -newline
             bun run dev
+            Pause
+            Show-DevToolsMenu
         }
         "bun-build" {
             $projectDir = Read-Host "`nВведите путь к проекту (Enter для текущей)"
@@ -104,10 +106,24 @@ function Show-DevToolsMenu {
 # ===== МЕНЮ БАЗ ДАННЫХ =====
 function Show-DatabaseMenu {
     $menuItems = @(
-        @{ Text = "🐘 PostgreSQL управление"; Data = "postgres" },
-        @{ Text = "🦭 MySQL управление"; Data = "mysql" },
-        @{ Text = "🍃 MongoDB управление"; Data = "mongodb" },
-        @{ Text = "🔴 Redis управление"; Data = "redis" },
+        @{ Text = "🐘 PostgreSQL: запуск"; Data = "pg-start" },
+        @{ Text = "🐘 PostgreSQL: остановка"; Data = "pg-stop" },
+        @{ Text = "🐘 PostgreSQL: перезапуск"; Data = "pg-restart" },
+        @{ Text = "🐘 PostgreSQL: статус"; Data = "pg-status" },
+        @{ Text = "🐘 PostgreSQL: запуск службы"; Data = "pg-start-service" },
+        @{ Text = "🐘 PostgreSQL: остановка службы"; Data = "pg-stop-service" },
+        @{ Text = "🐘 PostgreSQL: бэкап"; Data = "pg-backup" },
+        @{ Text = "🐘 PostgreSQL: пользователи"; Data = "pg-users" },
+        @{ Text = "🐘 PostgreSQL: логи"; Data = "pg-logs" },
+        @{ Text = "🔴 Redis: запуск"; Data = "rd-start" },
+        @{ Text = "🔴 Redis: остановка"; Data = "rd-stop" },
+        @{ Text = "🔴 Redis: перезапуск"; Data = "rd-restart" },
+        @{ Text = "🔴 Redis: статус"; Data = "rd-status" },
+        @{ Text = "🔴 Redis: запуск службы"; Data = "rd-start-service" },
+        @{ Text = "🔴 Redis: остановка службы"; Data = "rd-stop-service" },
+        @{ Text = "🔴 Redis: информация"; Data = "rd-info" },
+        @{ Text = "🔴 Redis: логи"; Data = "rd-logs" },
+        @{ Text = "🔴 Redis: очистка кэша"; Data = "rd-clear" },
         @{ Text = "🔙 Назад"; Data = "back" }
     )
 
@@ -117,35 +133,114 @@ function Show-DatabaseMenu {
         GradientType = "Linear"
     }
 
-    $selected = Show-Menu -MenuItems $menuItems -MenuTitle "💾 УПРАВЛЕНИЕ БАЗАМИ ДАННЫХ" -Prompt "Выберите БД" -GradientOptions $gradientOptions
+    $selected = Show-Menu -MenuItems $menuItems -MenuTitle "💾 УПРАВЛЕНИЕ БАЗАМИ ДАННЫХ" -Prompt "Выберите действие" -GradientOptions $gradientOptions
 
     switch ($selected.Data) {
-        "postgres" {
-            wrgb "`n🐘 PostgreSQL операции:" -FC CyanRGB -newline
-            wrgb "1. Запустить сервер: pg_ctl start" -FC White -newline
-            wrgb "2. Остановить сервер: pg_ctl stop" -FC White -newline
-            wrgb "3. Подключиться: psql -U username -d database" -FC White -newline
+        "pg-start" {
+            wrgb "`n🐘 Запуск PostgreSQL..." -FC CyanRGB -newline
+            pg start
             Pause
             Show-DatabaseMenu
         }
-        "mysql" {
-            wrgb "`n🦭 MySQL операции:" -FC YellowRGB -newline
-            wrgb "1. Запустить: net start mysql" -FC White -newline
-            wrgb "2. Подключиться: mysql -u root -p" -FC White -newline
+        "pg-stop" {
+            wrgb "`n🐘 Остановка PostgreSQL..." -FC CyanRGB -newline
+            pg stop
             Pause
             Show-DatabaseMenu
         }
-        "mongodb" {
-            wrgb "`n🍃 MongoDB операции:" -FC LimeRGB -newline
-            wrgb "1. Запустить: mongod" -FC White -newline
-            wrgb "2. Подключиться: mongosh" -FC White -newline
+        "pg-restart" {
+            wrgb "`n🐘 Перезапуск PostgreSQL..." -FC CyanRGB -newline
+            pg restart
             Pause
             Show-DatabaseMenu
         }
-        "redis" {
-            wrgb "`n🔴 Redis операции:" -FC Red -newline
-            wrgb "1. Запустить: redis-server" -FC White -newline
-            wrgb "2. CLI: redis-cli" -FC White -newline
+        "pg-status" {
+            wrgb "`n🐘 Статус PostgreSQL..." -FC CyanRGB -newline
+            pg status
+            Pause
+            Show-DatabaseMenu
+        }
+        "pg-start-service" {
+            wrgb "`n🐘 Запуск службы PostgreSQL..." -FC CyanRGB -newline
+            pg start-service
+            Pause
+            Show-DatabaseMenu
+        }
+        "pg-stop-service" {
+            wrgb "`n🐘 Остановка службы PostgreSQL..." -FC CyanRGB -newline
+            pg stop-service
+            Pause
+            Show-DatabaseMenu
+        }
+        "pg-backup" {
+            wrgb "`n🐘 Создание бэкапа PostgreSQL..." -FC CyanRGB -newline
+            pg backup
+            Pause
+            Show-DatabaseMenu
+        }
+        "pg-users" {
+            wrgb "`n🐘 Просмотр пользователей PostgreSQL..." -FC CyanRGB -newline
+            pg users
+            Pause
+            Show-DatabaseMenu
+        }
+        "pg-logs" {
+            wrgb "`n🐘 Просмотр логов PostgreSQL..." -FC CyanRGB -newline
+            pg logs
+            Pause
+            Show-DatabaseMenu
+        }
+        "rd-start" {
+            wrgb "`n🔴 Запуск Redis..." -FC Red -newline
+            rd start
+            Pause
+            Show-DatabaseMenu
+        }
+        "rd-stop" {
+            wrgb "`n🔴 Остановка Redis..." -FC Red -newline
+            rd stop
+            Pause
+            Show-DatabaseMenu
+        }
+        "rd-restart" {
+            wrgb "`n🔴 Перезапуск Redis..." -FC Red -newline
+            rd restart
+            Pause
+            Show-DatabaseMenu
+        }
+        "rd-status" {
+            wrgb "`n🔴 Статус Redis..." -FC Red -newline
+            rd status
+            Pause
+            Show-DatabaseMenu
+        }
+        "rd-start-service" {
+            wrgb "`n🔴 Запуск службы Redis..." -FC Red -newline
+            rd start-service
+            Pause
+            Show-DatabaseMenu
+        }
+        "rd-stop-service" {
+            wrgb "`n🔴 Остановка службы Redis..." -FC Red -newline
+            rd stop-service
+            Pause
+            Show-DatabaseMenu
+        }
+        "rd-info" {
+            wrgb "`n🔴 Информация о Redis..." -FC Red -newline
+            rd info
+            Pause
+            Show-DatabaseMenu
+        }
+        "rd-logs" {
+            wrgb "`n🔴 Просмотр логов Redis..." -FC Red -newline
+            rd logs
+            Pause
+            Show-DatabaseMenu
+        }
+        "rd-clear" {
+            wrgb "`n🔴 Очистка кэша Redis..." -FC Red -newline
+            rd clear
             Pause
             Show-DatabaseMenu
         }
@@ -313,6 +408,60 @@ function Show-DiskSpaceAnalysis {
             wrgb "$([Math]::Round($_.Used / 1GB, 2)) GB" -FC YellowRGB
             wrgb " | Свободно: " -FC White
             wrgb "$([Math]::Round($_.Free / 1GB, 2)) GB" -FC LimeRGB -newline
+        }
+    }
+}
+
+# ===== МЕНЮ ЦВЕТОВЫХ СХЕМ =====
+function Show-ColorSchemeMenu {
+    $menuItems = @(
+        @{ Text = "🎨 Показать все цвета"; Data = "show-all-colors" },
+        @{ Text = "🌈 Показать градиенты"; Data = "show-gradients" },
+        @{ Text = "🎯 Показать цветовую систему"; Data = "show-color-system" },
+        @{ Text = "🔙 Назад"; Data = "back" }
+    )
+
+    $gradientOptions = @{
+        StartColor = "#FF69B4"
+        EndColor = "#9370DB"
+        GradientType = "Linear"
+    }
+
+    $selected = Show-Menu -MenuItems $menuItems -MenuTitle "🎨 ЦВЕТОВЫЕ СХЕМЫ" -Prompt "Выберите действие" -GradientOptions $gradientOptions
+
+    switch ($selected.Data) {
+        "show-all-colors" {
+            wrgb "`n🎨 Показ всех доступных цветов..." -FC CyanRGB -newline
+            if (Get-Command Show-AllColors -ErrorAction SilentlyContinue) {
+                Show-AllColors
+            } else {
+                wrgb "Функция Show-AllColors не найдена" -FC YellowRGB -newline
+            }
+            Pause
+            Show-ColorSchemeMenu
+        }
+        "show-gradients" {
+            wrgb "`n🌈 Показ градиентов..." -FC CyanRGB -newline
+            if (Get-Command Show-TestGradientFull -ErrorAction SilentlyContinue) {
+                Show-TestGradientFull
+            } else {
+                wrgb "Функция Show-TestGradientFull не найдена" -FC YellowRGB -newline
+            }
+            Pause
+            Show-ColorSchemeMenu
+        }
+        "show-color-system" {
+            wrgb "`n🎯 Показ цветовой системы..." -FC CyanRGB -newline
+            if (Get-Command Show-ColorSystemDemo -ErrorAction SilentlyContinue) {
+                Show-ColorSystemDemo
+            } else {
+                wrgb "Функция Show-ColorSystemDemo не найдена" -FC YellowRGB -newline
+            }
+            Pause
+            Show-ColorSchemeMenu
+        }
+        "back" {
+            Show-PowerShellConfigMenu
         }
     }
 }

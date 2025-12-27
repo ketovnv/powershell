@@ -107,12 +107,9 @@ wezterm.on("update-status", function(window, pane)
             cwd_path = cwd_path:gsub(pattern, icon);
         end;
     end;
-    cwd_path = cwd_path:gsub("*crypta*", "💲");
+    cwd_path = cwd_path:gsub(".*crypta.*", "💲");
     cwd_path = cwd_path:gsub("^%s*(.-)%s*$", "%1");
     local left_status = string.format("💻");
-    local wsl_domains = {
-        { name = "WSL:Ubuntu", distribution = "Ubuntu" }
-    };
     local time = wezterm.strftime("%H:%M");
     local date = wezterm.strftime("%d %B");
     local right_status = string.format("  📅 %s 🕐 %s ", date, time);
@@ -149,7 +146,7 @@ wezterm.on("update-status", function(window, pane)
     }));
 end);
 config.window_frame = {
-    font = require('wezterm').font 'Roboto',
+    font = wezterm.font('Roboto'),
     font_size = 12,
     --  inactive_titlebar_bg = "#353535",
     --  active_titlebar_bg = "#000000",
@@ -213,7 +210,7 @@ config.keys = {
     {
         key = "c",
         mods = "LEADER",
-        action = act.SpawnTab("CurrentPaneDomain")
+        action = act.SpawnTab("CurrentPaneDomain"),
     },
     {
         key = "Enter",
@@ -266,20 +263,26 @@ config.keys = {
         mods = "CTRL",
         action = wezterm.action.SpawnCommandInNewTab({
             args = {
-                "wsl",
-                "-u",
-                "root"
+                "C:\\Program Files\\WSL\\wslg.exe",
+                "-d", "kali-linux",
+                "-u", "root",
+                "--cd", "~",
+                "--",
+                "kitty-wslg"
             }
         })
     },
     {
-        key = "щ",
+        key = "л",
         mods = "CTRL",
         action = wezterm.action.SpawnCommandInNewTab({
             args = {
-                "wsl",
-                "-u",
-                "root"
+                "C:\\Program Files\\WSL\\wslg.exe",
+                "-d", "kali-linux",
+                "-u", "root",
+                "--cd", "~",
+                "--",
+                "kitty-wslg"
             }
         })
     },
@@ -314,7 +317,13 @@ config.keys = {
     {
         key = "u",
         mods = "CTRL",
-        action = prompt_and_new_session("WSL:Ubuntu")
+        action = wezterm.action.SpawnCommandInNewTab({
+            args = {
+                "wsl",
+                "-u",
+                "root"
+            }
+        })
     },
     {
         key = "г",
@@ -429,29 +438,11 @@ config.keys = {
     },
     {
         key = "F10",
-        action = act.ActivateCommandPalette
-    },
-    {
-        key = "F4",
+        mods = "CTRL",
         action = act.ActivateCommandPalette
     },
     {
         key = "0",
-        mods = "CTRL",
-        action = act.ShowDebugOverlay
-    },
-    {
-        key = "щ",
-        mods = "CTRL",
-        action = act.ShowDebugOverlay
-    },
-    {
-        key = "o",
-        mods = "CTRL",
-        action = act.ShowDebugOverlay
-    },
-    {
-        key = "O",
         mods = "CTRL",
         action = act.ShowDebugOverlay
     },
@@ -489,7 +480,7 @@ config.keys = {
     {
         key = "Enter",
         mods = "ALT",
-        action = act.ToggleFullScreen
+        action = wezterm.action.EmitEvent("toggle-full-screen")
     }
 };
 
@@ -508,7 +499,7 @@ config.default_prog = {
     "pwsh.exe",
     "-NoLogo"
 };
-config.default_cwd = "C:/projects/infil-erp";
+config.default_cwd = "C:/projects/CaaS/frontend";
 config.front_end = "WebGpu";
 config.webgpu_power_preference = "HighPerformance";
 config.animation_fps = 144;
@@ -627,32 +618,32 @@ config.colors = {
     -- launcher_label_fg = { Color = '#ffffff' },         -- (*Since: Nightly Builds Only*)
 };
 -- config.window_background_gradient = {
-    -- colors = {
-        -- "#000000",
-        -- "#000000",
-        -- "#000000",
-        -- "#000000",
-        -- "#000000",
-        -- "#000000",
-        -- "#000000",
-        -- "#000000",
-        -- "#000000",
-        -- "#000000",
-        -- "#000000",
-        -- "#000000",
-        -- "#000503",
-        -- "#000504",
-        -- "#000000",
-        -- "#030708",
-        -- "#050607",
-        -- "#000000",
-        -- "#091520",
-        -- "#000305",
-        -- "#000000",
-        -- "#000203",
-        -- "#000305",
-        -- "#000000",
-        -- "#091216"
+-- colors = {
+-- "#000000",
+-- "#000000",
+-- "#000000",
+-- "#000000",
+-- "#000000",
+-- "#000000",
+-- "#000000",
+-- "#000000",
+-- "#000000",
+-- "#000000",
+-- "#000000",
+-- "#000000",
+-- "#000503",
+-- "#000504",
+-- "#000000",
+-- "#030708",
+-- "#050607",
+-- "#000000",
+-- "#091520",
+-- "#000305",
+-- "#000000",
+-- "#000203",
+-- "#000305",
+-- "#000000",
+-- "#091216"
 --     },
 --     orientation = {
 --         Linear = {
@@ -663,7 +654,7 @@ config.colors = {
 --     }
 -- };
 -- config.window_background_opacity = 0.85;
-config.window_background_opacity = 0
+config.window_background_opacity = 0.3
 config.win32_system_backdrop = 'Mica'
 --config.win32_acrylic_accent_color = "#000000";
 config.hide_tab_bar_if_only_one_tab = true;
@@ -733,7 +724,7 @@ config.launch_menu = {
         }
     },
     {
-        label = "🐧 Ubunty Linux",
+        label = "🐧 Ubuntu Linux",
         args = {
             "wsl.exe",
             "-d",
