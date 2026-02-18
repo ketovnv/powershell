@@ -31,47 +31,40 @@ function Start-OmpSegmentUpdater {
     param(
         [int]$IntervalSeconds = 30
     )
-    
+
     # Первоначальное обновление
     Update-OmpEnvironmentVariables
-    
-    # Запускаем фоновое задание для периодического обновления
-    $job = Start-Job -ScriptBlock {
-        param($segmentPath, $interval)
-        
-        # Импортируем сегменты в фоновом задании
-        Get-ChildItem -Path $segmentPath -Filter "*.ps1" -Exclude "SegmentUpdater.ps1" | ForEach-Object {
-            . $_.FullName
+
+    # Используем System.Timers.Timer — колбэк выполняется в текущем процессе,
+    # поэтому изменения $env:OMP_* видны Oh My Posh
+    $timer = [System.Timers.Timer]::new($IntervalSeconds * 1000)
+    $timer.AutoReset = $true
+
+    Register-ObjectEvent -InputObject $timer -EventName Elapsed -Action {
+        try {
+            $env:OMP_WEATHER = Get-WeatherSegment -ErrorAction SilentlyContinue
+            $env:OMP_NETWORK = Get-NetworkSegment -ErrorAction SilentlyContinue
+            $env:OMP_SYSTEM_HEALTH = Get-SystemHealthSegment -ErrorAction SilentlyContinue
+            $env:OMP_DISK_USAGE = Get-DiskUsageSegment -ErrorAction SilentlyContinue
+            $env:OMP_PROCESS_INFO = Get-ProcessInfoSegment -ErrorAction SilentlyContinue
+            $env:OMP_LAST_UPDATE = Get-Date -Format "HH:mm:ss"
         }
-        
-        while ($true) {
-            try {
-                $env:OMP_WEATHER = Get-WeatherSegment -ErrorAction SilentlyContinue
-                $env:OMP_NETWORK = Get-NetworkSegment -ErrorAction SilentlyContinue  
-                $env:OMP_SYSTEM_HEALTH = Get-SystemHealthSegment -ErrorAction SilentlyContinue
-                $env:OMP_DISK_USAGE = Get-DiskUsageSegment -ErrorAction SilentlyContinue
-                $env:OMP_PROCESS_INFO = Get-ProcessInfoSegment -ErrorAction SilentlyContinue
-                $env:OMP_LAST_UPDATE = Get-Date -Format "HH:mm:ss"
-            }
-            catch {
-                # Тихо игнорируем ошибки в фоновом режиме
-            }
-            
-            Start-Sleep -Seconds $interval
+        catch {
+            # Тихо игнорируем ошибки в фоновом режиме
         }
-    } -ArgumentList $segmentPath, $IntervalSeconds
-    
-    # Сохраняем ID задания для возможности остановки
-    $global:OmpUpdaterJob = $job
-    
-    Write-Host "OMP Segment Updater started (Job ID: $($job.Id))" -ForegroundColor Cyan
+    } | Out-Null
+
+    $timer.Start()
+    $global:OmpUpdaterTimer = $timer
+
+    Write-Host "OMP Segment Updater started (Timer interval: ${IntervalSeconds}s)" -ForegroundColor Cyan
 }
 
 function Stop-OmpSegmentUpdater {
-    if ($global:OmpUpdaterJob) {
-        Stop-Job -Job $global:OmpUpdaterJob
-        Remove-Job -Job $global:OmpUpdaterJob
-        $global:OmpUpdaterJob = $null
+    if ($global:OmpUpdaterTimer) {
+        $global:OmpUpdaterTimer.Stop()
+        $global:OmpUpdaterTimer.Dispose()
+        $global:OmpUpdaterTimer = $null
         Write-Host "OMP Segment Updater stopped" -ForegroundColor Yellow
     }
 }
@@ -82,7 +75,5 @@ function Update-NetworkSegment { $env:OMP_NETWORK = Get-NetworkSegment }
 function Update-SystemHealthSegment { $env:OMP_SYSTEM_HEALTH = Get-SystemHealthSegment }
 function Update-DiskUsageSegment { $env:OMP_DISK_USAGE = Get-DiskUsageSegment }
 function Update-ProcessInfoSegment { $env:OMP_PROCESS_INFO = Get-ProcessInfoSegment }
-
-Export-ModuleMember -Function Update-OmpEnvironmentVariables, Start-OmpSegmentUpdater, Stop-OmpSegmentUpdater, Update-WeatherSegment, Update-NetworkSegment, Update-SystemHealthSegment, Update-DiskUsageSegment, Update-ProcessInfoSegment
 
 Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))

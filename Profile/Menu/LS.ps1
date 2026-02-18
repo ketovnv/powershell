@@ -33,13 +33,13 @@ function Get-FormattedFileSize
     {
         # Градиент от желтого к оранжевому
         $k = 0.2
-        $_red = [math]::Round(255 * [math]::Pow($item.Length / 1GB, $k))
+        $_red = [math]::Round(255 * [math]::Pow($Size / 1GB, $k))
         $_blue = (255 - $_red) / 1.33
         $_green = $_blue / 1.5
-        if ($item.Length -lt 99999)
+        if ($Size -lt 99999)
         {
-            $_green = 200 - [math]::Round(255 *  $item.Length / 99999)
-            $_red = [math]::Round(255 *  $item.Length / 220KB)
+            $_green = 200 - [math]::Round(255 * $Size / 99999)
+            $_red = [math]::Round(255 * $Size / 220KB)
         }
         $red = nthp $_red
         $green = nthp $_green
@@ -166,7 +166,7 @@ function Get-FormattedDate
     }
 
     return @{
-        Text = $formatted.trim("  .0")
+        Text = $formatted.Trim()
         Color = $color
     }
 }
@@ -277,8 +277,8 @@ function Show-DirectoryListing
     {
         wrgb "  Директория пуста" -FC DarkGray
         Write-GradientLine -Length 80 -Char "─" `
-            -StartColor $headerGradient.End`
-            -StartColor $headerGradient.Start
+            -StartColor $headerGradient.End `
+            -EndColor $headerGradient.Start
         return
     }
 

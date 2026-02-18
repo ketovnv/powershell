@@ -76,9 +76,9 @@ $scriptsBefore = @(
 #     #    'Utils\ProgressBar'
 #     #    'Rich\RichInit',
 #     #    'Rich\GlobalPython',
-    'Rich\RichColors'
-    # 'Utils\PostgreSQL',
-    # 'Utils\BunCLI'
+    'Rich\RichColors',
+    'Utils\PostgreSQL',
+    'Utils\BunCLI'
 #    'Rich\RichTheme',
 #    'Rich\Rich'
 #    'Rich\files\PythonDiagnostics'

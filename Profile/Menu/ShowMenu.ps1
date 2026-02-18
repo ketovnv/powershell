@@ -155,7 +155,6 @@ function Show-Menu
             }
 
             Write-RGB "" -newline
-            Start-Sleep -Milliseconds 50
         }
 
 
@@ -175,13 +174,11 @@ function Show-Menu
                 Write-RGB "`n✨ " -FC Yellow
                 Write-RGB "Выбрано: " -FC White
                 Write-RGB $MenuItems[$choice - 1].Text -FC NeonMaterial_LightGreen -newline
-                Start-Sleep -Milliseconds 750
                 return $MenuItems[$choice - 1]
             }
         }
 
         Write-RGB "❌ Неверный выбор! Попробуйте снова." -FC Red -newline
-        Start-Sleep -Seconds 1
         #cd -Host
     }
 }
@@ -223,7 +220,7 @@ function Show-RGBProgress
         $percent = [int](($i / $TotalSteps) * 100)
         $filled = [int](($i / $TotalSteps) * 30)
         $empty = 30 - $filled
-        Color
+
         if ($Gradient)
         {
             # Градиентный прогресс бар

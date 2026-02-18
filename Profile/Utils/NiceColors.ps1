@@ -1244,7 +1244,7 @@ function Write-GradientHeader
     # Строка с заголовком
     Write-RGB "║" -FC $BorderColor
     Write-RGB (" " * $Padding)
-    Write-GradientText -Text $Title -StartColor $StartColor -EndColor $EndColor -Style Bold  -CharDelay 10 -NoNewline
+    Write-GradientText -Text $Title -StartColor $StartColor -EndColor $EndColor -Style Bold -NoNewline
     Write-RGB (" " * $Padding)
     Write-RGB "║" -FC $BorderColor -newline
 

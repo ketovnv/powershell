@@ -80,7 +80,7 @@ function ConvertTo-RGBComponents {
 
     # Поддержка 3-символьного формата
     if ($hex.Length -eq 3) {
-        $hex = ($hex[0] * 2) + ($hex[1] * 2) + ($hex[2] * 2)
+        $hex = "$($hex[0])$($hex[0])$($hex[1])$($hex[1])$($hex[2])$($hex[2])"
     }
 
     # Валидация
@@ -596,7 +596,7 @@ function Show-ColorThemes {
         foreach ($colorType in $theme.Keys) {
             $color = $theme[$colorType]
             Write-Host "    ${colorType}: " -NoNewline
-            Write-Host $color -ForegroundColor $color
+            Write-RGB $color -FC $color -newline
         }
         Write-Host ""
     }
@@ -620,7 +620,7 @@ function Test-ColorSystem {
     foreach ($color in $testColors) {
         $rgb = ConvertTo-RGBComponents -HexColor $color
         $hex = ConvertFrom-RGBToHex -R $rgb.R -G $rgb.G -B $rgb.B
-        Write-Host "  $color → RGB($($rgb.R),$($rgb.G),$($rgb.B)) → $hex" -ForegroundColor $color
+        Write-RGB "  $color → RGB($($rgb.R),$($rgb.G),$($rgb.B)) → $hex" -FC $color -newline
     }
 
     # Тест градиентов
@@ -628,7 +628,7 @@ function Test-ColorSystem {
     $gradientText = "ГРАДИЕНТ"
     for ($i = 0; $i -lt $gradientText.Length; $i++) {
         $color = Get-GradientColor -Index $i -TotalItems $gradientText.Length -StartColor "#FF0000" -EndColor "#0000FF"
-        Write-Host $gradientText[$i] -NoNewline -ForegroundColor $color
+        Write-RGB $gradientText[$i] -FC $color
     }
     Write-Host ""
 
