@@ -81,6 +81,7 @@ function Get-ErrorSummary
 
 
 $global:ErrorView = "ConciseView"
+$global:CustomErrorView = "Smart"
 
 function Set-MyErrorView
 {
@@ -279,6 +280,7 @@ function Enable-GlobalErrorHandler
 {
     # Устанавливаем умный обработчик ошибок по умолчанию
     $global:ErrorView = "ConciseView"
+    $global:CustomErrorView = "Smart"
     #    wrgb "✅  Включен глобальный обработчик ошибок: " -FC TealRGB
     #    wrgb  $global:ErrorView -BC GoldRGB -FC BlackRGB -Style Bold -newline
 }
