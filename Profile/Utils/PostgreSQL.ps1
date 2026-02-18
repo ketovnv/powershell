@@ -128,7 +128,7 @@ function Get-PostgreSQLStatus {
 }
 
 function Start-PostgreSQL {
-    wrgbn "`🚀 Запуск PostgreSQL..." -FC "Cyan"
+    wrgbn "🚀 Запуск PostgreSQL..." -FC "Cyan"
 
     & "$PG_BIN\pg_ctl.exe" start -D $PG_DATA
     if ($LASTEXITCODE -eq 0) {

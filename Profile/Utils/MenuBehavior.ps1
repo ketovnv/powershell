@@ -25,7 +25,7 @@ $script:MenuBehaviorConfig = @{
     MenuPatterns = @(
         "*Menu*",
         "Show-*Menu*",
-        "Show-MainMenu",
+        "Show-ModernMainMenu",
         "Show-*Menu",
         "*ShowMenu*",
         "Menu*"
@@ -35,7 +35,7 @@ $script:MenuBehaviorConfig = @{
     MenuReturnFunctions = @(
         "Show-PowerShellConfigMenu",
         "Show-ProfileSettingsMenu",
-        "Show-MainMenu",
+        "Show-ModernMainMenu",
         "Show-ColorSchemeMenu"
     )
 
@@ -208,7 +208,7 @@ function Invoke-MenuAwareAction {
                 $targetMenu = if ($context.MenuFunctions.Count -gt 0) {
                     $context.MenuFunctions[0]
                 } else {
-                    "Show-MainMenu"
+                    "Show-ModernMainMenu"
                 }
             }
 
@@ -221,15 +221,15 @@ function Invoke-MenuAwareAction {
             } else {
                 Write-Host "❌ Меню '$targetMenu' не найдено" -ForegroundColor Red
                 Write-Host "💡 Возврат в главное меню..." -ForegroundColor Yellow
-                if (Get-Command "Show-MainMenu" -ErrorAction SilentlyContinue) {
-                    Show-MainMenu
+                if (Get-Command "Show-ModernMainMenu" -ErrorAction SilentlyContinue) {
+                    Show-ModernMainMenu
                 }
             }
         } else {
             # Завершение в консоли
             Write-Host "`n✅ $SuccessMessage" -ForegroundColor Green
             if (-not $ReturnMenu) {
-                Write-Host "💡 Для возврата в меню используйте Show-MainMenu" -ForegroundColor Cyan
+                Write-Host "💡 Для возврата в меню используйте Show-ModernMainMenu" -ForegroundColor Cyan
             }
         }
     }

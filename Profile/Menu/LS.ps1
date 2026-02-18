@@ -616,4 +616,4 @@ function lsf
     Show-DirectoryListing -Path $Path -Filter $Extension
 }
 
-Trace-ImportProcess  $MyInvocation.MyCommand.Name.trim(".ps1")
+Trace-ImportProcess ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))

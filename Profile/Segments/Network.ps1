@@ -29,6 +29,5 @@ function Get-NetworkSegment {
     }
 }
 
-Export-ModuleMember -Function Get-NetworkSegment
 
 Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))

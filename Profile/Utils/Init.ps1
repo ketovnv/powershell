@@ -95,7 +95,7 @@ $global:scriptsAfter = @(
         'Menu\NetworkSystem',
         'Menu\MenuItem',
         'Menu\AppsBrowsersMenu',
-     'Menu\Welcome'
+     'Menu\Welcome',
     'Menu\ShowMenu',
     'Menu\Weather',
     'Menu\SitesMenu',

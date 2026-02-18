@@ -35,6 +35,5 @@ function Get-SystemHealthSegment {
     }
 }
 
-Export-ModuleMember -Function Get-SystemHealthSegment
 
 Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))

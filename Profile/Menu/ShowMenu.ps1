@@ -245,7 +245,7 @@ function Show-RGBProgress
             $b = 128
 
             $bar = "█" * $filled + "░" * $empty
-            Write-RGB "`r$Activity [$bar] $percent%" -FC $PSStyle.Foreground.FromRgb($r, $g, $b)
+            Write-RGB "`r$Activity [$bar] $percent%" -FC ("{0:X2}{1:X2}{2:X2}" -f [int]$r, [int]$g, [int]$b)
         }
 
         Start-Sleep -Milliseconds 20
@@ -270,10 +270,10 @@ function Show-RGBDemo
 #     Цветовая волна
         Write-RGB "`n🎨 Color Wave:" -FC White -newline
         for ($i = 0; $i -lt 360; $i += 5) {
-            $r = [Math]::Sin($i * [Math]::PI / 180)  + 128
-            $g = [Math]::Sin($i * [Math]::PI / 180)  + 128
-            $b = [Math]::Sin($i  * [Math]::PI / 180)  + 128
-            Write-RGB "█" -FC $PSStyle.Foreground.FromRgb([int]$r, [int]$g, [int]$b)
+            $r = [Math]::Sin($i * [Math]::PI / 180) * 127 + 128
+            $g = [Math]::Sin(($i + 120) * [Math]::PI / 180) * 127 + 128
+            $b = [Math]::Sin(($i + 240) * [Math]::PI / 180) * 127 + 128
+            Write-RGB "█" -FC ("{0:X2}{1:X2}{2:X2}" -f [int]$r, [int]$g, [int]$b)
         }
         wrgb "" -newline
 
@@ -290,7 +290,7 @@ function Show-RGBDemo
 
 #     Неоновые цвета
      Write-RGB "`n✨ Neon Colors:" -FC White -newline
-     $neonColors = @("NeonBlueRGB", "NeonMaterial_LightGreen", "NeonPinkRGB", "NeonRedRGB", "CyanRGB", "MagentaRGB", "YelloWrite-RGB", "OrangeRGB")
+     $neonColors = @("NeonBlueRGB", "NeonMaterial_LightGreen", "NeonPinkRGB", "NeonRedRGB", "CyanRGB", "MagentaRGB", "YellowRGB", "OrangeRGB")
      foreach ($colorName in $neonColors)
      {
          Write-RGB "████ " -FC $colorName
@@ -312,7 +312,7 @@ Show-GradientPalettes
 
      Write-RGB "`nНажмите любую клавишу..." -FC CyanRGB -newline
      $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
-     Show-MainMenu
+     Show-ModernMainMenu
 }
 
 
@@ -418,4 +418,4 @@ if (-not (Get-Command Show-RGBLoader -ErrorAction SilentlyContinue)) { Write-Hos
 if (-not (Get-Command Show-RGBProgress -ErrorAction SilentlyContinue)) { Write-Host 'Show-RGBProgress Error' }
 if (-not (Get-Command Show-RGBDemo -ErrorAction SilentlyContinue)) { Write-Host 'Show-RGBDemo Error' }
 if (-not (Get-Command  Show-MainMenu -ErrorAction SilentlyContinue)) { Write-Host ' Show-MainMenu Error' }
-Trace-ImportProcess  $MyInvocation.MyCommand.Name.trim(".ps1")
+Trace-ImportProcess ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))

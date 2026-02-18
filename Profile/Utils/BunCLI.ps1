@@ -304,12 +304,12 @@ function Add-BunPackage {
     
     Write-ColorOutput "`n📦 Добавление пакета: $PackageName..." "Cyan"
     
-    $args = @($PackageName)
+    $bunArgs = @($PackageName)
     if ($Dev) {
-        $args += "--dev"
+        $bunArgs += "--dev"
     }
-    
-    $result = Invoke-BunCLI "add" $args
+
+    $result = Invoke-BunCLI "add" $bunArgs
     
     if ($result.success) {
         Write-ColorOutput "✓ Пакет добавлен" "Green"

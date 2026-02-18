@@ -26,7 +26,7 @@ function Run-Application {
     if ($selected.Data.Action -eq "browser") {
         Run-Browser
     } elseif ($selected.Data.Action -eq "back") {
-        Show-MainMenu
+        Show-ModernMainMenu
     } else {
         try {
             wrgb "`n🚀 Запускаю " -FC White
@@ -91,4 +91,4 @@ function Run-Browser {
         }
     }
 }
-Trace-ImportProcess  $MyInvocation.MyCommand.Name.trim(".ps1")
+Trace-ImportProcess ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))

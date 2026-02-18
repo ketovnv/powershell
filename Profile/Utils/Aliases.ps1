@@ -437,8 +437,8 @@ function psx
 {
     $selection = Get-Process | ForEach-Object { "{0,6}  {1}" -f $_.Id, $_.ProcessName } | fzf
     if ($selection) {
-        $pid = ($selection -split '\s+', 2)[0].Trim()
-        if ($pid -match '^\d+$') { Stop-Process -Id ([int]$pid) -Force }
+        $processId = ($selection -split '\s+', 2)[0].Trim()
+        if ($processId -match '^\d+$') { Stop-Process -Id ([int]$processId) -Force }
     }
 }
 
@@ -531,7 +531,6 @@ function frn
 }
 
 Set-Alias -Name wrgb -Value Write-RGB -Scope Global -Force
-Set-Alias -Name wrgb -Value Write-RGB -Scope Global -Force
 Set-Alias -Name wgt -Value Write-GradientText -Scope Global -Force
 Set-Alias -Name wrgbl -Value WriteRGBLine -Force
 Set-Alias -Name nthp -Value NumberToHexPair -Force
@@ -605,10 +604,7 @@ Set-Alias -Name hd -Value Show-HelpDiagnosticsMenu
 
 # ===== АЛИАСЫ ДЛЯ ФАЙЛОВЫХ МЕНЕДЖЕРОВ И РЕДАКТОРОВ =====
 Set-Alias -Name monster -Value markdownmonster -ErrorAction SilentlyContinue
-Set-Alias -Name cursor -Value cursor -ErrorAction SilentlyContinue
-Set-Alias -Name deepchat -Value deepchat -ErrorAction SilentlyContinue
 Set-Alias -Name lh -Value lobehub -ErrorAction SilentlyContinue
-Set-Alias -Name alacritty -Value alacritty -ErrorAction SilentlyContinue
 
 # ===== АЛИАСЫ ДЛЯ НОВЫХ КОМАНД =====
 Set-Alias -Name bun-help -Value Show-BunHelp

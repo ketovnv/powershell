@@ -12,7 +12,7 @@ function Get-ErrorDetails
         Activity = $ErrorRecord.CategoryInfo.Activity
         Reason = $ErrorRecord.CategoryInfo.Reason
         TargetName = $ErrorRecord.CategoryInfo.TargetName
-        TargetType = $ErrorRecord.CategoryInfo.TargetTyp
+        TargetType = $ErrorRecord.CategoryInfo.TargetType
         StackTrace = $ErrorRecord.Exception.StackTrace
         InnerException = $ErrorRecord.Exception.InnerException
         TargetObject = $ErrorRecord.TargetObject
@@ -37,9 +37,9 @@ function Get-ErrorDetails
     # Извлекаем имя параметра для ParameterBindingException
 
 
-    if ($info.Message -match "'([^']+)'")
+    if ($details.Message -match "'([^']+)'")
     {
-        $info.HighlightedText = $matches[1]
+        $details.HighlightedText = $matches[1]
     }
 
     $pathFromError = Get-PathFromError $ErrorRecord.Exception.Message
@@ -122,11 +122,6 @@ function Get-ErrorDetails
     }
 
     # === ИЗВЛЕЧЕНИЕ URL ===
-    $urlPattern = '(https?://[^\s"<>]+)'
-    [regex]::Matches($details.Message, $urlPattern) | ForEach-Object {
-        $details.Urls += $_.Value
-    }
-
     $urlPattern = '(https?://[^\s"<>]+)'
     [regex]::Matches($details.Message, $urlPattern) | ForEach-Object {
         $details.Urls += $_.Value

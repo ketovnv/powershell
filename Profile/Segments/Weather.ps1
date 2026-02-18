@@ -34,4 +34,3 @@ function Get-WeatherSegment {
     }
 }
 
-Export-ModuleMember -Function Get-WeatherSegment

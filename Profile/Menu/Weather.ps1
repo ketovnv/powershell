@@ -148,4 +148,4 @@ function Get-CryptoInfo
 
 # Get-CryptoInfo
 # Pogoda
-Trace-ImportProcess  $MyInvocation.MyCommand.Name.trim(".ps1")
+Trace-ImportProcess ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))

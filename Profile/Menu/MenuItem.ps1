@@ -98,7 +98,7 @@ function Show-DevToolsMenu {
             Show-DevToolsMenu
         }
         "back" {
-            Show-MainMenu
+            Show-ModernMainMenu
         }
     }
 }
@@ -299,7 +299,7 @@ function Show-PowerShellConfigMenu {
             Show-PowerShellConfigMenu
         }
         "back" {
-            Show-MainMenu
+            Show-ModernMainMenu
         }
     }
 }
@@ -379,7 +379,7 @@ function Show-CleanupMenu {
             Show-CleanupMenu
         }
         "back" {
-            Show-MainMenu
+            Show-ModernMainMenu
         }
     }
 }
@@ -496,7 +496,7 @@ function proj {
     }
 }
 
-if (-not (Get-Command Show-DevToolsMenu Check-InitScripts -ErrorAction SilentlyContinue)) { wrgb 'Show-DevToolsMenu Error' -FC NeonRedRGB}
-if (-not (Get-Command Show-DatabaseMenu Trace-ImportProcess -ErrorAction SilentlyContinue)) {  wrgb ' Show-DatabaseMenu Error' -FC  NeonRedRGB}
+if (-not (Get-Command Show-DevToolsMenu -ErrorAction SilentlyContinue)) { wrgb 'Show-DevToolsMenu Error' -FC NeonRedRGB }
+if (-not (Get-Command Show-DatabaseMenu -ErrorAction SilentlyContinue)) { wrgb 'Show-DatabaseMenu Error' -FC NeonRedRGB }
 
-Trace-ImportProcess  $MyInvocation.MyCommand.Name.trim(".ps1")
+Trace-ImportProcess ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))

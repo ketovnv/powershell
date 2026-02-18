@@ -116,7 +116,7 @@ Function Switch-KeyboardLayout
 function en
 {
     Switch-KeyboardLayout en-Us
-    wrgb "⌨️ En"  -FC"#1177BB"
+    wrgb "⌨️ En" -FC "#1177BB"
 }
 
 Set-Alias -Name "йй" -Value en

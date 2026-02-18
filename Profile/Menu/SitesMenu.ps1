@@ -142,7 +142,7 @@ function Show-SitesMenu {
             Add-CustomSite
         }
         "back" {
-            Show-MainMenu
+            Show-ModernMainMenu
         }
     }
 }
@@ -295,4 +295,4 @@ if (-not (Get-Command Show-SitesMenu -ErrorAction SilentlyContinue)) {
     wrgb 'Show-SitesMenu Error' -FC NeonRedRGB
 }
 
-Trace-ImportProcess  $MyInvocation.MyCommand.Name.trim(".ps1")
+Trace-ImportProcess ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))

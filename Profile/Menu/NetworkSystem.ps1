@@ -66,7 +66,7 @@ function Show-NetworkMenu {
             Pause
             Show-NetworkMenu
         }
-        "back" { Show-MainMenu }
+        "back" { Show-ModernMainMenu }
     }
 }
 
@@ -382,4 +382,4 @@ function Show-SystemMonitor {
 }
 
 Set-Alias -Name ssm -Value Show-SystemMonitor
-Trace-ImportProcess  $MyInvocation.MyCommand.Name.trim(".ps1")
+Trace-ImportProcess ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))

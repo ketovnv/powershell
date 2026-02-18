@@ -777,12 +777,5 @@ inspect(r'$( $data )', methods=True)
 }
 
 
-$global:data = @{
-    System = "Windows 11"
-    Version = "24H2"
-    CPU = "Intel i7-9700K"
-    RAM = "16GB DDR5"
-}
-
 Set-Alias -Name tpt -Value Test-PygmentsTheme -Force
 Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))

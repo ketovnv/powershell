@@ -1061,7 +1061,7 @@ function Show-Palette
     for ($i = 0; $i -lt $paletteColors.Count; $i++) {
 
         $key = $paletteColors[$i]
-        if ($key -eq 0)
+        if ($i -eq 0)
         {
             $keyPrev = $paletteColors[$paletteColors.Count - 1]
         }
@@ -1810,26 +1810,6 @@ function Get-ValueColor($val, $colors) {
     }
 }
 
-Set-Alias -Name oc -Value Out-Color
-
-function Get-ValueColor($val, $colors) {
-    if ($null -eq $val) { return $colors.Null }
-
-    $type = $val.GetType().Name
-
-    switch -Regex ($type) {
-        'Int|Double|Decimal|Float|Long|Short|Byte' { return $colors.Number }
-        'DateTime' { return $colors.Date }
-        'Boolean' { return $colors.Bool }
-        'String' {
-            if ($val -match '^[A-Z]:\\|^/|^~/' ) { return $colors.Path }
-            return $colors.String
-        }
-        default { return $colors.Default }
-    }
-}
-
-# Алиас
 Set-Alias -Name oc -Value Out-Color
 
 

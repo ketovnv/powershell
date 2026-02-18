@@ -1,13 +1,11 @@
-Trace-ImportProcess  $MyInvocation.MyCommand.Name.trim(".ps1") -start
+Trace-ImportProcess ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)) -start
 # Advanced ErrorView Handler with Templates and Translation
 # Расширенная система перехвата и обработки ошибок с шаблонами и переводом
 
-#errorImports
 . "${global:profilePath}/Error/ExtractErrorDetails.ps1"
 . "${global:profilePath}/Error/SmartError.ps1"
 . "${global:profilePath}/Error/ShowError.ps1"
 
-#endregion
 #region Конфигурация и настройки
 $ErrorViewConfig = @{
     Language = "ru"  # ru, en
@@ -64,8 +62,8 @@ function Get-ErrorSummary
 
     wrgb "По типу исключения:" -FC Material_Orange -newline
     $ErrorsByType | ForEach-Object {
-        wrgb   $_.Name" : " -FC Material_Purple
-        wrgb   $_.Count" " -FC White  -newline
+        wrgb "$($_.Name) : " -FC Material_Purple
+        wrgb "$($_.Count) " -FC White  -newline
     }
 
     # Группируем по категории
@@ -73,16 +71,14 @@ function Get-ErrorSummary
 
     wrgb "`nПо категории:" -FC Material_Orange -newline
     $ErrorsByCategory | ForEach-Object {
-        wrgb   $_.Name" : " -FC Material_Purple
-        wrgb   $_.Count" " -FC White -newline
+        wrgb "$($_.Name) : " -FC Material_Purple
+        wrgb "$($_.Count) " -FC White -newline
     }
 
     wrgb "`nВсего ошибок:  "  -FC "FF0000"
     wrgb $Error.Count -FC "FFFF00" -newline
 }
 
-
-Import-Module ErrorView -Force
 
 $global:ErrorView = "Smart"
 
@@ -351,4 +347,4 @@ function errorMethodsInfo
 }
 
 
-Trace-ImportProcess  $MyInvocation.MyCommand.Name.trim(".ps1")
+Trace-ImportProcess ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))

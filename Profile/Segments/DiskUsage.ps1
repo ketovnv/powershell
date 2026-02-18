@@ -24,6 +24,5 @@ function Get-DiskUsageSegment {
     }
 }
 
-Export-ModuleMember -Function Get-DiskUsageSegment
 
 Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))

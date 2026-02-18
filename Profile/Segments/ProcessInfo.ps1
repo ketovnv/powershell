@@ -27,6 +27,5 @@ function Get-ProcessInfoSegment {
     }
 }
 
-Export-ModuleMember -Function Get-ProcessInfoSegment
 
 Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))
