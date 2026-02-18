@@ -658,6 +658,3 @@ $env:GEMINI_API_KEY='AIzaSyD10YloUN7Et9sOViWgibb48Uy1kHn6iuU'
 $env:ANDROID_HOME = "C:\ProgramData\AndroidSDK"
 $env:ANDROID_SDK_ROOT = "C:\ProgramData\AndroidSDK"
 $env:PATH += ";C:\ProgramData\AndroidSDK\platform-tools;C:\ProgramData\AndroidSDK\emulator"
-$env:NGROK_AUTHTOKEN="2h8PYpHkTcgzbjHFjZ3Ui401pS7_4dzkKCU64kyGk9nKnC6iC"
-$env:TRON_PRIVATE_KEY="09029b9a68d91eafc12723d7406f5aaf477283d88348b551a4b9a589699b9600"
-$env:FIGMA_TOKEN="figd_3cCaphd2DyV72eE2POTdyyHStT9scA7b6zFSBR5F"
