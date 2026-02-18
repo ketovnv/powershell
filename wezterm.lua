@@ -364,6 +364,22 @@ config.keys = {
         action = act.PasteFrom("Clipboard")
     },
     {
+          key = "v",
+          mods = "CTRL|ALT",
+          action = wezterm.action_callback(function(window, pane)
+              local success, stdout, stderr = wezterm.run_child_process({
+                  "powershell", "-NoProfile", "-c",
+                  "Get-ChildItem ~/Pictures/Screenshots | Sort-Object LastWriteTime -Descending | Select-Object -First 1 -ExpandProperty FullName"
+              })
+              if success and stdout then
+                  local path = stdout:gsub("%s+$", "") -- trim \r\n
+                  if path ~= "" then
+                      window:perform_action(wezterm.action.SendString(path), pane)
+                  end
+              end
+          end),
+      },
+    {
         key = "F1",
         action = act.CopyTo("Clipboard")
     },
@@ -499,7 +515,7 @@ config.default_prog = {
     "pwsh.exe",
     "-NoLogo"
 };
-config.default_cwd = "C:/projects/CaaS/frontend";
+config.default_cwd = "C:/projects/CaaS";
 config.front_end = "WebGpu";
 config.webgpu_power_preference = "HighPerformance";
 config.animation_fps = 144;
@@ -566,7 +582,7 @@ config.colors = {
             fg_color = "#FFFFFF"
         }
     },
-    scrollbar_thumb = '#222222',
+    scrollbar_thumb = '#051212',
     -- The color of the split lines between panes
     ansi = {
         'black',
@@ -600,7 +616,7 @@ config.colors = {
     -- In copy_mode, the color of the active text is:
     -- 1. copy_mode_active_highlight_* if additional text was selected using the mouse
     -- 2. selection_* otherwise
-    copy_mode_active_highlight_bg = { Color = '#000000' },
+    copy_mode_active_highlight_bg = { Color = '#151515' },
     -- use `AnsiColor` to specify one of the ansi color palette values
     -- (index 0-15) using one of the names "Black", "Maroon", "Green",
     --  "Olive", "Navy", "Purple", "Teal", "Silver", "Grey", "Red", "Lime",
@@ -609,9 +625,9 @@ config.colors = {
     copy_mode_inactive_highlight_bg = { Color = '#52ad70' },
     copy_mode_inactive_highlight_fg = { AnsiColor = 'White' },
     quick_select_label_bg = { Color = 'peru' },
-    quick_select_label_fg = { Color = '#ffffff' },
+    quick_select_label_fg = { Color = '#bbbbbb' },
     quick_select_match_bg = { AnsiColor = 'Navy' },
-    quick_select_match_fg = { Color = '#ffffff' },
+    quick_select_match_fg = { Color = '#999999' },
     -- input_selector_label_bg = { AnsiColor = 'Black' }, -- (*Since: Nightly Builds Only*)
     -- input_selector_label_fg = { Color = '#ffffff' },   -- (*Since: Nightly Builds Only*)
     -- launcher_label_bg = { AnsiColor = 'Black' },       -- (*Since: Nightly Builds Only*)
