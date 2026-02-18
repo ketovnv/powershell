@@ -18,6 +18,9 @@
 /Help/
 
 
+# Python cache
+__pycache__/
+
 # System files
 desktop.ini
 /ru-RU/
