@@ -1,5 +1,28 @@
 Trace-ImportProcess ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name)) -start
 
+# Helper: запуск приложений — корректно обрабатывает .ps1 скрипты (Start-Process открывает их в VSCode)
+function Start-App {
+    param(
+        [string]$Name,
+        [string[]]$Arguments
+    )
+    $cmd = Get-Command $Name -ErrorAction SilentlyContinue
+    if (-not $cmd) {
+        Write-RGB "❌ Команда '$Name' не найдена" -FC Material_Red -newline
+        return
+    }
+    if ($cmd.CommandType -eq 'ExternalScript') {
+        # .ps1 скрипт — запускаем через pwsh, а не через ShellExecute
+        if ($Arguments) { & $cmd.Source @Arguments } else { & $cmd.Source }
+    } else {
+        if ($Arguments) {
+            Start-Process $cmd.Source -ArgumentList $Arguments -ErrorAction SilentlyContinue
+        } else {
+            Start-Process $cmd.Source -ErrorAction SilentlyContinue
+        }
+    }
+}
+
 # Helper функция для ожидания нажатия клавиши (убирает дублирование кода)
 function Wait-KeyPress {
     param(
@@ -133,13 +156,13 @@ function Show-FileManagerMenu {
 
         switch ($selected.Data) {
             "total-commander" {
-                Start-Process "tc" -ErrorAction SilentlyContinue
+                Start-App "tc"
                 Write-RGB "🚀 Запускаем Total Commander..." -FC Material_Blue -newline
                 Wait-KeyPress
                 continue
             }
             "midnight-commander" {
-                Start-Process "mc" -ErrorAction SilentlyContinue
+                Start-App "mc"
                 Write-RGB "🚀 Запускаем Midnight Commander..." -FC Material_Blue -newline
                 Wait-KeyPress
                 continue
@@ -155,37 +178,37 @@ function Show-FileManagerMenu {
                 continue
             }
             "vscode" {
-                Start-Process "code" -ErrorAction SilentlyContinue
+                Start-App "code"
                 Write-RGB "🚀 Запускаем VS Code..." -FC Material_Blue -newline
                 Wait-KeyPress
                 continue
             }
             "cursor" {
-                Start-Process "cursor" -ErrorAction SilentlyContinue
+                Start-App "cursor"
                 Write-RGB "🚀 Запускаем Cursor..." -FC Material_Blue -newline
                 Wait-KeyPress
                 continue
             }
             "deepchat" {
-                Start-Process "deepchat" -ErrorAction SilentlyContinue
+                Start-App "deepchat"
                 Write-RGB "🚀 Запускаем DeepChat..." -FC Material_Blue -newline
                 Wait-KeyPress
                 continue
             }
             "lobehub" {
-                Start-Process "lobehub" -ErrorAction SilentlyContinue
+                Start-App "lobehub"
                 Write-RGB "🚀 Запускаем LobeHub..." -FC Material_Blue -newline
                 Wait-KeyPress
                 continue
             }
             "rio" {
-                Start-Process "rio" -ErrorAction SilentlyContinue
+                Start-App "rio"
                 Write-RGB "🚀 Запускаем Rio..." -FC Material_Blue -newline
                 Wait-KeyPress
                 continue
             }
             "alacritty" {
-                Start-Process "alacritty" -ErrorAction SilentlyContinue
+                Start-App "alacritty"
                 Write-RGB "🚀 Запускаем Alacritty..." -FC Material_Blue -newline
                 Wait-KeyPress
                 continue
@@ -393,15 +416,15 @@ function Show-QuickLaunchMenu {
 
     switch ($selected.Data) {
         "zed" {
-            Start-Process "zed" -ErrorAction SilentlyContinue
+            Start-App "zed"
             Write-RGB "🚀 Запускаем Zed..." -FC Material_Blue -newline
         }
         "webstorm" {
-            Start-Process "webstorm64" -ErrorAction SilentlyContinue
+            Start-App "webstorm64"
             Write-RGB "🚀 Запускаем WebStorm..." -FC Material_Blue -newline
         }
         "wezterm" {
-            Start-Process "wezterm-gui" -ErrorAction SilentlyContinue
+            Start-App "wezterm-gui"
             Write-RGB "🚀 Запускаем WezTerm..." -FC Material_Blue -newline
         }
         "browser" {

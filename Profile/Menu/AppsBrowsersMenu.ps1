@@ -31,7 +31,7 @@ function Run-Application {
         try {
             wrgb "`n🚀 Запускаю " -FC White
             wrgb $selected.Text -FC NeonMaterial_LightGreen -newline
-            Start-Process $selected.Data.Path -ErrorAction Stop
+            Start-App $selected.Data.Path
             Show-Notification -Title "Приложение запущено" -Message $selected.Text -Type "Success"
         } catch {
             Show-Notification -Title "Ошибка" -Message "Не удалось запустить приложение" -Type "Error"
@@ -80,9 +80,9 @@ function Run-Browser {
             wrgb $selected.Text -FC Ocean1RGB -newline
 
             if ($selected.Args) {
-                Start-Process $selected.Data -ArgumentList $selected.Args -ErrorAction Stop
+                Start-App $selected.Data -Arguments $selected.Args
             } else {
-                Start-Process $selected.Data -ErrorAction Stop
+                Start-App $selected.Data
             }
 
             Show-Notification -Title "Браузер запущен" -Message $selected.Text -Type "Success"
