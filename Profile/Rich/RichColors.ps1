@@ -13,26 +13,27 @@ function grad
         [string]$justify = "center"
     )
 
-    if (-not $FilePath)
-    {
-        # Если файл не указан, показываем пример
-        $py = @"
-# Градиентный текст
-def gradient_text():
-    from rich.text import Text
-    
-    text = Text()
-    colors = ["red", "orange", "yellow", "green", "blue", "purple"]
-    message = "Градиентный текст в Rich!"
-    
-    for i, char in enumerate(message):
-        color = colors[i % len(colors)]
-        text.append(char, style=color)
-    
-    console.print(Panel(text, title="🌈 Gradient Effect"))
+    $safeText = $text.Replace("'", "\\'")
+    $py = @"
+from rich.console import Console
+from rich.color import Color
+from rich.text import Text
 
+console = Console()
+text = '$safeText'
+color1, color2 = '$color1', '$color2'
+length = max(len(text), 1)
+result = Text()
+for i, char in enumerate(text):
+    ratio = i / max(length - 1, 1)
+    r1, g1, b1 = Color.parse(color1).triplet
+    r2, g2, b2 = Color.parse(color2).triplet
+    r = int(r1 + (r2 - r1) * ratio)
+    g = int(g1 + (g2 - g1) * ratio)
+    b = int(b1 + (b2 - b1) * ratio)
+    result.append(char, style=f'#{r:02x}{g:02x}{b:02x}')
+console.print(result, justify='$justify')
 "@
-    }
 
     python -c $py
 }
@@ -48,9 +49,8 @@ function ggrad
 
     $colors = $global:RAINBOWGRADIENT
     $colors_json = $colors| ConvertTo-Json -Compress
-    if (-not $FilePath)
-    {
-        $py = @"
+    $safeText = $text.Replace("'", "\\'")
+    $py = @"
 from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
@@ -59,7 +59,7 @@ import json
 colors_json = '$colors_json'
 gradient_colors = json.loads(colors_json)
 console = Console(width=60)
-#gradient_colors = ["#FF0000", "#FF7F00", "#FFFF00", "#00FF00", "#0000FF", "#4B0082", "#9400D3"]
+
 def gradient_simple(text, colors):
     colored_chars = []
     step = len(colors) / max(len(text), 1)
@@ -82,21 +82,13 @@ def gradient_text(text, color1, color2):
         result += f"[#{r:02x}{g:02x}{b:02x}]{char}[/]"
     return result
 
-title = gradient_text(" Градиентная панель ", "#2288EE", "#fee140")
-content='$text'
+title = gradient_text(" Градиентная панель ", '$color1', '$color2')
+content='$safeText'
 gradient_content = gradient_simple(content, gradient_colors)
 panel = Panel(gradient_content, title=title, expand=True,
 border_style="bold white on #050922")
 console.print(panel)
-console = Console(width=110)
-for i in range(22):
-    ratio = i / 88
-    r = int(50 * (1 - ratio) + 100 * ratio)
-    g = int(100 * (1 - ratio) + 255 * ratio)
-    b = int(200 * (1 - ratio) + 150 * ratio)
-#    console.print(f"[on #{r:02x}{g:02x}{b:02x}]{' ' * 78}[/]")
 "@
-    }
 
     python -c $py
 }
@@ -202,7 +194,7 @@ def build_tree(node, tree):
     elif isinstance(node, (int, float)):
         tree.add(f'[light_cyan1]{node}[/]')
     elif is_hex_color(node):
-        tree.add(f'[#{value[1:]}]{value}[/]')
+        tree.add(f'[#{node[1:]}]{node}[/]')
     else:
         tree.add(f'[info]{node}[/]')
 
@@ -731,40 +723,22 @@ else:
 
 function pexFZF
 {
-    $selectedFile = Get-ChildItem -File -Recurse | Where-Object { $_.Extension -in @('.ps1', '.py', '.js', '.ts', '.json', '.xml', '.html', '.css') } | fzf
+    $selectedPath = Get-ChildItem -File -Recurse | Where-Object { $_.Extension -in @('.ps1', '.py', '.js', '.ts', '.json', '.xml', '.html', '.css') } | ForEach-Object { $_.FullName } | fzf
 
-    if ($selectedFile)
+    if ($selectedPath)
     {
-        $extension = $selectedFile.Extension.TrimStart('.')
+        $extension = [System.IO.Path]::GetExtension($selectedPath).TrimStart('.')
         $language = switch ($extension)
         {
-            'ps1' {
-                'powershell'
-            }
-            'py' {
-                'python'
-            }
-            'js' {
-                'javascript'
-            }
-            'ts' {
-                'typescript'
-            }
-            'json' {
-                'json'
-            }
-            'xml' {
-                'xml'
-            }
-            'html' {
-                'html'
-            }
-            'css' {
-                'css'
-            }
-            default {
-                'text'
-            }
+            'ps1' { 'powershell' }
+            'py' { 'python' }
+            'js' { 'javascript' }
+            'ts' { 'typescript' }
+            'json' { 'json' }
+            'xml' { 'xml' }
+            'html' { 'html' }
+            'css' { 'css' }
+            default { 'text' }
         }
 
         $py = @"
@@ -772,7 +746,7 @@ from rich.console import Console
 from rich.syntax import Syntax
 
 console = Console()
-syntax = Syntax.from_path(r'$( $selectedFile.FullName )', theme="rrt", line_numbers=True, word_wrap=True)
+syntax = Syntax.from_path(r'$selectedPath', theme="rrt", line_numbers=True, word_wrap=True)
 console.print(syntax)
 "@
         python -c $py

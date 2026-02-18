@@ -7,7 +7,7 @@ function ez
 }
 
 
-function gh
+function ghelp
 {
     [CmdletBinding(DefaultParameterSetName = 'AllUsersView', HelpUri = 'https://go.microsoft.com/fwlink/?LinkID=2096483')]
     param(
@@ -388,11 +388,6 @@ function wgsrc
 }
 
 
-function reloadProfile
-{
-    . $PROFILE; wrgb "🔁 Profile was reloaded" -FC "#a0FF99"
-}
-
 function ShowHostColors
 {
     $colors = $Host.PrivateData | Get-Member -MemberType Property | Where-Object { $_.Name -match "color" }
@@ -440,7 +435,11 @@ function pkill
 }
 function psx
 {
-    Get-Process | fzf | ForEach-Object { Stop-Process -Id $_.Id -Force }
+    $selection = Get-Process | ForEach-Object { "{0,6}  {1}" -f $_.Id, $_.ProcessName } | fzf
+    if ($selection) {
+        $pid = ($selection -split '\s+', 2)[0].Trim()
+        if ($pid -match '^\d+$') { Stop-Process -Id ([int]$pid) -Force }
+    }
 }
 
 # ---- НАВИГАЦИЯ ----
@@ -455,17 +454,23 @@ function home
 Set-Alias h home
 function fcd
 {
-    Set-Location (Get-ChildItem -Directory | fzf).FullName
+    $dir = Get-ChildItem -Directory | fzf
+    if ($dir) { Set-Location $dir }
 }
 
 # ---- ПОИСК И ОТКРЫТИЕ ----
 function fe
 {
-    Invoke-Item (fzf)
+    $file = fzf
+    if ($file) { Invoke-Item $file }
 }
 function fhist
 {
-    Get-History | fzf | ForEach-Object { Invoke-Expression $_.CommandLine }
+    $entry = Get-History | ForEach-Object { "{0,5}  {1}" -f $_.Id, $_.CommandLine } | fzf
+    if ($entry) {
+        $id = ($entry -split '\s+', 2)[0].Trim()
+        if ($id -match '^\d+$') { Invoke-Expression (Get-History -Id ([int]$id)).CommandLine }
+    }
 }
 
 # ---- СЕТЬ ----
@@ -507,22 +512,6 @@ function batf
 
 # ---- BTOP ----
 Set-Alias sys btop
-
-# ---- НАВИГАЦИЯ ----
-function fcd
-{
-    Set-Location (Get-ChildItem -Directory | fzf).FullName
-}
-function fe
-{
-    Invoke-Item (fzf)
-}
-
-# ---- ПЕРЕГЛЯД ИСТОРИИ ----
-function fhist
-{
-    Get-History | fzf | ForEach-Object { Invoke-Expression $_.CommandLine }
-}
 
 # ---- ВИДАЛЕННЯ ФАЙЛУ ----
 function frm
@@ -597,7 +586,7 @@ Set-Alias -Name menu -Value Show-ModernMainMenu
 Set-Alias -Name mm -Value Show-ModernMainMenu
 Set-Alias -Name br -Value bunRun
 Set-Alias -Name es -Value Everything64.exe -Force
-Set-Alias -Name dd -Value "./devops dev"
+function dd { ./devops dev @args }
 
 Trace-ImportProcess  ([System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))
 
@@ -609,13 +598,13 @@ Set-Alias -Name nt -Value Show-NetworkToolsMenu
 Set-Alias -Name sm -Value Show-SystemMonitorMenu
 Set-Alias -Name dt -Value Show-DevToolsMenu
 Set-Alias -Name ql -Value Show-QuickLaunchMenu
-Set-Alias -Name ps -Value Show-ProfileSettingsMenu
+Set-Alias -Name prs -Value Show-ProfileSettingsMenu
 Set-Alias -Name cs -Value Show-ColorSystemDemo
 Set-Alias -Name db -Value Show-DatabaseMenu
 Set-Alias -Name hd -Value Show-HelpDiagnosticsMenu
 
 # ===== АЛИАСЫ ДЛЯ ФАЙЛОВЫХ МЕНЕДЖЕРОВ И РЕДАКТОРОВ =====
-Set-Alias -Name monster-Value markdownmonster -ErrorAction SilentlyContinue
+Set-Alias -Name monster -Value markdownmonster -ErrorAction SilentlyContinue
 Set-Alias -Name cursor -Value cursor -ErrorAction SilentlyContinue
 Set-Alias -Name deepchat -Value deepchat -ErrorAction SilentlyContinue
 Set-Alias -Name lh -Value lobehub -ErrorAction SilentlyContinue
@@ -655,7 +644,7 @@ function gF
     if ($scriptPathName)
     {
         $scriptPathName = [System.IO.Path]::GetFileNameWithoutExtension($scriptPathName)
-        $scriptPath = "${global:profilePath}${$scriptPathName}.ps1"
+        $scriptPath = "${global:profilePath}${scriptPathName}.ps1"
         $scriptContent = Get-Content -Path $scriptPath -Raw
         $ast = [System.Management.Automation.Language.Parser]::ParseInput($scriptContent, [ref]$null, [ref]$null)
         $functions = $ast.FindAll({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] }, $true)

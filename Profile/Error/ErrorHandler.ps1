@@ -184,8 +184,6 @@ function ConvertTo-CompactErrorView
 
     $template = Get-ErrorTemplate -ErrorRecord $InputObject
     $translatedMessage = Translate-ErrorMessage -Message $InputObject.Exception.Message -ExceptionType $InputObject.Exception.GetType().Name
-    Test-GradientDemo
-
 
     return "$( $template.Icon ) $translatedMessage"
 }

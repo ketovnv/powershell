@@ -10,9 +10,7 @@
 
 # Определяем, запущен ли PowerShell через внешний процесс (Bun/Node.js)
 $isRedirected = [Console]::IsOutputRedirected -or [Console]::IsInputRedirected
-$isNonInteractive = $env:TERM_PROGRAM -or $MyInvocation.Line -match "pwsh.*-c"
-
-
+$isNonInteractive = $MyInvocation.Line -match "pwsh.*-c"
 
 if ($isRedirected -or $isNonInteractive)
 {
@@ -178,12 +176,11 @@ foreach ($script in  $global:scriptsAfter)
 # . "$HOME\.mcfly.ps1"
 
 # клавиши
-Switch-KeyboardLayout en-Us
 Set-PSReadLineKeyHandler -Key Shift+Enter -Function AddLine
 Set-PSReadLineOption -EditMode Windows
 
 # Загружаем mcfly (после настройки EditMode)
-. "$HOME\.mcfly.ps1"
+if (Test-Path "$HOME\.mcfly.ps1") { . "$HOME\.mcfly.ps1" }
 
 
 
